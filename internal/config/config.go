@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -18,6 +19,18 @@ type Database struct {
 	Password string
 	DBName   string
 	SSLMode  string
+}
+
+func (d *Database) GetDSN() string {
+	return fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		d.User,
+		d.Password,
+		d.Host,
+		d.Port,
+		d.DBName,
+		d.SSLMode,
+	)
 }
 
 func Load() *Config {
