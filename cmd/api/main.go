@@ -14,6 +14,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("database connection failed: %v", err)
 	}
-	log.Println("database connected successfully")
 	defer pool.Close()
+	log.Println("database connected successfully")
+
+	if err := postgres.RunMigrations(cfg); err != nil {
+		log.Fatalf("migrations failed: %v", err)
+	}
+	log.Println("migrations applied successfully")
 }
