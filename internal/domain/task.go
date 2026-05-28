@@ -13,7 +13,7 @@ type Task struct {
 	ColumnID    uuid.UUID
 	AssigneeID  *uuid.UUID
 	Name        string
-	Description string
+	Description *string
 	DueDate     *time.Time
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
