@@ -39,22 +39,7 @@ func (r *UserRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, err
 		WHERE id = $1
 	`
 
-	user := &domain.User{}
-
-	if err := r.pool.QueryRow(ctx, query, id).Scan(
-		&user.ID,
-		&user.Email,
-		&user.HashPassword,
-		&user.CreatedAt,
-		&user.UpdatedAt,
-	); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, domain.ErrNotFound
-		}
-		return nil, err
-	}
-
-	return user, nil
+	return scanUser(r.pool.QueryRow(ctx, query, id))
 }
 
 func (r *UserRepo) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
@@ -64,22 +49,7 @@ func (r *UserRepo) GetByEmail(ctx context.Context, email string) (*domain.User, 
 		WHERE email = $1
 	`
 
-	user := &domain.User{}
-
-	if err := r.pool.QueryRow(ctx, query, email).Scan(
-		&user.ID,
-		&user.Email,
-		&user.HashPassword,
-		&user.CreatedAt,
-		&user.UpdatedAt,
-	); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, domain.ErrNotFound
-		}
-		return nil, err
-	}
-
-	return user, nil
+	return scanUser(r.pool.QueryRow(ctx, query, email))
 }
 
 func (r *UserRepo) Update(ctx context.Context, user *domain.User) error {
@@ -114,4 +84,23 @@ func (r *UserRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func scanUser(row pgx.Row) (*domain.User, error) {
+	user := &domain.User{}
+
+	if err := row.Scan(
+		&user.ID,
+		&user.Email,
+		&user.HashPassword,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, domain.ErrNotFound
+		}
+		return nil, err
+	}
+
+	return user, nil
 }

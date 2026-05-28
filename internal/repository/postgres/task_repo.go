@@ -43,26 +43,7 @@ func (r *TaskRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Task, err
 		WHERE id = $1
 	`
 
-	task := &domain.Task{}
-
-	if err := r.pool.QueryRow(ctx, query, id).Scan(
-		&task.ID,
-		&task.OwnerID,
-		&task.ColumnID,
-		&task.AssigneeID,
-		&task.Name,
-		&task.Description,
-		&task.DueDate,
-		&task.CreatedAt,
-		&task.UpdatedAt,
-	); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, domain.ErrNotFound
-		}
-		return nil, err
-	}
-
-	return task, nil
+	return scanTask(r.pool.QueryRow(ctx, query, id))
 }
 
 func (r *TaskRepo) GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*domain.Task, error) {
@@ -72,37 +53,13 @@ func (r *TaskRepo) GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*dom
 		WHERE owner_id = $1
 	`
 
-	var tasks []*domain.Task
-
 	rows, err := r.pool.Query(ctx, query, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	for rows.Next() {
-		task := &domain.Task{}
-		if err := rows.Scan(
-			&task.ID,
-			&task.OwnerID,
-			&task.ColumnID,
-			&task.AssigneeID,
-			&task.Name,
-			&task.Description,
-			&task.DueDate,
-			&task.CreatedAt,
-			&task.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		tasks = append(tasks, task)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return tasks, nil
+	return scanTasks(rows)
 }
 
 func (r *TaskRepo) GetAllByColumnID(ctx context.Context, columnID uuid.UUID) ([]*domain.Task, error) {
@@ -112,37 +69,13 @@ func (r *TaskRepo) GetAllByColumnID(ctx context.Context, columnID uuid.UUID) ([]
 		WHERE column_id = $1
 	`
 
-	var tasks []*domain.Task
-
 	rows, err := r.pool.Query(ctx, query, columnID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	for rows.Next() {
-		task := &domain.Task{}
-		if err := rows.Scan(
-			&task.ID,
-			&task.OwnerID,
-			&task.ColumnID,
-			&task.AssigneeID,
-			&task.Name,
-			&task.Description,
-			&task.DueDate,
-			&task.CreatedAt,
-			&task.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		tasks = append(tasks, task)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return tasks, nil
+	return scanTasks(rows)
 }
 
 func (r *TaskRepo) GetAllByAssigneeID(ctx context.Context, assigneeID uuid.UUID) ([]*domain.Task, error) {
@@ -152,37 +85,13 @@ func (r *TaskRepo) GetAllByAssigneeID(ctx context.Context, assigneeID uuid.UUID)
 		WHERE assignee_id = $1
 	`
 
-	var tasks []*domain.Task
-
 	rows, err := r.pool.Query(ctx, query, assigneeID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	for rows.Next() {
-		task := &domain.Task{}
-		if err := rows.Scan(
-			&task.ID,
-			&task.OwnerID,
-			&task.ColumnID,
-			&task.AssigneeID,
-			&task.Name,
-			&task.Description,
-			&task.DueDate,
-			&task.CreatedAt,
-			&task.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		tasks = append(tasks, task)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return tasks, nil
+	return scanTasks(rows)
 }
 
 func (r *TaskRepo) Update(ctx context.Context, task *domain.Task) error {
@@ -224,4 +133,55 @@ func (r *TaskRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func scanTask(row pgx.Row) (*domain.Task, error) {
+	task := &domain.Task{}
+
+	if err := row.Scan(
+		&task.ID,
+		&task.OwnerID,
+		&task.ColumnID,
+		&task.AssigneeID,
+		&task.Name,
+		&task.Description,
+		&task.DueDate,
+		&task.CreatedAt,
+		&task.UpdatedAt,
+	); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, domain.ErrNotFound
+		}
+		return nil, err
+	}
+
+	return task, nil
+}
+
+func scanTasks(rows pgx.Rows) ([]*domain.Task, error) {
+	var tasks []*domain.Task
+
+	for rows.Next() {
+		task := &domain.Task{}
+		if err := rows.Scan(
+			&task.ID,
+			&task.OwnerID,
+			&task.ColumnID,
+			&task.AssigneeID,
+			&task.Name,
+			&task.Description,
+			&task.DueDate,
+			&task.CreatedAt,
+			&task.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, task)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
 }
