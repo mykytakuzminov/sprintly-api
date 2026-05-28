@@ -40,23 +40,7 @@ func (r *BoardRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Board, e
 		WHERE id = $1
 	`
 
-	board := &domain.Board{}
-
-	if err := r.pool.QueryRow(ctx, query, id).Scan(
-		&board.ID,
-		&board.OwnerID,
-		&board.Name,
-		&board.Description,
-		&board.CreatedAt,
-		&board.UpdatedAt,
-	); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, domain.ErrNotFound
-		}
-		return nil, err
-	}
-
-	return board, nil
+	return scanBoard(r.pool.QueryRow(ctx, query, id))
 }
 
 func (r *BoardRepo) GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*domain.Board, error) {
@@ -128,4 +112,24 @@ func (r *BoardRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func scanBoard(row pgx.Row) (*domain.Board, error) {
+	board := &domain.Board{}
+
+	if err := row.Scan(
+		&board.ID,
+		&board.OwnerID,
+		&board.Name,
+		&board.Description,
+		&board.CreatedAt,
+		&board.UpdatedAt,
+	); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, domain.ErrNotFound
+		}
+		return nil, err
+	}
+
+	return board, nil
 }

@@ -41,21 +41,7 @@ func (r *ColumnRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Column,
 		WHERE id = $1
 	`
 
-	column := &domain.Column{}
-
-	if err := r.pool.QueryRow(ctx, query, id).Scan(
-		&column.ID,
-		&column.BoardID,
-		&column.Name,
-		&column.Position,
-	); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, domain.ErrNotFound
-		}
-		return nil, err
-	}
-
-	return column, nil
+	return scanColumn(r.pool.QueryRow(ctx, query, id))
 }
 
 func (r *ColumnRepo) GetAllByBoardID(ctx context.Context, boardID uuid.UUID) ([]*domain.Column, error) {
@@ -125,4 +111,22 @@ func (r *ColumnRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func scanColumn(row pgx.Row) (*domain.Column, error) {
+	column := &domain.Column{}
+
+	if err := row.Scan(
+		&column.ID,
+		&column.BoardID,
+		&column.Name,
+		&column.Position,
+	); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, domain.ErrNotFound
+		}
+		return nil, err
+	}
+
+	return column, nil
 }
