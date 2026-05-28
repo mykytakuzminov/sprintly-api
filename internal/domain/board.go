@@ -11,7 +11,7 @@ type Board struct {
 	ID          uuid.UUID
 	OwnerID     uuid.UUID
 	Name        string
-	Description string
+	Description *string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
