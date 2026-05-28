@@ -15,10 +15,26 @@ type User struct {
 	UpdatedAt    time.Time
 }
 
+type RegisterInput struct {
+	Email    string `validate:"required,email,max=254"`
+	Password string `validate:"required,min=8,max=72"`
+}
+
+type ChangePasswordInput struct {
+	OldPassword string `validate:"required,min=8,max=72"`
+	NewPassword string `validate:"required,min=8,max=72"`
+}
+
 type UserRepository interface {
 	Create(ctx context.Context, user *User) error
 	GetByID(ctx context.Context, id uuid.UUID) (*User, error)
 	GetByEmail(ctx context.Context, email string) (*User, error)
 	Update(ctx context.Context, user *User) error
 	Delete(ctx context.Context, id uuid.UUID) error
+}
+
+type UserService interface {
+	Register(ctx context.Context, input *RegisterInput) (*User, error)
+	ChangePassword(ctx context.Context, userID uuid.UUID, input *ChangePasswordInput) error
+	GetByID(ctx context.Context, userID uuid.UUID) (*User, error)
 }
