@@ -10,19 +10,16 @@ import (
 
 type TaskSvc struct {
 	repo       domain.TaskRepository
-	boardRepo  domain.BoardRepository
 	columnRepo domain.ColumnRepository
 	validate   *validator.Validate
 }
 
 func NewTaskService(
 	repo domain.TaskRepository,
-	boardRepo domain.BoardRepository,
 	columnRepo domain.ColumnRepository,
 ) domain.TaskService {
 	return &TaskSvc{
 		repo:       repo,
-		boardRepo:  boardRepo,
 		columnRepo: columnRepo,
 		validate:   validator.New(),
 	}
@@ -37,16 +34,12 @@ func (s *TaskSvc) Create(
 		return nil, err
 	}
 
-	column, err := s.columnRepo.GetByID(ctx, columnID)
+	ownerID, err := s.columnRepo.GetOwnerID(ctx, columnID)
 	if err != nil {
 		return nil, err
 	}
 
-	board, err := s.boardRepo.GetByID(ctx, column.BoardID)
-	if err != nil {
-		return nil, err
-	}
-	if board.OwnerID != userID {
+	if ownerID != userID {
 		return nil, domain.ErrForbidden
 	}
 
@@ -104,30 +97,23 @@ func (s *TaskSvc) Update(
 		return err
 	}
 
-	task, err := s.repo.GetByID(ctx, taskID)
+	ownerID, err := s.repo.GetOwnerID(ctx, taskID)
 	if err != nil {
 		return err
 	}
 
-	column, err := s.columnRepo.GetByID(ctx, task.ColumnID)
-	if err != nil {
-		return err
-	}
-
-	board, err := s.boardRepo.GetByID(ctx, column.BoardID)
-	if err != nil {
-		return err
-	}
-
-	if board.OwnerID != userID && (task.AssigneeID == nil || *task.AssigneeID != userID) {
+	if ownerID != userID {
 		return domain.ErrForbidden
 	}
 
-	task.ColumnID = input.ColumnID
-	task.AssigneeID = input.AssigneeID
-	task.Name = input.Name
-	task.Description = input.Description
-	task.DueDate = input.DueDate
+	task := &domain.Task{
+		ID:          taskID,
+		ColumnID:    input.ColumnID,
+		AssigneeID:  input.AssigneeID,
+		Name:        input.Name,
+		Description: input.Description,
+		DueDate:     input.DueDate,
+	}
 
 	return s.repo.Update(ctx, task)
 }
@@ -136,22 +122,12 @@ func (s *TaskSvc) Delete(
 	ctx context.Context,
 	taskID, userID uuid.UUID,
 ) error {
-	task, err := s.repo.GetByID(ctx, taskID)
+	ownerID, err := s.repo.GetOwnerID(ctx, taskID)
 	if err != nil {
 		return err
 	}
 
-	column, err := s.columnRepo.GetByID(ctx, task.ColumnID)
-	if err != nil {
-		return err
-	}
-
-	board, err := s.boardRepo.GetByID(ctx, column.BoardID)
-	if err != nil {
-		return err
-	}
-
-	if board.OwnerID != userID {
+	if ownerID != userID {
 		return domain.ErrForbidden
 	}
 

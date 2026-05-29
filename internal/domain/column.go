@@ -26,6 +26,7 @@ type UpdateColumnInput struct {
 type ColumnRepository interface {
 	Create(ctx context.Context, column *Column) error
 	GetByID(ctx context.Context, id uuid.UUID) (*Column, error)
+	GetOwnerID(ctx context.Context, id uuid.UUID) (uuid.UUID, error)
 	GetAllByBoardID(ctx context.Context, boardID uuid.UUID) ([]*Column, error)
 	Update(ctx context.Context, column *Column) error
 	Delete(ctx context.Context, id uuid.UUID) error

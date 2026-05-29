@@ -44,6 +44,17 @@ func (r *ColumnRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Column,
 	return scanColumn(r.pool.QueryRow(ctx, query, id))
 }
 
+func (r *ColumnRepo) GetOwnerID(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
+	query := `
+		SELECT boards.owner_id
+		FROM boards
+		INNER JOIN columns ON boards.id = columns.board_id
+		WHERE columns.id = $1
+	`
+
+	return scanOwnerID(r.pool.QueryRow(ctx, query, id))
+}
+
 func (r *ColumnRepo) GetAllByBoardID(ctx context.Context, boardID uuid.UUID) ([]*domain.Column, error) {
 	query := `
 		SELECT id, board_id, name, position
@@ -129,4 +140,17 @@ func scanColumn(row pgx.Row) (*domain.Column, error) {
 	}
 
 	return column, nil
+}
+
+func scanOwnerID(row pgx.Row) (uuid.UUID, error) {
+	var ownerID uuid.UUID
+
+	if err := row.Scan(&ownerID); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return uuid.Nil, domain.ErrNotFound
+		}
+		return uuid.Nil, err
+	}
+
+	return ownerID, nil
 }
