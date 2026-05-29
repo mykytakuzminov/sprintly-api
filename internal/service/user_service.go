@@ -11,19 +11,19 @@ import (
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
 )
 
-type UserService struct {
+type UserSvc struct {
 	repo     domain.UserRepository
 	validate *validator.Validate
 }
 
-func NewUserService(repo domain.UserRepository) *UserService {
-	return &UserService{
+func NewUserService(repo domain.UserRepository) domain.UserService {
+	return &UserSvc{
 		repo:     repo,
 		validate: validator.New(),
 	}
 }
 
-func (s *UserService) Register(
+func (s *UserSvc) Register(
 	ctx context.Context,
 	input *domain.RegisterInput,
 ) (*domain.User, error) {
@@ -31,7 +31,7 @@ func (s *UserService) Register(
 		return nil, err
 	}
 
-	hashPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), 12)
+	hpwd, err := bcrypt.GenerateFromPassword([]byte(input.Password), 12)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func (s *UserService) Register(
 	user := &domain.User{
 		ID:           uuid.New(),
 		Email:        input.Email,
-		HashPassword: string(hashPassword),
+		HashPassword: string(hpwd),
 	}
 
 	_, err = s.repo.GetByEmail(ctx, user.Email)
@@ -57,7 +57,7 @@ func (s *UserService) Register(
 	return user, nil
 }
 
-func (s *UserService) ChangePassword(
+func (s *UserSvc) ChangePassword(
 	ctx context.Context,
 	userID uuid.UUID,
 	input *domain.ChangePasswordInput,
@@ -74,12 +74,12 @@ func (s *UserService) ChangePassword(
 		return domain.ErrForbidden
 	}
 
-	hashPassword, err := bcrypt.GenerateFromPassword([]byte(input.NewPassword), 12)
+	hpwd, err := bcrypt.GenerateFromPassword([]byte(input.NewPassword), 12)
 	if err != nil {
 		return err
 	}
 
-	user.HashPassword = string(hashPassword)
+	user.HashPassword = string(hpwd)
 
 	if err = s.repo.Update(ctx, user); err != nil {
 		return err
@@ -88,6 +88,9 @@ func (s *UserService) ChangePassword(
 	return nil
 }
 
-func (s *UserService) GetByID(ctx context.Context, userID uuid.UUID) (*domain.User, error) {
+func (s *UserSvc) GetByID(
+	ctx context.Context,
+	userID uuid.UUID,
+) (*domain.User, error) {
 	return s.repo.GetByID(ctx, userID)
 }

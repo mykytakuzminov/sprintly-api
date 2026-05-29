@@ -79,22 +79,20 @@ func (s *ColumnSvc) Update(
 		return err
 	}
 
-	column, err := s.repo.GetByID(ctx, columnID)
+	ownerID, err := s.repo.GetOwnerID(ctx, columnID)
 	if err != nil {
 		return err
 	}
 
-	board, err := s.boardRepo.GetByID(ctx, column.BoardID)
-	if err != nil {
-		return err
-	}
-
-	if board.OwnerID != userID {
+	if ownerID != userID {
 		return domain.ErrForbidden
 	}
 
-	column.Name = input.Name
-	column.Position = input.Position
+	column := &domain.Column{
+		ID:       columnID,
+		Name:     input.Name,
+		Position: input.Position,
+	}
 
 	return s.repo.Update(ctx, column)
 }
@@ -103,17 +101,12 @@ func (s *ColumnSvc) Delete(
 	ctx context.Context,
 	columnID, userID uuid.UUID,
 ) error {
-	column, err := s.repo.GetByID(ctx, columnID)
+	ownerID, err := s.repo.GetOwnerID(ctx, columnID)
 	if err != nil {
 		return err
 	}
 
-	board, err := s.boardRepo.GetByID(ctx, column.BoardID)
-	if err != nil {
-		return err
-	}
-
-	if board.OwnerID != userID {
+	if ownerID != userID {
 		return domain.ErrForbidden
 	}
 

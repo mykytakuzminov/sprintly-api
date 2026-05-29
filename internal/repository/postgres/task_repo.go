@@ -46,6 +46,18 @@ func (r *TaskRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Task, err
 	return scanTask(r.pool.QueryRow(ctx, query, id))
 }
 
+func (r *TaskRepo) GetOwnerID(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
+	query := `
+		SELECT boards.owner_id
+		FROM boards
+		INNER JOIN columns ON boards.id = columns.board_id
+		INNER JOIN tasks ON columns.id = tasks.column_id
+		WHERE tasks.id = $1
+	`
+
+	return scanOwnerID(r.pool.QueryRow(ctx, query, id))
+}
+
 func (r *TaskRepo) GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*domain.Task, error) {
 	query := `
 		SELECT id, owner_id, column_id, assignee_id, name, description, due_date, created_at, updated_at

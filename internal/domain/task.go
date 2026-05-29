@@ -37,6 +37,7 @@ type UpdateTaskInput struct {
 type TaskRepository interface {
 	Create(ctx context.Context, task *Task) error
 	GetByID(ctx context.Context, id uuid.UUID) (*Task, error)
+	GetOwnerID(ctx context.Context, id uuid.UUID) (uuid.UUID, error)
 	GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*Task, error)
 	GetAllByColumnID(ctx context.Context, columnID uuid.UUID) ([]*Task, error)
 	GetAllByAssigneeID(ctx context.Context, assigneeID uuid.UUID) ([]*Task, error)
