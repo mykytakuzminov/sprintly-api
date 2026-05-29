@@ -9,10 +9,20 @@ import (
 )
 
 type Config struct {
-	Database *Database
+	Server   *ServerConfig
+	Database *DatabaseConfig
 }
 
-type Database struct {
+type ServerConfig struct {
+	Host string
+	Port string
+}
+
+func (s *ServerConfig) GetAddr() string {
+	return s.Host + ":" + s.Port
+}
+
+type DatabaseConfig struct {
 	Host     string
 	Port     string
 	User     string
@@ -21,7 +31,7 @@ type Database struct {
 	SSLMode  string
 }
 
-func (d *Database) GetDSN() string {
+func (d *DatabaseConfig) GetDSN() string {
 	return fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		d.User,
@@ -39,13 +49,17 @@ func Load() *Config {
 	}
 
 	cfg := &Config{
-		Database: &Database{
+		Database: &DatabaseConfig{
 			Host:     getString("POSTGRES_HOST", "localhost"),
 			Port:     getString("POSTGRES_PORT", "5432"),
 			User:     getString("POSTGRES_USER", "postgres"),
 			Password: getString("POSTGRES_PASSWORD", ""),
 			DBName:   getString("POSTGRES_DB", ""),
 			SSLMode:  getString("POSTGRES_SSLMODE", "disable"),
+		},
+		Server: &ServerConfig{
+			Host: getString("SERVER_HOST", "localhost"),
+			Port: getString("SERVER_PORT", "8080"),
 		},
 	}
 
