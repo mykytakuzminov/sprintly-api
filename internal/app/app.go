@@ -12,8 +12,10 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mykytakuzminov/task-manager-api/internal/config"
+	"github.com/mykytakuzminov/task-manager-api/internal/handler"
 	"github.com/mykytakuzminov/task-manager-api/internal/repository/postgres"
 	"github.com/mykytakuzminov/task-manager-api/internal/server"
+	"github.com/mykytakuzminov/task-manager-api/internal/service"
 )
 
 type App struct {
@@ -37,6 +39,12 @@ func New() *App {
 	log.Println("migrations applied successfully")
 
 	router := chi.NewRouter()
+
+	userRepo := postgres.NewUserRepository(pool)
+	userSvc := service.NewUserService(userRepo)
+	userHandler := handler.NewUserHandler(userSvc)
+
+	router.Mount("/api/v1/users", userHandler.Routes())
 
 	return &App{
 		cfg:    cfg,
