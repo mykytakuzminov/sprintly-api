@@ -18,12 +18,7 @@ func NewAuth(cfg *config.JWTConfig) *Auth {
 }
 
 func (a *Auth) GenerateAccessToken(userID uuid.UUID) (string, error) {
-	accessTTL, err := time.ParseDuration(a.cfg.AccessTTL)
-	if err != nil {
-		return "", err
-	}
-
-	token, err := a.generateJWT(userID, accessTTL)
+	token, err := a.generateJWT(userID, a.cfg.AccessTTL)
 	if err != nil {
 		return "", err
 	}
@@ -32,12 +27,8 @@ func (a *Auth) GenerateAccessToken(userID uuid.UUID) (string, error) {
 }
 
 func (a *Auth) GenerateRefreshToken(userID uuid.UUID) (string, error) {
-	refreshTTL, err := time.ParseDuration(a.cfg.RefreshTTL)
-	if err != nil {
-		return "", err
-	}
 
-	token, err := a.generateJWT(userID, refreshTTL)
+	token, err := a.generateJWT(userID, a.cfg.RefreshTTL)
 	if err != nil {
 		return "", err
 	}

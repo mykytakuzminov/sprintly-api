@@ -14,13 +14,16 @@ import (
 	"github.com/mykytakuzminov/task-manager-api/internal/config"
 	"github.com/mykytakuzminov/task-manager-api/internal/handler"
 	"github.com/mykytakuzminov/task-manager-api/internal/repository/postgres"
+	redistore "github.com/mykytakuzminov/task-manager-api/internal/repository/redis"
 	"github.com/mykytakuzminov/task-manager-api/internal/server"
 	"github.com/mykytakuzminov/task-manager-api/internal/service"
+	goredis "github.com/redis/go-redis/v9"
 )
 
 type App struct {
 	cfg    *config.Config
 	pool   *pgxpool.Pool
+	client *goredis.Client
 	server *server.Server
 }
 
@@ -38,6 +41,12 @@ func New() *App {
 	}
 	log.Println("migrations applied successfully")
 
+	client, err := redistore.NewClient(cfg)
+	if err != nil {
+		log.Fatalf("redis connection failed: %v", err)
+	}
+	log.Println("redis connected successfully")
+
 	router := chi.NewRouter()
 
 	userRepo := postgres.NewUserRepository(pool)
@@ -49,6 +58,7 @@ func New() *App {
 	return &App{
 		cfg:    cfg,
 		pool:   pool,
+		client: client,
 		server: server.New(cfg.Server.GetAddr(), router),
 	}
 }
@@ -73,6 +83,7 @@ func (a *App) Run() error {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		defer a.pool.Close()
+		defer a.client.Close()
 		return a.server.Shutdown(ctx)
 	}
 
