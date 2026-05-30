@@ -11,6 +11,7 @@ import (
 type Config struct {
 	Server   *ServerConfig
 	Database *DatabaseConfig
+	JWT      *JWTConfig
 }
 
 type ServerConfig struct {
@@ -43,6 +44,12 @@ func (d *DatabaseConfig) GetDSN() string {
 	)
 }
 
+type JWTConfig struct {
+	Secret     string
+	AccessTTL  string
+	RefreshTTL string
+}
+
 func Load() *Config {
 	if err := godotenv.Load(); err != nil {
 		log.Println("no .env file, reading from environment")
@@ -61,6 +68,21 @@ func Load() *Config {
 			Host: getString("SERVER_HOST", "localhost"),
 			Port: getString("SERVER_PORT", "8080"),
 		},
+		JWT: &JWTConfig{
+			Secret:     getString("JWT_SECRET", ""),
+			AccessTTL:  getString("JWT_ACCESS_TTL", "15m"),
+			RefreshTTL: getString("JWT_REFRESH_TTL", "168h"),
+		},
+	}
+
+	if cfg.Database.Password == "" {
+		log.Fatal("POSTGRES_PASSWORD is required")
+	}
+	if cfg.Database.DBName == "" {
+		log.Fatal("POSTGRES_DB is required")
+	}
+	if cfg.JWT.Secret == "" {
+		log.Fatal("JWT_SECRET is required")
 	}
 
 	return cfg
