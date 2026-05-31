@@ -8,22 +8,22 @@ import (
 )
 
 type Board struct {
-	ID          uuid.UUID
-	OwnerID     uuid.UUID
-	Name        string
-	Description *string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID          uuid.UUID `json:"id"`
+	OwnerID     uuid.UUID `json:"owner_id"`
+	Name        string    `json:"name"`
+	Description *string   `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type CreateBoardInput struct {
-	Name        string  `validate:"required,max=100"`
-	Description *string `validate:"omitempty,max=500"`
+	Name        string  `json:"name"        validate:"required,max=100"`
+	Description *string `json:"description" validate:"omitempty,max=500"`
 }
 
 type UpdateBoardInput struct {
-	Name        string  `validate:"required,max=100"`
-	Description *string `validate:"omitempty,max=500"`
+	Name        string  `json:"name"        validate:"required,max=100"`
+	Description *string `kson:"description" validate:"omitempty,max=500"`
 }
 
 type BoardRepository interface {
