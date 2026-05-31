@@ -60,8 +60,13 @@ func New() *App {
 	authSvc := service.NewAuthService(userRepo, tokenRepo, auth)
 	authHandler := handler.NewAuthHandler(authSvc)
 
+	boardRepo := postgres.NewBoardRepository(pool)
+	boardSvc := service.NewBoardService(boardRepo)
+	boardHandler := handler.NewBoardHandler(boardSvc, auth)
+
 	router.Mount("/api/v1/users", userHandler.Routes())
 	router.Mount("/api/v1/auth", authHandler.Routes())
+	router.Mount("/api/v1/boards", boardHandler.Routes())
 
 	return &App{
 		cfg:    cfg,
