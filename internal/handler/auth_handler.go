@@ -72,11 +72,3 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 
 	jsonResponse(w, http.StatusOK, toRefreshResponse(token))
 }
-
-type RefreshResponse struct {
-	AccessToken string `json:"access_token"`
-}
-
-func toRefreshResponse(token string) RefreshResponse {
-	return RefreshResponse{AccessToken: token}
-}

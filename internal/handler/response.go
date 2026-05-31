@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -45,4 +46,28 @@ func getUserID(r *http.Request) (uuid.UUID, bool) {
 
 func getURLParam(r *http.Request, key string) (uuid.UUID, error) {
 	return uuid.Parse(chi.URLParam(r, key))
+}
+
+type RefreshResponse struct {
+	AccessToken string `json:"access_token"`
+}
+
+func toRefreshResponse(token string) RefreshResponse {
+	return RefreshResponse{AccessToken: token}
+}
+
+type UserResponse struct {
+	ID        uuid.UUID `json:"id"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+func toUserResponse(user *domain.User) UserResponse {
+	return UserResponse{
+		ID:        user.ID,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
 }
