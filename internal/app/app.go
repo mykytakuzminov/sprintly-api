@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/mykytakuzminov/task-manager-api/internal/auth"
 	"github.com/mykytakuzminov/task-manager-api/internal/config"
 	"github.com/mykytakuzminov/task-manager-api/internal/handler"
 	"github.com/mykytakuzminov/task-manager-api/internal/repository/postgres"
@@ -53,7 +54,14 @@ func New() *App {
 	userSvc := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userSvc)
 
+	auth := auth.NewAuth(cfg.JWT)
+
+	tokenRepo := redistore.NewTokenRepository(client)
+	authSvc := service.NewAuthService(userRepo, tokenRepo, auth)
+	authHandler := handler.NewAuthHandler(authSvc)
+
 	router.Mount("/api/v1/users", userHandler.Routes())
+	router.Mount("/api/v1/auth", authHandler.Routes())
 
 	return &App{
 		cfg:    cfg,
