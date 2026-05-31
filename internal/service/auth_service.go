@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/mykytakuzminov/task-manager-api/internal/auth"
-	"github.com/mykytakuzminov/task-manager-api/internal/config"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -13,20 +12,17 @@ type AuthSvc struct {
 	userRepo  domain.UserRepository
 	tokenRepo domain.TokenRepository
 	auth      *auth.Auth
-	cfg       *config.Config
 }
 
 func NewAuthService(
 	userRepo domain.UserRepository,
 	tokenRepo domain.TokenRepository,
 	auth *auth.Auth,
-	cfg *config.Config,
 ) domain.AuthService {
 	return &AuthSvc{
-		userRepo: userRepo,
+		userRepo:  userRepo,
 		tokenRepo: tokenRepo,
-		auth: auth,
-		cfg: cfg,
+		auth:      auth,
 	}
 }
 
@@ -60,13 +56,13 @@ func (s *AuthSvc) Login(
 		ctx,
 		rtoken,
 		user.ID,
-		s.cfg.JWT.RefreshTTL,
+		s.auth.RefreshTTL(),
 	); err != nil {
 		return nil, err
 	}
 
 	tokens := &domain.AuthTokens{
-		AccessToken: atoken,
+		AccessToken:  atoken,
 		RefreshToken: rtoken,
 	}
 
@@ -75,16 +71,16 @@ func (s *AuthSvc) Login(
 
 func (s *AuthSvc) Logout(
 	ctx context.Context,
-	refreshToken string,
+	input *domain.LogoutInput,
 ) error {
-	return s.tokenRepo.Delete(ctx, refreshToken)
+	return s.tokenRepo.Delete(ctx, input.RefreshToken)
 }
 
 func (s *AuthSvc) Refresh(
 	ctx context.Context,
-	refreshToken string,
+	input *domain.RefreshInput,
 ) (string, error) {
-	userID, err := s.tokenRepo.Get(ctx, refreshToken)
+	userID, err := s.tokenRepo.Get(ctx, input.RefreshToken)
 	if err != nil {
 		return "", domain.ErrUnauthorized
 	}

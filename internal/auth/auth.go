@@ -17,6 +17,10 @@ func NewAuth(cfg *config.JWTConfig) *Auth {
 	return &Auth{cfg: cfg}
 }
 
+func (a *Auth) RefreshTTL() time.Duration {
+	return a.cfg.RefreshTTL
+}
+
 func (a *Auth) GenerateAccessToken(userID uuid.UUID) (string, error) {
 	token, err := a.generateJWT(userID, a.cfg.AccessTTL)
 	if err != nil {
