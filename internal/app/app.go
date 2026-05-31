@@ -48,13 +48,13 @@ func New() *App {
 	}
 	log.Println("redis connected successfully")
 
+	auth := auth.NewAuth(cfg.JWT)
+
 	router := chi.NewRouter()
 
 	userRepo := postgres.NewUserRepository(pool)
 	userSvc := service.NewUserService(userRepo)
-	userHandler := handler.NewUserHandler(userSvc)
-
-	auth := auth.NewAuth(cfg.JWT)
+	userHandler := handler.NewUserHandler(userSvc, auth)
 
 	tokenRepo := redistore.NewTokenRepository(client)
 	authSvc := service.NewAuthService(userRepo, tokenRepo, auth)
