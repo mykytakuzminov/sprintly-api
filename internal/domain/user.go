@@ -16,13 +16,13 @@ type User struct {
 }
 
 type RegisterInput struct {
-	Email    string `validate:"required,email,max=254"`
-	Password string `validate:"required,min=8,max=72"`
+	Email    string `json:"email"    validate:"required,email,max=254"`
+	Password string `json:"password" validate:"required,min=8,max=72"`
 }
 
 type ChangePasswordInput struct {
-	OldPassword string `validate:"required,min=8,max=72"`
-	NewPassword string `validate:"required,min=8,max=72"`
+	OldPassword string `json:"old_password" validate:"required,min=8,max=72"`
+	NewPassword string `json:"new_password" validate:"required,min=8,max=72"`
 }
 
 type UserRepository interface {

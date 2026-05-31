@@ -8,6 +8,8 @@ import (
 	"github.com/mykytakuzminov/task-manager-api/internal/auth"
 )
 
+const UserIDKey = "userID"
+
 func AuthMiddleware(a *auth.Auth) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -23,7 +25,7 @@ func AuthMiddleware(a *auth.Auth) func(http.Handler) http.Handler {
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), "userID", userID)
+			ctx := context.WithValue(r.Context(), UserIDKey, userID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
