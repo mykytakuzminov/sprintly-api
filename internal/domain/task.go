@@ -8,30 +8,30 @@ import (
 )
 
 type Task struct {
-	ID          uuid.UUID
-	OwnerID     uuid.UUID
-	ColumnID    uuid.UUID
-	AssigneeID  *uuid.UUID
-	Name        string
-	Description *string
-	DueDate     *time.Time
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID          uuid.UUID  `json:"id"`
+	OwnerID     uuid.UUID  `json:"owner_id"`
+	ColumnID    uuid.UUID  `json:"column_id"`
+	AssigneeID  *uuid.UUID `json:"assignee_id"`
+	Name        string     `json:"name"`
+	Description *string    `json:"description"`
+	DueDate     *time.Time `json:"due_date"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
 }
 
 type CreateTaskInput struct {
-	AssigneeID  *uuid.UUID `validate:"omitempty"`
-	Name        string     `validate:"required,max=100"`
-	Description *string    `validate:"omitempty,max=500"`
-	DueDate     *time.Time `validate:"omitempty"`
+	AssigneeID  *uuid.UUID `json:"assignee_id" validate:"omitempty"`
+	Name        string     `json:"name" validate:"required,max=100"`
+	Description *string    `json:"description" validate:"omitempty,max=500"`
+	DueDate     *time.Time `json:"due_date" validate:"omitempty"`
 }
 
 type UpdateTaskInput struct {
-	ColumnID    uuid.UUID  `validate:"required"`
-	AssigneeID  *uuid.UUID `validate:"omitempty"`
-	Name        string     `validate:"required,max=100"`
-	Description *string    `validate:"omitempty,max=500"`
-	DueDate     *time.Time `validate:"omitempty"`
+	ColumnID    uuid.UUID  `json:"column_id" validate:"required"`
+	AssigneeID  *uuid.UUID `json:"assignee_id" validate:"omitempty"`
+	Name        string     `json:"name" validate:"required,max=100"`
+	Description *string    `json:"description" validate:"omitempty,max=500"`
+	DueDate     *time.Time `json:"due_date" validate:"omitempty"`
 }
 
 type TaskRepository interface {
