@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
 	"github.com/mykytakuzminov/task-manager-api/internal/auth"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
 	"github.com/mykytakuzminov/task-manager-api/internal/handler/middleware"
@@ -89,7 +88,7 @@ func (h *BoardHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *BoardHandler) Update(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	userID, ok := getUserID(r)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return

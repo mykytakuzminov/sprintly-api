@@ -37,8 +37,8 @@ func (h *TaskHandler) ColumnRoutes() chi.Router {
 
 	r.Use(middleware.AuthMiddleware(h.auth))
 
-	r.Post("/{columnID}/tasks", h.Create)
-	r.Get("/{columnID}/tasks", h.GetAllByColumnID)
+	r.Post("/", h.Create)
+	r.Get("/", h.GetAllByColumnID)
 
 	return r
 }

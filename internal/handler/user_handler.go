@@ -67,7 +67,7 @@ func (h *UserHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusOK, nil)
+	jsonResponse(w, http.StatusNoContent, nil)
 }
 
 func (h *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
