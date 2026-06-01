@@ -19,17 +19,6 @@ func NewColumnHandler(svc domain.ColumnService, auth *auth.Auth) *ColumnHandler 
 	return &ColumnHandler{svc: svc, auth: auth}
 }
 
-func (h *ColumnHandler) BoardRoutes() chi.Router {
-	r := chi.NewRouter()
-
-	r.Use(middleware.AuthMiddleware(h.auth))
-
-	r.Post("/", h.Create)
-	r.Get("/", h.GetAll)
-
-	return r
-}
-
 func (h *ColumnHandler) Routes() chi.Router {
 	r := chi.NewRouter()
 
@@ -38,6 +27,17 @@ func (h *ColumnHandler) Routes() chi.Router {
 	r.Get("/{id}", h.GetByID)
 	r.Patch("/{id}", h.Update)
 	r.Delete("/{id}", h.Delete)
+
+	return r
+}
+
+func (h *ColumnHandler) BoardRoutes() chi.Router {
+	r := chi.NewRouter()
+
+	r.Use(middleware.AuthMiddleware(h.auth))
+
+	r.Post("/", h.Create)
+	r.Get("/", h.GetAll)
 
 	return r
 }
