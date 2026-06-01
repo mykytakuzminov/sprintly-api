@@ -64,9 +64,15 @@ func New() *App {
 	boardSvc := service.NewBoardService(boardRepo)
 	boardHandler := handler.NewBoardHandler(boardSvc, auth)
 
+	columnRepo := postgres.NewColumnRepository(pool)
+	columnSvc := service.NewColumnService(columnRepo, boardRepo)
+	columnHandler := handler.NewColumnHandler(columnSvc, auth)
+
 	router.Mount("/api/v1/users", userHandler.Routes())
 	router.Mount("/api/v1/auth", authHandler.Routes())
 	router.Mount("/api/v1/boards", boardHandler.Routes())
+	router.Mount("/api/v1/boards/{boardID}/columns", columnHandler.BoardRoutes())
+	router.Mount("/api/v1/columns", columnHandler.Routes())
 
 	return &App{
 		cfg:    cfg,
