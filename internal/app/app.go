@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/mykytakuzminov/task-manager-api/docs"
 	"github.com/mykytakuzminov/task-manager-api/internal/auth"
 	"github.com/mykytakuzminov/task-manager-api/internal/config"
 	"github.com/mykytakuzminov/task-manager-api/internal/handler"
@@ -19,6 +20,7 @@ import (
 	"github.com/mykytakuzminov/task-manager-api/internal/server"
 	"github.com/mykytakuzminov/task-manager-api/internal/service"
 	goredis "github.com/redis/go-redis/v9"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type App struct {
@@ -51,6 +53,8 @@ func New() *App {
 	auth := auth.NewAuth(cfg.JWT)
 
 	router := chi.NewRouter()
+
+	router.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	userRepo := postgres.NewUserRepository(pool)
 	userSvc := service.NewUserService(userRepo)

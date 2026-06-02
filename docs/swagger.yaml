@@ -1,0 +1,1050 @@
+basePath: /api/v1
+definitions:
+  domain.AuthTokens:
+    properties:
+      access_token:
+        example: access_token
+        type: string
+      refresh_token:
+        example: refresh_token
+        type: string
+    type: object
+  domain.Board:
+    properties:
+      created_at:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      description:
+        example: Project description
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      name:
+        example: My Project
+        type: string
+      owner_id:
+        example: 550e8400-e29b-41d4-a716-446655440001
+        type: string
+      updated_at:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+    type: object
+  domain.ChangePasswordInput:
+    properties:
+      new_password:
+        example: newpassword123
+        maxLength: 72
+        minLength: 8
+        type: string
+      old_password:
+        example: oldpassword123
+        maxLength: 72
+        minLength: 8
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  domain.Column:
+    properties:
+      board_id:
+        example: 550e8400-e29b-41d4-a716-446655440001
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      name:
+        example: In Progress
+        type: string
+      position:
+        example: 1
+        type: integer
+    type: object
+  domain.CreateBoardInput:
+    properties:
+      description:
+        example: Project description
+        maxLength: 500
+        type: string
+      name:
+        example: My Project
+        maxLength: 100
+        type: string
+    required:
+    - name
+    type: object
+  domain.CreateColumnInput:
+    properties:
+      name:
+        example: In Progress
+        maxLength: 100
+        type: string
+      position:
+        example: 1
+        type: integer
+    required:
+    - name
+    - position
+    type: object
+  domain.CreateTaskInput:
+    properties:
+      assignee_id:
+        example: 550e8400-e29b-41d4-a716-446655440003
+        type: string
+      description:
+        example: Task description
+        maxLength: 500
+        type: string
+      due_date:
+        example: "2024-12-31T00:00:00Z"
+        type: string
+      name:
+        example: Fix login bug
+        maxLength: 100
+        type: string
+    required:
+    - name
+    type: object
+  domain.LoginInput:
+    properties:
+      email:
+        example: john@example.com
+        maxLength: 254
+        type: string
+      password:
+        example: password123
+        maxLength: 72
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  domain.LogoutInput:
+    properties:
+      refresh_token:
+        example: refresh_token
+        type: string
+    required:
+    - refresh_token
+    type: object
+  domain.RefreshInput:
+    properties:
+      refresh_token:
+        example: refresh_token
+        type: string
+    required:
+    - refresh_token
+    type: object
+  domain.RegisterInput:
+    properties:
+      email:
+        example: john@example.com
+        maxLength: 254
+        type: string
+      password:
+        example: password123
+        maxLength: 72
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  domain.Task:
+    properties:
+      assignee_id:
+        example: 550e8400-e29b-41d4-a716-446655440003
+        type: string
+      column_id:
+        example: 550e8400-e29b-41d4-a716-446655440002
+        type: string
+      created_at:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      description:
+        example: Task description
+        type: string
+      due_date:
+        example: "2024-12-31T00:00:00Z"
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      name:
+        example: Fix login bug
+        type: string
+      owner_id:
+        example: 550e8400-e29b-41d4-a716-446655440001
+        type: string
+      updated_at:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+    type: object
+  domain.UpdateBoardInput:
+    properties:
+      description:
+        example: Project description
+        maxLength: 500
+        type: string
+      name:
+        example: My Project
+        maxLength: 100
+        type: string
+    required:
+    - name
+    type: object
+  domain.UpdateColumnInput:
+    properties:
+      name:
+        example: In Progress
+        maxLength: 100
+        type: string
+      position:
+        example: 1
+        type: integer
+    required:
+    - name
+    - position
+    type: object
+  domain.UpdateTaskInput:
+    properties:
+      assignee_id:
+        example: 550e8400-e29b-41d4-a716-446655440003
+        type: string
+      column_id:
+        example: 550e8400-e29b-41d4-a716-446655440002
+        type: string
+      description:
+        example: Task description
+        maxLength: 500
+        type: string
+      due_date:
+        example: "2024-12-31T00:00:00Z"
+        type: string
+      name:
+        example: Fix login bug
+        maxLength: 100
+        type: string
+    required:
+    - column_id
+    - name
+    type: object
+  handler.ErrorResponse:
+    properties:
+      error:
+        example: error description
+        type: string
+    type: object
+  handler.RefreshResponse:
+    properties:
+      access_token:
+        example: access_token
+        type: string
+    type: object
+  handler.UserResponse:
+    properties:
+      created_at:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      email:
+        example: john@example.com
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      updated_at:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    name: Mykyta Kuzminov
+  description: REST API for managing boards, columns and tasks with JWT authentication.
+  title: Task Manager API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user with email and password. Returns a pair of
+        JWT tokens.
+      parameters:
+      - description: Login credentials
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.LoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tokens issued successfully
+          schema:
+            $ref: '#/definitions/domain.AuthTokens'
+        "400":
+          description: Invalid request body
+        "403":
+          description: Wrong password
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Login
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Invalidates the provided refresh token.
+      parameters:
+      - description: Refresh token to revoke
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.LogoutInput'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Logged out successfully
+        "400":
+          description: Invalid request body
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Logout
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Issues a new access token using a valid refresh token stored in
+        Redis.
+      parameters:
+      - description: Refresh token
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.RefreshInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: New access token
+          schema:
+            $ref: '#/definitions/handler.RefreshResponse'
+        "400":
+          description: Invalid request body
+        "401":
+          description: Refresh token not found or expired
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Refresh access token
+      tags:
+      - auth
+  /boards:
+    get:
+      description: Returns all boards owned by the authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of boards
+          schema:
+            items:
+              $ref: '#/definitions/domain.Board'
+            type: array
+        "401":
+          description: Missing or invalid access token
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all boards
+      tags:
+      - boards
+    post:
+      consumes:
+      - application/json
+      description: Creates a new board owned by the authenticated user.
+      parameters:
+      - description: Board data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateBoardInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Board created successfully
+          schema:
+            $ref: '#/definitions/domain.Board'
+        "400":
+          description: Invalid request body or validation error
+        "401":
+          description: Missing or invalid access token
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a board
+      tags:
+      - boards
+  /boards/{boardID}/columns:
+    get:
+      description: Returns all columns belonging to the specified board.
+      parameters:
+      - description: Board ID (UUID)
+        in: path
+        name: boardID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of columns
+          schema:
+            items:
+              $ref: '#/definitions/domain.Column'
+            type: array
+        "400":
+          description: Invalid board ID format
+        "401":
+          description: Missing or invalid access token
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all columns of a board
+      tags:
+      - columns
+    post:
+      consumes:
+      - application/json
+      description: Creates a new column inside a board. Only the board owner can add
+        columns.
+      parameters:
+      - description: Board ID (UUID)
+        in: path
+        name: boardID
+        required: true
+        type: string
+      - description: Column data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateColumnInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Column created successfully
+          schema:
+            $ref: '#/definitions/domain.Column'
+        "400":
+          description: Invalid board ID format, request body, or validation error
+        "401":
+          description: Missing or invalid access token
+        "403":
+          description: Caller is not the board owner
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Board not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a column
+      tags:
+      - columns
+  /boards/{id}:
+    delete:
+      description: Deletes a board by ID. Only the board owner can perform this action.
+      parameters:
+      - description: Board ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Board deleted successfully
+        "400":
+          description: Invalid board ID format
+        "401":
+          description: Missing or invalid access token
+        "403":
+          description: Caller is not the board owner
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Board not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a board
+      tags:
+      - boards
+    get:
+      description: Returns a specific board by its unique identifier.
+      parameters:
+      - description: Board ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Board data
+          schema:
+            $ref: '#/definitions/domain.Board'
+        "400":
+          description: Invalid board ID format
+        "401":
+          description: Missing or invalid access token
+        "404":
+          description: Board not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get board by ID
+      tags:
+      - boards
+    patch:
+      consumes:
+      - application/json
+      description: Updates the name and/or description of a board. Only the board
+        owner can perform this action.
+      parameters:
+      - description: Board ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated board data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateBoardInput'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Board updated successfully
+        "400":
+          description: Invalid board ID format or request body
+        "401":
+          description: Missing or invalid access token
+        "403":
+          description: Caller is not the board owner
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Board not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a board
+      tags:
+      - boards
+  /columns/{columnID}/tasks:
+    get:
+      description: Returns all tasks belonging to the specified column.
+      parameters:
+      - description: Column ID (UUID)
+        in: path
+        name: columnID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of tasks
+          schema:
+            items:
+              $ref: '#/definitions/domain.Task'
+            type: array
+        "400":
+          description: Invalid column ID format
+        "401":
+          description: Missing or invalid access token
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all tasks in a column
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: Creates a new task inside a column. Only the owner of the parent
+        board can create tasks.
+      parameters:
+      - description: Column ID (UUID)
+        in: path
+        name: columnID
+        required: true
+        type: string
+      - description: Task data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateTaskInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Task created successfully
+          schema:
+            $ref: '#/definitions/domain.Task'
+        "400":
+          description: Invalid column ID format, request body, or validation error
+        "401":
+          description: Missing or invalid access token
+        "403":
+          description: Caller is not the board owner
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Column not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a task
+      tags:
+      - tasks
+  /columns/{id}:
+    delete:
+      description: Deletes a column by ID. Only the owner of the parent board can
+        perform this action.
+      parameters:
+      - description: Column ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Column deleted successfully
+        "400":
+          description: Invalid column ID format
+        "401":
+          description: Missing or invalid access token
+        "403":
+          description: Caller is not the board owner
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Column not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a column
+      tags:
+      - columns
+    get:
+      description: Returns a specific column by its unique identifier.
+      parameters:
+      - description: Column ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Column data
+          schema:
+            $ref: '#/definitions/domain.Column'
+        "400":
+          description: Invalid column ID format
+        "401":
+          description: Missing or invalid access token
+        "404":
+          description: Column not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get column by ID
+      tags:
+      - columns
+    patch:
+      consumes:
+      - application/json
+      description: Updates the name and/or position of a column. Only the owner of
+        the parent board can perform this action.
+      parameters:
+      - description: Column ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated column data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateColumnInput'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Column updated successfully
+        "400":
+          description: Invalid column ID format, request body, or validation error
+        "401":
+          description: Missing or invalid access token
+        "403":
+          description: Caller is not the board owner
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Column not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a column
+      tags:
+      - columns
+  /tasks/{id}:
+    delete:
+      description: Deletes a task by ID. Only the task owner (board owner) can perform
+        this action.
+      parameters:
+      - description: Task ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Task deleted successfully
+        "400":
+          description: Invalid task ID format
+        "401":
+          description: Missing or invalid access token
+        "403":
+          description: Caller is not the task owner
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Task not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a task
+      tags:
+      - tasks
+    get:
+      description: Returns a specific task by its unique identifier.
+      parameters:
+      - description: Task ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Task data
+          schema:
+            $ref: '#/definitions/domain.Task'
+        "400":
+          description: Invalid task ID format
+        "401":
+          description: Missing or invalid access token
+        "404":
+          description: Task not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get task by ID
+      tags:
+      - tasks
+    patch:
+      consumes:
+      - application/json
+      description: Updates task fields including column, assignee, name, description
+        and due date.
+      parameters:
+      - description: Task ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated task data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateTaskInput'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Task updated successfully
+        "400":
+          description: Invalid task ID format, request body, or validation error
+        "401":
+          description: Missing or invalid access token
+        "403":
+          description: Caller is not the task owner
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Task not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a task
+      tags:
+      - tasks
+  /users/me:
+    get:
+      description: Returns the profile of the currently authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Current user data
+          schema:
+            $ref: '#/definitions/handler.UserResponse'
+        "401":
+          description: Missing or invalid access token
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user
+      tags:
+      - users
+  /users/me/password:
+    patch:
+      consumes:
+      - application/json
+      description: Changes the password of the currently authenticated user. Requires
+        the current password for verification.
+      parameters:
+      - description: Old and new passwords
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.ChangePasswordInput'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Password changed successfully
+        "400":
+          description: Invalid request body or validation error
+        "401":
+          description: Missing or invalid access token
+        "403":
+          description: Old password is incorrect
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Change password
+      tags:
+      - users
+  /users/me/tasks:
+    get:
+      description: Returns all tasks where owner_id matches the authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of tasks
+          schema:
+            items:
+              $ref: '#/definitions/domain.Task'
+            type: array
+        "401":
+          description: Missing or invalid access token
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all tasks created by current user
+      tags:
+      - tasks
+  /users/me/tasks/assigned:
+    get:
+      description: Returns all tasks where assignee_id matches the authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of assigned tasks
+          schema:
+            items:
+              $ref: '#/definitions/domain.Task'
+            type: array
+        "401":
+          description: Missing or invalid access token
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all tasks assigned to current user
+      tags:
+      - tasks
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account. Email must be unique.
+      parameters:
+      - description: Registration data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.RegisterInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully
+          schema:
+            $ref: '#/definitions/handler.UserResponse'
+        "400":
+          description: Invalid request body or validation error
+        "409":
+          description: Email already in use
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

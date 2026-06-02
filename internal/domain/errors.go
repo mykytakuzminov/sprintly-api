@@ -3,8 +3,8 @@ package domain
 import "errors"
 
 var (
-	ErrNotFound     = errors.New("not found")
-	ErrForbidden    = errors.New("forbidden")
-	ErrConflict     = errors.New("conflict")
-	ErrUnauthorized = errors.New("unauthorized")
+	ErrNotFound     = errors.New("resource not found")
+	ErrForbidden    = errors.New("access denied")
+	ErrConflict     = errors.New("resource already exists")
+	ErrUnauthorized = errors.New("missing or invalid token")
 )
