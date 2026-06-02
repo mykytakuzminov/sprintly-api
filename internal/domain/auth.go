@@ -3,21 +3,21 @@ package domain
 import "context"
 
 type AuthTokens struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	AccessToken  string `json:"access_token"  example:"access_token"`
+	RefreshToken string `json:"refresh_token" example:"refresh_token"`
 }
 
 type LoginInput struct {
-	Email    string `json:"email"    validate:"required,email,max=254"`
-	Password string `json:"password" validate:"required,min=8,max=72"`
+	Email    string `json:"email"    validate:"required,email,max=254" example:"john@example.com"`
+	Password string `json:"password" validate:"required,min=8,max=72"  example:"password123"`
 }
 
 type LogoutInput struct {
-	RefreshToken string `json:"refresh_token" validate:"required"`
+	RefreshToken string `json:"refresh_token" validate:"required" example:"refresh_token"`
 }
 
 type RefreshInput struct {
-	RefreshToken string `json:"refresh_token" validate:"required"`
+	RefreshToken string `json:"refresh_token" validate:"required" example:"refresh_token"`
 }
 
 type AuthService interface {

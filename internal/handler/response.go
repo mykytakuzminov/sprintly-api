@@ -49,7 +49,7 @@ func getURLParam(r *http.Request, key string) (uuid.UUID, error) {
 }
 
 type RefreshResponse struct {
-	AccessToken string `json:"access_token"`
+	AccessToken string `json:"access_token" example:"access_token"`
 }
 
 func toRefreshResponse(token string) RefreshResponse {
@@ -57,10 +57,10 @@ func toRefreshResponse(token string) RefreshResponse {
 }
 
 type UserResponse struct {
-	ID        uuid.UUID `json:"id"`
-	Email     string    `json:"email"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uuid.UUID `json:"id"         example:"550e8400-e29b-41d4-a716-446655440000"`
+	Email     string    `json:"email"      example:"john@example.com"`
+	CreatedAt time.Time `json:"created_at" example:"2024-01-01T00:00:00Z"`
+	UpdatedAt time.Time `json:"updated_at" example:"2024-01-01T00:00:00Z"`
 }
 
 func toUserResponse(user *domain.User) UserResponse {
@@ -70,4 +70,8 @@ func toUserResponse(user *domain.User) UserResponse {
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}
+}
+
+type ErrorResponse struct {
+	Error string `json:"error" example:"error description"`
 }

@@ -7,20 +7,20 @@ import (
 )
 
 type Column struct {
-	ID       uuid.UUID `json:"id"`
-	BoardID  uuid.UUID `json:"board_id"`
-	Name     string    `json:"name"`
-	Position uint      `json:"position"`
+	ID       uuid.UUID `json:"id"       example:"550e8400-e29b-41d4-a716-446655440000"`
+	BoardID  uuid.UUID `json:"board_id" example:"550e8400-e29b-41d4-a716-446655440001"`
+	Name     string    `json:"name"     example:"In Progress"`
+	Position uint      `json:"position" example:"1"`
 }
 
 type CreateColumnInput struct {
-	Name     string `json:"name" validate:"required,max=100"`
-	Position uint   `json:"position" validate:"required"`
+	Name     string `json:"name"     validate:"required,max=100" example:"In Progress"`
+	Position uint   `json:"position" validate:"required"         example:"1"`
 }
 
 type UpdateColumnInput struct {
-	Name     string `json:"name" validate:"required,max=100"`
-	Position uint   `json:"position" validate:"required"`
+	Name     string `json:"name"     validate:"required,max=100" example:"In Progress"`
+	Position uint   `json:"position" validate:"required"         example:"1"`
 }
 
 type ColumnRepository interface {
