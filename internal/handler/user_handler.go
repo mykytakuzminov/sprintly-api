@@ -36,7 +36,7 @@ func (h *UserHandler) Routes() chi.Router {
 func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var input domain.RegisterInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -46,19 +46,19 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusCreated, toUserResponse(user))
+	successResponse(w, http.StatusCreated, toUserResponse(user))
 }
 
 func (h *UserHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserID(r)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		errorResponse(w, domain.ErrUnauthorized)
 		return
 	}
 
 	var input domain.ChangePasswordInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -67,13 +67,13 @@ func (h *UserHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusNoContent, nil)
+	noContentResponse(w)
 }
 
 func (h *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserID(r)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		errorResponse(w, domain.ErrUnauthorized)
 		return
 	}
 
@@ -83,5 +83,5 @@ func (h *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusOK, toUserResponse(user))
+	successResponse(w, http.StatusOK, toUserResponse(user))
 }

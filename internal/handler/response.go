@@ -22,6 +22,8 @@ func errorResponse(w http.ResponseWriter, err error) {
 		status = http.StatusForbidden
 	case errors.Is(err, domain.ErrUnauthorized):
 		status = http.StatusUnauthorized
+	case errors.Is(err, domain.ErrBadRequest):
+		status = http.StatusBadRequest
 	default:
 		status = http.StatusInternalServerError
 	}
@@ -31,10 +33,14 @@ func errorResponse(w http.ResponseWriter, err error) {
 	json.NewEncoder(w).Encode(ErrorResponse{Error: err.Error()})
 }
 
-func jsonResponse(w http.ResponseWriter, status int, data any) {
+func successResponse(w http.ResponseWriter, status int, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(data)
+}
+
+func noContentResponse(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusNoContent)
 }
 
 type RefreshResponse struct {

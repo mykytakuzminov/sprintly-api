@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/mykytakuzminov/task-manager-api/internal/auth"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
@@ -39,7 +40,7 @@ func (s *AuthSvc) Login(
 		[]byte(user.HashPassword),
 		[]byte(input.Password),
 	); err != nil {
-		return nil, domain.ErrForbidden
+		return nil, domain.ErrUnauthorized
 	}
 
 	atoken, err := s.auth.GenerateAccessToken(user.ID)
@@ -82,7 +83,10 @@ func (s *AuthSvc) Refresh(
 ) (string, error) {
 	userID, err := s.tokenRepo.Get(ctx, input.RefreshToken)
 	if err != nil {
-		return "", domain.ErrUnauthorized
+		if errors.Is(err, domain.ErrNotFound) {
+			return "", domain.ErrUnauthorized
+		}
+		return "", err
 	}
 
 	atoken, err := s.auth.GenerateAccessToken(userID)

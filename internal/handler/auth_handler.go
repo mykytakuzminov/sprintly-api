@@ -29,7 +29,7 @@ func (h *AuthHandler) Routes() chi.Router {
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var input domain.LoginInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -39,13 +39,13 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusOK, tokens)
+	successResponse(w, http.StatusOK, tokens)
 }
 
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	var input domain.LogoutInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -54,13 +54,13 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusNoContent, nil)
+	noContentResponse(w)
 }
 
 func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	var input domain.RefreshInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -70,5 +70,5 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusOK, toRefreshResponse(token))
+	successResponse(w, http.StatusOK, toRefreshResponse(token))
 }

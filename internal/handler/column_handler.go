@@ -45,19 +45,19 @@ func (h *ColumnHandler) BoardRoutes() chi.Router {
 func (h *ColumnHandler) Create(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserID(r)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		errorResponse(w, domain.ErrUnauthorized)
 		return
 	}
 
 	boardID, err := getURLParam(r, "boardID")
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
 	var input domain.CreateColumnInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -67,13 +67,13 @@ func (h *ColumnHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusCreated, column)
+	successResponse(w, http.StatusCreated, column)
 }
 
 func (h *ColumnHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	boardID, err := getURLParam(r, "boardID")
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -83,13 +83,13 @@ func (h *ColumnHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusOK, columns)
+	successResponse(w, http.StatusOK, columns)
 }
 
 func (h *ColumnHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	columnID, err := getURLParam(r, "id")
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -99,25 +99,25 @@ func (h *ColumnHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusOK, column)
+	successResponse(w, http.StatusOK, column)
 }
 
 func (h *ColumnHandler) Update(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserID(r)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		errorResponse(w, domain.ErrUnauthorized)
 		return
 	}
 
 	columnID, err := getURLParam(r, "id")
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
 	var input domain.UpdateColumnInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -126,19 +126,19 @@ func (h *ColumnHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusNoContent, nil)
+	noContentResponse(w)
 }
 
 func (h *ColumnHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserID(r)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		errorResponse(w, domain.ErrUnauthorized)
 		return
 	}
 
 	columnID, err := getURLParam(r, "id")
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -147,5 +147,5 @@ func (h *ColumnHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusNoContent, nil)
+	noContentResponse(w)
 }

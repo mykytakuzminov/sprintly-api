@@ -31,7 +31,7 @@ func (s *ColumnSvc) Create(
 	input *domain.CreateColumnInput,
 ) (*domain.Column, error) {
 	if err := s.validate.Struct(input); err != nil {
-		return nil, err
+		return nil, domain.ErrBadRequest
 	}
 
 	board, err := s.boardRepo.GetByID(ctx, boardID)
@@ -76,7 +76,7 @@ func (s *ColumnSvc) Update(
 	input *domain.UpdateColumnInput,
 ) error {
 	if err := s.validate.Struct(input); err != nil {
-		return err
+		return domain.ErrBadRequest
 	}
 
 	ownerID, err := s.repo.GetOwnerID(ctx, columnID)

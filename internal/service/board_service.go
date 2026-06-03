@@ -26,7 +26,7 @@ func (s *BoardSvc) Create(
 	input *domain.CreateBoardInput,
 ) (*domain.Board, error) {
 	if err := s.validate.Struct(input); err != nil {
-		return nil, err
+		return nil, domain.ErrBadRequest
 	}
 
 	board := &domain.Board{

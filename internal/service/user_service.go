@@ -28,6 +28,14 @@ func (s *UserSvc) Register(
 	input *domain.RegisterInput,
 ) (*domain.User, error) {
 	if err := s.validate.Struct(input); err != nil {
+		return nil, domain.ErrBadRequest
+	}
+
+	_, err := s.repo.GetByEmail(ctx, input.Email)
+	if err == nil {
+		return nil, domain.ErrConflict
+	}
+	if !errors.Is(err, domain.ErrNotFound) {
 		return nil, err
 	}
 
@@ -40,14 +48,6 @@ func (s *UserSvc) Register(
 		ID:           uuid.New(),
 		Email:        input.Email,
 		HashPassword: string(hpwd),
-	}
-
-	_, err = s.repo.GetByEmail(ctx, user.Email)
-	if err == nil {
-		return nil, domain.ErrConflict
-	}
-	if !errors.Is(err, domain.ErrNotFound) {
-		return nil, err
 	}
 
 	if err := s.repo.Create(ctx, user); err != nil {
@@ -71,7 +71,7 @@ func (s *UserSvc) ChangePassword(
 		[]byte(user.HashPassword),
 		[]byte(input.OldPassword),
 	); err != nil {
-		return domain.ErrForbidden
+		return domain.ErrUnauthorized
 	}
 
 	hpwd, err := bcrypt.GenerateFromPassword([]byte(input.NewPassword), 12)

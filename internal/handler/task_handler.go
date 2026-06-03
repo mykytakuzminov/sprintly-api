@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
 	"github.com/mykytakuzminov/task-manager-api/internal/auth"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
 	"github.com/mykytakuzminov/task-manager-api/internal/handler/middleware"
@@ -55,21 +54,21 @@ func (h *TaskHandler) UserRoutes() chi.Router {
 }
 
 func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	userID, ok := getUserID(r)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		errorResponse(w, domain.ErrUnauthorized)
 		return
 	}
 
 	columnID, err := getURLParam(r, "columnID")
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
 	var input domain.CreateTaskInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -79,13 +78,13 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusCreated, task)
+	successResponse(w, http.StatusCreated, task)
 }
 
 func (h *TaskHandler) GetAllByColumnID(w http.ResponseWriter, r *http.Request) {
 	columnID, err := getURLParam(r, "columnID")
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -95,13 +94,13 @@ func (h *TaskHandler) GetAllByColumnID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusOK, tasks)
+	successResponse(w, http.StatusOK, tasks)
 }
 
 func (h *TaskHandler) GetAllByUserID(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	userID, ok := getUserID(r)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		errorResponse(w, domain.ErrUnauthorized)
 		return
 	}
 
@@ -111,13 +110,13 @@ func (h *TaskHandler) GetAllByUserID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusOK, tasks)
+	successResponse(w, http.StatusOK, tasks)
 }
 
 func (h *TaskHandler) GetAllByAssigneeID(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	userID, ok := getUserID(r)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		errorResponse(w, domain.ErrUnauthorized)
 		return
 	}
 
@@ -127,13 +126,13 @@ func (h *TaskHandler) GetAllByAssigneeID(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	jsonResponse(w, http.StatusOK, tasks)
+	successResponse(w, http.StatusOK, tasks)
 }
 
 func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	taskID, err := getURLParam(r, "id")
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -143,25 +142,25 @@ func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusOK, task)
+	successResponse(w, http.StatusOK, task)
 }
 
 func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserID(r)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		errorResponse(w, domain.ErrUnauthorized)
 		return
 	}
 
 	taskID, err := getURLParam(r, "id")
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
 	var input domain.UpdateTaskInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -170,19 +169,19 @@ func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusNoContent, nil)
+	noContentResponse(w)
 }
 
 func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserID(r)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		errorResponse(w, domain.ErrUnauthorized)
 		return
 	}
 
 	taskID, err := getURLParam(r, "id")
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -191,5 +190,5 @@ func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusNoContent, nil)
+	noContentResponse(w)
 }
