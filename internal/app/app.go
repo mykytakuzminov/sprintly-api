@@ -33,11 +33,10 @@ type App struct {
 }
 
 func New() *App {
-	cfg := config.Load()
-
 	l := zap.Must(zap.NewProduction())
 	logger := l.Sugar()
 
+	cfg := config.Load()
 	auth := auth.NewAuth(cfg.JWT)
 
 	pool := initDB(cfg, logger)
