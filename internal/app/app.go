@@ -43,7 +43,7 @@ func New() *App {
 
 	pool := initDB(cfg, logger)
 	client := initRedis(cfg, logger)
-	router := initRouter(pool, client, auth)
+	router := initRouter(logger, pool, client, auth)
 
 	return &App{
 		cfg:    cfg,
@@ -128,7 +128,12 @@ func initRedis(cfg *config.Config, logger *zap.SugaredLogger) *redis.Client {
 	return client
 }
 
-func initRouter(pool *pgxpool.Pool, client *redis.Client, auth *auth.Auth) chi.Router {
+func initRouter(
+	logger *zap.SugaredLogger,
+	pool *pgxpool.Pool,
+	client *redis.Client,
+	auth *auth.Auth,
+) chi.Router {
 	router := chi.NewRouter()
 
 	router.Get("/swagger/*", httpSwagger.WrapHandler)
@@ -139,7 +144,7 @@ func initRouter(pool *pgxpool.Pool, client *redis.Client, auth *auth.Auth) chi.R
 
 	tokenRepo := rdrepo.NewTokenRepository(client)
 	authSvc := service.NewAuthService(userRepo, tokenRepo, auth)
-	authHandler := handler.NewAuthHandler(authSvc)
+	authHandler := handler.NewAuthHandler(authSvc, logger)
 
 	boardRepo := pgrepo.NewBoardRepository(pool)
 	boardSvc := service.NewBoardService(boardRepo)
