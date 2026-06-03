@@ -14,6 +14,7 @@ import (
 	"github.com/mykytakuzminov/task-manager-api/internal/auth"
 	"github.com/mykytakuzminov/task-manager-api/internal/config"
 	"github.com/mykytakuzminov/task-manager-api/internal/handler"
+	"github.com/mykytakuzminov/task-manager-api/internal/handler/middleware"
 	"github.com/mykytakuzminov/task-manager-api/internal/repository/postgres"
 	redistore "github.com/mykytakuzminov/task-manager-api/internal/repository/redis"
 	"github.com/mykytakuzminov/task-manager-api/internal/server"
@@ -89,6 +90,8 @@ func New() *App {
 	taskRepo := postgres.NewTaskRepository(pool)
 	taskSvc := service.NewTaskService(taskRepo, columnRepo)
 	taskHandler := handler.NewTaskHandler(taskSvc, auth)
+
+	router.Use(middleware.TraceMiddleware)
 
 	router.Mount("/api/v1/auth", authHandler.Routes())
 	router.Mount("/api/v1/users", userHandler.Routes())
