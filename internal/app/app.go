@@ -140,7 +140,7 @@ func initRouter(
 
 	userRepo := pgrepo.NewUserRepository(pool)
 	userSvc := service.NewUserService(userRepo)
-	userHandler := handler.NewUserHandler(userSvc, auth)
+	userHandler := handler.NewUserHandler(userSvc, auth, logger)
 
 	tokenRepo := rdrepo.NewTokenRepository(client)
 	authSvc := service.NewAuthService(userRepo, tokenRepo, auth)

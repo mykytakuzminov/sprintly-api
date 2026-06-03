@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+	"github.com/mykytakuzminov/task-manager-api/internal/domain"
 	"github.com/mykytakuzminov/task-manager-api/internal/handler/middleware"
 	"go.uber.org/zap"
 )
@@ -42,6 +43,14 @@ func logUnexpectedError(logger *zap.SugaredLogger, traceID uuid.UUID, err error)
 		"unexpected error occured",
 		"trace_id", traceID,
 		"error", err,
+	)
+}
+
+func logUnauthorizedAccess(logger *zap.SugaredLogger, traceID uuid.UUID) {
+	logger.Warnw(
+		"unauthorized access",
+		"trace_id", traceID,
+		"error", domain.ErrUnauthorized,
 	)
 }
 
