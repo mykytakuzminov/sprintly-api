@@ -5,10 +5,14 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/mykytakuzminov/task-manager-api/internal/auth"
 )
 
-const UserIDKey = "userID"
+type contextKey struct{}
+
+var UserIDKey = contextKey{}
+var TraceIDKey = contextKey{}
 
 func AuthMiddleware(a *auth.Auth) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -29,4 +33,15 @@ func AuthMiddleware(a *auth.Auth) func(http.Handler) http.Handler {
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
+}
+
+func TraceMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		traceID := uuid.New()
+
+		w.Header().Set("X-Trace-ID", traceID.String())
+
+		ctx := context.WithValue(r.Context(), TraceIDKey, traceID)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }

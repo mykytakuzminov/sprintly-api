@@ -13,6 +13,7 @@ require (
 	github.com/redis/go-redis/v9 v9.20.0
 	github.com/swaggo/http-swagger v1.3.4
 	github.com/swaggo/swag v1.16.6
+	go.uber.org/zap v1.28.0
 	golang.org/x/crypto v0.49.0
 )
 
@@ -36,6 +37,7 @@ require (
 	github.com/rogpeppe/go-internal v1.15.0 // indirect
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe // indirect
 	go.uber.org/atomic v1.11.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/mod v0.33.0 // indirect
 	golang.org/x/net v0.51.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect

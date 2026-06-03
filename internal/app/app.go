@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,16 +14,19 @@ import (
 	"github.com/mykytakuzminov/task-manager-api/internal/auth"
 	"github.com/mykytakuzminov/task-manager-api/internal/config"
 	"github.com/mykytakuzminov/task-manager-api/internal/handler"
+	"github.com/mykytakuzminov/task-manager-api/internal/handler/middleware"
 	"github.com/mykytakuzminov/task-manager-api/internal/repository/postgres"
 	redistore "github.com/mykytakuzminov/task-manager-api/internal/repository/redis"
 	"github.com/mykytakuzminov/task-manager-api/internal/server"
 	"github.com/mykytakuzminov/task-manager-api/internal/service"
 	goredis "github.com/redis/go-redis/v9"
 	httpSwagger "github.com/swaggo/http-swagger"
+	"go.uber.org/zap"
 )
 
 type App struct {
 	cfg    *config.Config
+	logger *zap.SugaredLogger
 	pool   *pgxpool.Pool
 	client *goredis.Client
 	server *server.Server
@@ -33,22 +35,35 @@ type App struct {
 func New() *App {
 	cfg := config.Load()
 
+	l := zap.Must(zap.NewProduction())
+	logger := l.Sugar()
+
 	pool, err := postgres.NewPool(cfg)
 	if err != nil {
-		log.Fatalf("database connection failed: %v", err)
+		logger.Fatalw("database connection failed",
+			cfg.Database.LogFieldsWithErr(err)...,
+		)
 	}
-	log.Println("database connected successfully")
+	logger.Infow("database connected successfully",
+		cfg.Database.LogFields()...,
+	)
 
 	if err := postgres.RunMigrations(cfg); err != nil {
-		log.Fatalf("migrations failed: %v", err)
+		logger.Fatalw("migrations failed",
+			"error", err,
+		)
 	}
-	log.Println("migrations applied successfully")
+	logger.Infow("migrations applied successfully")
 
 	client, err := redistore.NewClient(cfg)
 	if err != nil {
-		log.Fatalf("redis connection failed: %v", err)
+		logger.Fatalw("redis connection failed",
+			cfg.Redis.LogFieldsWithErr(err)...,
+		)
 	}
-	log.Println("redis connected successfully")
+	logger.Infow("redis connected successfully",
+		cfg.Redis.LogFields()...,
+	)
 
 	auth := auth.NewAuth(cfg.JWT)
 
@@ -76,6 +91,8 @@ func New() *App {
 	taskSvc := service.NewTaskService(taskRepo, columnRepo)
 	taskHandler := handler.NewTaskHandler(taskSvc, auth)
 
+	router.Use(middleware.TraceMiddleware)
+
 	router.Mount("/api/v1/auth", authHandler.Routes())
 	router.Mount("/api/v1/users", userHandler.Routes())
 	router.Mount("/api/v1/users/me/tasks", taskHandler.UserRoutes())
@@ -90,18 +107,25 @@ func New() *App {
 
 	return &App{
 		cfg:    cfg,
+		logger: logger,
 		pool:   pool,
 		client: client,
 		server: server.New(cfg.Server.GetAddr(), router),
 	}
 }
 
-func (a *App) Run() error {
+func (a *App) Run() {
+	defer a.logger.Sync()
+	defer a.pool.Close()
+	defer a.client.Close()
+
 	errCh := make(chan error, 1)
 	go func() {
 		errCh <- a.server.Run()
 	}()
-	log.Println("server is running")
+	a.logger.Infow("server started",
+		a.cfg.Server.LogFields()...,
+	)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
@@ -109,16 +133,22 @@ func (a *App) Run() error {
 	select {
 	case err := <-errCh:
 		if err != nil && err != http.ErrServerClosed {
-			return err
+			a.logger.Errorw("unexpected error occured",
+				a.cfg.Server.LogFieldsWithErr(err)...,
+			)
 		}
 	case <-quit:
-		log.Println("shutting down...")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		defer a.pool.Close()
-		defer a.client.Close()
-		return a.server.Shutdown(ctx)
+		a.logger.Infow("shutting down the server")
 	}
 
-	return nil
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := a.server.Shutdown(ctx); err != nil {
+		a.logger.Errorw("shutting down error occured",
+			a.cfg.Server.LogFieldsWithErr(err)...,
+		)
+	}
+
+	a.logger.Infow("server stopped")
 }
