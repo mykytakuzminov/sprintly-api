@@ -38,7 +38,7 @@ func New() *App {
 	l := zap.Must(zap.NewProduction())
 	logger := l.Sugar()
 
-	cfg := config.Load()
+	cfg := config.Load(logger)
 	auth := auth.NewAuth(cfg.JWT)
 
 	pool := initDB(cfg, logger)
