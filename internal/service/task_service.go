@@ -31,7 +31,7 @@ func (s *TaskSvc) Create(
 	input *domain.CreateTaskInput,
 ) (*domain.Task, error) {
 	if err := s.validate.Struct(input); err != nil {
-		return nil, err
+		return nil, domain.ErrBadRequest
 	}
 
 	ownerID, err := s.columnRepo.GetOwnerID(ctx, columnID)
@@ -94,7 +94,7 @@ func (s *TaskSvc) Update(
 	input *domain.UpdateTaskInput,
 ) error {
 	if err := s.validate.Struct(input); err != nil {
-		return err
+		return domain.ErrBadRequest
 	}
 
 	ownerID, err := s.repo.GetOwnerID(ctx, taskID)

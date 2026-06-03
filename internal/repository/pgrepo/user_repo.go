@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
 )
@@ -24,12 +25,21 @@ func (r *UserRepo) Create(ctx context.Context, user *domain.User) error {
 		VALUES ($1, $2, $3)
 		RETURNING created_at, updated_at
 	`
-
-	return r.pool.QueryRow(ctx, query,
+	err := r.pool.QueryRow(ctx, query,
 		user.ID,
 		user.Email,
 		user.HashPassword,
 	).Scan(&user.CreatedAt, &user.UpdatedAt)
+
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return domain.ErrConflict
+		}
+		return err
+	}
+
+	return nil
 }
 
 func (r *UserRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {

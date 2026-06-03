@@ -9,6 +9,11 @@ import (
 	"github.com/mykytakuzminov/task-manager-api/internal/config"
 )
 
+var (
+	ErrInvalidToken         = errors.New("invalid token")
+	ErrInvalidSigningMethod = errors.New("unexpected signing method")
+)
+
 type Auth struct {
 	cfg *config.JWTConfig
 }
@@ -40,25 +45,25 @@ func (a *Auth) GenerateRefreshToken(userID uuid.UUID) (string, error) {
 	return token, err
 }
 
-func (a *Auth) ParseToken(tokenString string) (uuid.UUID, error) {
-	parsedToken, err := jwt.Parse(tokenString, func(t *jwt.Token) (any, error) {
+func (a *Auth) ParseToken(token string) (uuid.UUID, error) {
+	parsedToken, err := jwt.Parse(token, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("unexpected signing method")
+			return nil, ErrInvalidSigningMethod
 		}
 		return []byte(a.cfg.Secret), nil
 	})
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, ErrInvalidToken
 	}
 
 	claims, ok := parsedToken.Claims.(jwt.MapClaims)
 	if !ok || !parsedToken.Valid {
-		return uuid.Nil, errors.New("invalid token")
+		return uuid.Nil, ErrInvalidToken
 	}
 
 	userID, err := uuid.Parse(claims["sub"].(string))
 	if err != nil {
-		return uuid.Nil, errors.New("invalid user id in token")
+		return uuid.Nil, ErrInvalidToken
 	}
 
 	return userID, nil

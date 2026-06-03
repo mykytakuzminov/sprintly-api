@@ -36,13 +36,13 @@ func (h *BoardHandler) Routes() chi.Router {
 func (h *BoardHandler) Create(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserID(r)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		errorResponse(w, domain.ErrUnauthorized)
 		return
 	}
 
 	var input domain.CreateBoardInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -52,13 +52,13 @@ func (h *BoardHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusCreated, board)
+	successResponse(w, http.StatusCreated, board)
 }
 
 func (h *BoardHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserID(r)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		errorResponse(w, domain.ErrUnauthorized)
 		return
 	}
 
@@ -68,13 +68,13 @@ func (h *BoardHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusOK, boards)
+	successResponse(w, http.StatusOK, boards)
 }
 
 func (h *BoardHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	boardID, err := getURLParam(r, "id")
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -84,25 +84,25 @@ func (h *BoardHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusOK, board)
+	successResponse(w, http.StatusOK, board)
 }
 
 func (h *BoardHandler) Update(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserID(r)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		errorResponse(w, domain.ErrUnauthorized)
 		return
 	}
 
 	boardID, err := getURLParam(r, "id")
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
 	var input domain.UpdateBoardInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -111,19 +111,19 @@ func (h *BoardHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusNoContent, nil)
+	noContentResponse(w)
 }
 
 func (h *BoardHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserID(r)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		errorResponse(w, domain.ErrUnauthorized)
 		return
 	}
 
 	boardID, err := getURLParam(r, "id")
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		errorResponse(w, domain.ErrBadRequest)
 		return
 	}
 
@@ -132,5 +132,5 @@ func (h *BoardHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, http.StatusNoContent, nil)
+	noContentResponse(w)
 }
