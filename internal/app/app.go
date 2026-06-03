@@ -151,9 +151,9 @@ func initRouter(pool *pgxpool.Pool, client *goredis.Client, auth *auth.Auth) chi
 	taskSvc := service.NewTaskService(taskRepo, columnRepo)
 	taskHandler := handler.NewTaskHandler(taskSvc, auth)
 
-	router.Use(middleware.TraceMiddleware)
-
 	router.Route("/api/v1", func(r chi.Router) {
+		r.Use(middleware.TraceMiddleware)
+
 		r.Mount("/auth", authHandler.Routes())
 		r.Mount("/users", userHandler.Routes())
 		r.Mount("/users/me/tasks", taskHandler.UserRoutes())
