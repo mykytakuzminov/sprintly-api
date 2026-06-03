@@ -1,4 +1,4 @@
-package postgres
+package pgclient
 
 import (
 	"github.com/golang-migrate/migrate/v4"

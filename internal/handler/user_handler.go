@@ -42,7 +42,7 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.svc.Register(r.Context(), &input)
 	if err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -63,7 +63,7 @@ func (h *UserHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.svc.ChangePassword(r.Context(), userID, &input); err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -79,7 +79,7 @@ func (h *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.svc.GetByID(r.Context(), userID)
 	if err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 

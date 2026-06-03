@@ -35,7 +35,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	tokens, err := h.svc.Login(r.Context(), &input)
 	if err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -50,7 +50,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.svc.Logout(r.Context(), &input); err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -66,7 +66,7 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 
 	token, err := h.svc.Refresh(r.Context(), &input)
 	if err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 

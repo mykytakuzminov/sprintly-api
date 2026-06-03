@@ -15,11 +15,13 @@ import (
 	"github.com/mykytakuzminov/task-manager-api/internal/config"
 	"github.com/mykytakuzminov/task-manager-api/internal/handler"
 	"github.com/mykytakuzminov/task-manager-api/internal/handler/middleware"
-	"github.com/mykytakuzminov/task-manager-api/internal/repository/postgres"
-	redistore "github.com/mykytakuzminov/task-manager-api/internal/repository/redis"
+	"github.com/mykytakuzminov/task-manager-api/internal/infra/pgclient"
+	"github.com/mykytakuzminov/task-manager-api/internal/infra/rdclient"
+	"github.com/mykytakuzminov/task-manager-api/internal/repository/pgrepo"
+	"github.com/mykytakuzminov/task-manager-api/internal/repository/rdrepo"
 	"github.com/mykytakuzminov/task-manager-api/internal/server"
 	"github.com/mykytakuzminov/task-manager-api/internal/service"
-	goredis "github.com/redis/go-redis/v9"
+	"github.com/redis/go-redis/v9"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"go.uber.org/zap"
 )
@@ -28,82 +30,20 @@ type App struct {
 	cfg    *config.Config
 	logger *zap.SugaredLogger
 	pool   *pgxpool.Pool
-	client *goredis.Client
+	client *redis.Client
 	server *server.Server
 }
 
 func New() *App {
-	cfg := config.Load()
-
 	l := zap.Must(zap.NewProduction())
 	logger := l.Sugar()
 
-	pool, err := postgres.NewPool(cfg)
-	if err != nil {
-		logger.Fatalw("database connection failed",
-			cfg.Database.LogFieldsWithErr(err)...,
-		)
-	}
-	logger.Infow("database connected successfully",
-		cfg.Database.LogFields()...,
-	)
-
-	if err := postgres.RunMigrations(cfg); err != nil {
-		logger.Fatalw("migrations failed",
-			"error", err,
-		)
-	}
-	logger.Infow("migrations applied successfully")
-
-	client, err := redistore.NewClient(cfg)
-	if err != nil {
-		logger.Fatalw("redis connection failed",
-			cfg.Redis.LogFieldsWithErr(err)...,
-		)
-	}
-	logger.Infow("redis connected successfully",
-		cfg.Redis.LogFields()...,
-	)
-
+	cfg := config.Load()
 	auth := auth.NewAuth(cfg.JWT)
 
-	router := chi.NewRouter()
-
-	router.Get("/swagger/*", httpSwagger.WrapHandler)
-
-	userRepo := postgres.NewUserRepository(pool)
-	userSvc := service.NewUserService(userRepo)
-	userHandler := handler.NewUserHandler(userSvc, auth)
-
-	tokenRepo := redistore.NewTokenRepository(client)
-	authSvc := service.NewAuthService(userRepo, tokenRepo, auth)
-	authHandler := handler.NewAuthHandler(authSvc)
-
-	boardRepo := postgres.NewBoardRepository(pool)
-	boardSvc := service.NewBoardService(boardRepo)
-	boardHandler := handler.NewBoardHandler(boardSvc, auth)
-
-	columnRepo := postgres.NewColumnRepository(pool)
-	columnSvc := service.NewColumnService(columnRepo, boardRepo)
-	columnHandler := handler.NewColumnHandler(columnSvc, auth)
-
-	taskRepo := postgres.NewTaskRepository(pool)
-	taskSvc := service.NewTaskService(taskRepo, columnRepo)
-	taskHandler := handler.NewTaskHandler(taskSvc, auth)
-
-	router.Use(middleware.TraceMiddleware)
-
-	router.Mount("/api/v1/auth", authHandler.Routes())
-	router.Mount("/api/v1/users", userHandler.Routes())
-	router.Mount("/api/v1/users/me/tasks", taskHandler.UserRoutes())
-
-	router.Mount("/api/v1/boards", boardHandler.Routes())
-
-	router.Mount("/api/v1/boards/{boardID}/columns", columnHandler.BoardRoutes())
-	router.Mount("/api/v1/columns", columnHandler.Routes())
-
-	router.Mount("/api/v1/columns/{columnID}/tasks", taskHandler.ColumnRoutes())
-	router.Mount("/api/v1/tasks", taskHandler.Routes())
+	pool := initDB(cfg, logger)
+	client := initRedis(cfg, logger)
+	router := initRouter(pool, client, auth)
 
 	return &App{
 		cfg:    cfg,
@@ -151,4 +91,83 @@ func (a *App) Run() {
 	}
 
 	a.logger.Infow("server stopped")
+}
+
+func initDB(cfg *config.Config, logger *zap.SugaredLogger) *pgxpool.Pool {
+	pool, err := pgclient.NewPool(cfg)
+	if err != nil {
+		logger.Fatalw("database connection failed",
+			cfg.Database.LogFieldsWithErr(err)...,
+		)
+	}
+	logger.Infow("database connected successfully",
+		cfg.Database.LogFields()...,
+	)
+
+	if err := pgclient.RunMigrations(cfg); err != nil {
+		logger.Fatalw("migrations failed",
+			"error", err,
+		)
+	}
+	logger.Infow("migrations applied successfully")
+
+	return pool
+}
+
+func initRedis(cfg *config.Config, logger *zap.SugaredLogger) *redis.Client {
+	client, err := rdclient.NewClient(cfg)
+	if err != nil {
+		logger.Fatalw("redis connection failed",
+			cfg.Redis.LogFieldsWithErr(err)...,
+		)
+	}
+	logger.Infow("redis connected successfully",
+		cfg.Redis.LogFields()...,
+	)
+
+	return client
+}
+
+func initRouter(pool *pgxpool.Pool, client *redis.Client, auth *auth.Auth) chi.Router {
+	router := chi.NewRouter()
+
+	router.Get("/swagger/*", httpSwagger.WrapHandler)
+
+	userRepo := pgrepo.NewUserRepository(pool)
+	userSvc := service.NewUserService(userRepo)
+	userHandler := handler.NewUserHandler(userSvc, auth)
+
+	tokenRepo := rdrepo.NewTokenRepository(client)
+	authSvc := service.NewAuthService(userRepo, tokenRepo, auth)
+	authHandler := handler.NewAuthHandler(authSvc)
+
+	boardRepo := pgrepo.NewBoardRepository(pool)
+	boardSvc := service.NewBoardService(boardRepo)
+	boardHandler := handler.NewBoardHandler(boardSvc, auth)
+
+	columnRepo := pgrepo.NewColumnRepository(pool)
+	columnSvc := service.NewColumnService(columnRepo, boardRepo)
+	columnHandler := handler.NewColumnHandler(columnSvc, auth)
+
+	taskRepo := pgrepo.NewTaskRepository(pool)
+	taskSvc := service.NewTaskService(taskRepo, columnRepo)
+	taskHandler := handler.NewTaskHandler(taskSvc, auth)
+
+	router.Route("/api/v1", func(r chi.Router) {
+		r.Use(middleware.TraceMiddleware)
+
+		r.Mount("/auth", authHandler.Routes())
+		r.Mount("/users", userHandler.Routes())
+		r.Mount("/users/me/tasks", taskHandler.UserRoutes())
+
+		r.Mount("/boards", boardHandler.Routes())
+
+		r.Mount("/boards/{boardID}/columns", columnHandler.BoardRoutes())
+		r.Mount("/columns", columnHandler.Routes())
+
+		r.Mount("/columns/{columnID}/tasks", taskHandler.ColumnRoutes())
+		r.Mount("/tasks", taskHandler.Routes())
+	})
+
+	return router
 }

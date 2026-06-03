@@ -63,7 +63,7 @@ func (h *ColumnHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	column, err := h.svc.Create(r.Context(), userID, boardID, &input)
 	if err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -79,7 +79,7 @@ func (h *ColumnHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 
 	columns, err := h.svc.GetAllByBoardID(r.Context(), boardID)
 	if err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -95,7 +95,7 @@ func (h *ColumnHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	column, err := h.svc.GetByID(r.Context(), columnID)
 	if err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -122,7 +122,7 @@ func (h *ColumnHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.svc.Update(r.Context(), columnID, userID, &input); err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -143,7 +143,7 @@ func (h *ColumnHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.svc.Delete(r.Context(), columnID, userID); err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
