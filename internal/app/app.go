@@ -15,11 +15,13 @@ import (
 	"github.com/mykytakuzminov/task-manager-api/internal/config"
 	"github.com/mykytakuzminov/task-manager-api/internal/handler"
 	"github.com/mykytakuzminov/task-manager-api/internal/handler/middleware"
-	"github.com/mykytakuzminov/task-manager-api/internal/repository/postgres"
-	redistore "github.com/mykytakuzminov/task-manager-api/internal/repository/redis"
+	"github.com/mykytakuzminov/task-manager-api/internal/infra/pgclient"
+	"github.com/mykytakuzminov/task-manager-api/internal/infra/rdclient"
+	"github.com/mykytakuzminov/task-manager-api/internal/repository/pgrepo"
+	"github.com/mykytakuzminov/task-manager-api/internal/repository/rdrepo"
 	"github.com/mykytakuzminov/task-manager-api/internal/server"
 	"github.com/mykytakuzminov/task-manager-api/internal/service"
-	goredis "github.com/redis/go-redis/v9"
+	"github.com/redis/go-redis/v9"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"go.uber.org/zap"
 )
@@ -28,7 +30,7 @@ type App struct {
 	cfg    *config.Config
 	logger *zap.SugaredLogger
 	pool   *pgxpool.Pool
-	client *goredis.Client
+	client *redis.Client
 	server *server.Server
 }
 
@@ -92,7 +94,7 @@ func (a *App) Run() {
 }
 
 func initDB(cfg *config.Config, logger *zap.SugaredLogger) *pgxpool.Pool {
-	pool, err := postgres.NewPool(cfg)
+	pool, err := pgclient.NewPool(cfg)
 	if err != nil {
 		logger.Fatalw("database connection failed",
 			cfg.Database.LogFieldsWithErr(err)...,
@@ -102,7 +104,7 @@ func initDB(cfg *config.Config, logger *zap.SugaredLogger) *pgxpool.Pool {
 		cfg.Database.LogFields()...,
 	)
 
-	if err := postgres.RunMigrations(cfg); err != nil {
+	if err := pgclient.RunMigrations(cfg); err != nil {
 		logger.Fatalw("migrations failed",
 			"error", err,
 		)
@@ -112,8 +114,8 @@ func initDB(cfg *config.Config, logger *zap.SugaredLogger) *pgxpool.Pool {
 	return pool
 }
 
-func initRedis(cfg *config.Config, logger *zap.SugaredLogger) *goredis.Client {
-	client, err := redistore.NewClient(cfg)
+func initRedis(cfg *config.Config, logger *zap.SugaredLogger) *redis.Client {
+	client, err := rdclient.NewClient(cfg)
 	if err != nil {
 		logger.Fatalw("redis connection failed",
 			cfg.Redis.LogFieldsWithErr(err)...,
@@ -126,28 +128,28 @@ func initRedis(cfg *config.Config, logger *zap.SugaredLogger) *goredis.Client {
 	return client
 }
 
-func initRouter(pool *pgxpool.Pool, client *goredis.Client, auth *auth.Auth) chi.Router {
+func initRouter(pool *pgxpool.Pool, client *redis.Client, auth *auth.Auth) chi.Router {
 	router := chi.NewRouter()
 
 	router.Get("/swagger/*", httpSwagger.WrapHandler)
 
-	userRepo := postgres.NewUserRepository(pool)
+	userRepo := pgrepo.NewUserRepository(pool)
 	userSvc := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userSvc, auth)
 
-	tokenRepo := redistore.NewTokenRepository(client)
+	tokenRepo := rdrepo.NewTokenRepository(client)
 	authSvc := service.NewAuthService(userRepo, tokenRepo, auth)
 	authHandler := handler.NewAuthHandler(authSvc)
 
-	boardRepo := postgres.NewBoardRepository(pool)
+	boardRepo := pgrepo.NewBoardRepository(pool)
 	boardSvc := service.NewBoardService(boardRepo)
 	boardHandler := handler.NewBoardHandler(boardSvc, auth)
 
-	columnRepo := postgres.NewColumnRepository(pool)
+	columnRepo := pgrepo.NewColumnRepository(pool)
 	columnSvc := service.NewColumnService(columnRepo, boardRepo)
 	columnHandler := handler.NewColumnHandler(columnSvc, auth)
 
-	taskRepo := postgres.NewTaskRepository(pool)
+	taskRepo := pgrepo.NewTaskRepository(pool)
 	taskSvc := service.NewTaskService(taskRepo, columnRepo)
 	taskHandler := handler.NewTaskHandler(taskSvc, auth)
 
