@@ -75,7 +75,7 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	task, err := h.svc.Create(r.Context(), userID, columnID, &input)
 	if err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -91,7 +91,7 @@ func (h *TaskHandler) GetAllByColumnID(w http.ResponseWriter, r *http.Request) {
 
 	tasks, err := h.svc.GetAllByColumnID(r.Context(), columnID)
 	if err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -107,7 +107,7 @@ func (h *TaskHandler) GetAllByUserID(w http.ResponseWriter, r *http.Request) {
 
 	tasks, err := h.svc.GetAllByUserID(r.Context(), userID)
 	if err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -123,7 +123,7 @@ func (h *TaskHandler) GetAllByAssigneeID(w http.ResponseWriter, r *http.Request)
 
 	tasks, err := h.svc.GetAllByAssigneeID(r.Context(), userID)
 	if err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -139,7 +139,7 @@ func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	task, err := h.svc.GetByID(r.Context(), taskID)
 	if err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -166,7 +166,7 @@ func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.svc.Update(r.Context(), taskID, userID, &input); err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -187,7 +187,7 @@ func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.svc.Delete(r.Context(), taskID, userID); err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 

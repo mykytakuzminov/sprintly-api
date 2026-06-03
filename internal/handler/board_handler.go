@@ -48,7 +48,7 @@ func (h *BoardHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	board, err := h.svc.Create(r.Context(), userID, &input)
 	if err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -64,7 +64,7 @@ func (h *BoardHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 
 	boards, err := h.svc.GetAllByUserID(r.Context(), userID)
 	if err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -80,7 +80,7 @@ func (h *BoardHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	board, err := h.svc.GetByID(r.Context(), boardID)
 	if err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -107,7 +107,7 @@ func (h *BoardHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.svc.Update(r.Context(), boardID, userID, &input); err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -128,7 +128,7 @@ func (h *BoardHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.svc.Delete(r.Context(), boardID, userID); err != nil {
-		errorHandler(w, err)
+		errorResponse(w, err)
 		return
 	}
 
