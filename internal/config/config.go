@@ -26,6 +26,25 @@ func (s *ServerConfig) GetAddr() string {
 	return s.Host + ":" + s.Port
 }
 
+func (s *ServerConfig) LogFields() []interface{} {
+	logFields := []interface{}{
+		"server_host", s.Host,
+		"server_port", s.Port,
+	}
+
+	return logFields
+}
+
+func (s *ServerConfig) LogFieldsWithErr(err error) []interface{} {
+	logFields := []interface{}{
+		"error", err,
+	}
+
+	logFields = append(logFields, s.LogFields()...)
+
+	return logFields
+}
+
 type DatabaseConfig struct {
 	Host     string
 	Port     string
@@ -47,6 +66,28 @@ func (d *DatabaseConfig) GetDSN() string {
 	)
 }
 
+func (d *DatabaseConfig) LogFields() []interface{} {
+	logFields := []interface{}{
+		"db_host", d.Host,
+		"db_port", d.Port,
+		"db_user", d.User,
+		"db_name", d.DBName,
+		"db_ssl_mode", d.SSLMode,
+	}
+
+	return logFields
+}
+
+func (d *DatabaseConfig) LogFieldsWithErr(err error) []interface{} {
+	logFields := []interface{}{
+		"error", err,
+	}
+
+	logFields = append(logFields, d.LogFields()...)
+
+	return logFields
+}
+
 type JWTConfig struct {
 	Secret     string
 	AccessTTL  time.Duration
@@ -62,6 +103,26 @@ type RedisConfig struct {
 
 func (r *RedisConfig) GetAddr() string {
 	return r.Host + ":" + r.Port
+}
+
+func (r *RedisConfig) LogFields() []interface{} {
+	logFields := []interface{}{
+		"redis_host", r.Host,
+		"redis_port", r.Port,
+		"redis_db", r.DB,
+	}
+
+	return logFields
+}
+
+func (r *RedisConfig) LogFieldsWithErr(err error) []interface{} {
+	logFields := []interface{}{
+		"error", err,
+	}
+
+	logFields = append(logFields, r.LogFields()...)
+
+	return logFields
 }
 
 func Load() *Config {
