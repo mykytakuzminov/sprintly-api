@@ -156,7 +156,7 @@ func initRouter(
 
 	taskRepo := pgrepo.NewTaskRepository(pool)
 	taskSvc := service.NewTaskService(taskRepo, columnRepo)
-	taskHandler := handler.NewTaskHandler(taskSvc, auth)
+	taskHandler := handler.NewTaskHandler(taskSvc, auth, logger)
 
 	router.Route("/api/v1", func(r chi.Router) {
 		r.Use(middleware.TraceMiddleware)
