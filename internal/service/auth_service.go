@@ -40,7 +40,7 @@ func (s *AuthSvc) Login(
 		[]byte(user.HashPassword),
 		[]byte(input.Password),
 	); err != nil {
-		return nil, domain.ErrUnauthorized
+		return nil, domain.ErrInvalidCredentials
 	}
 
 	atoken, err := s.auth.GenerateAccessToken(user.ID)

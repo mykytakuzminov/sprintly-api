@@ -88,8 +88,8 @@ func (h *UserHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case errors.Is(err, domain.ErrNotFound):
 			logWarn(h.logger, traceID, "user not found", err)
-		case errors.Is(err, domain.ErrUnauthorized):
-			logWarn(h.logger, traceID, "wrong current password", err)
+		case errors.Is(err, domain.ErrInvalidCredentials):
+			logWarn(h.logger, traceID, "wrong credentials", err)
 		default:
 			logUnexpectedError(h.logger, traceID, err)
 		}

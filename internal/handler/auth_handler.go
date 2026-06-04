@@ -41,7 +41,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	tokens, err := h.svc.Login(r.Context(), &input)
 	if err != nil {
-		if errors.Is(err, domain.ErrUnauthorized) {
+		if errors.Is(err, domain.ErrInvalidCredentials) {
 			logWarn(h.logger, traceID, "wrong credentials", err)
 		} else {
 			logUnexpectedError(h.logger, traceID, err)

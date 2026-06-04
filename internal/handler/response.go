@@ -22,6 +22,8 @@ func errorResponse(w http.ResponseWriter, err error) {
 		status = http.StatusForbidden
 	case errors.Is(err, domain.ErrUnauthorized):
 		status = http.StatusUnauthorized
+	case errors.Is(err, domain.ErrInvalidCredentials):
+		status = http.StatusUnauthorized
 	case errors.Is(err, domain.ErrBadRequest):
 		status = http.StatusBadRequest
 	default:
