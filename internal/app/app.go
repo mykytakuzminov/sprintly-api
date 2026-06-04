@@ -158,6 +158,7 @@ func initRouter(
 	taskHandler := handler.NewTaskHandler(taskSvc, auth, logger)
 
 	router.Route("/api/v1", func(r chi.Router) {
+		r.Use(handler.TimeoutMiddleware)
 		r.Use(handler.TraceMiddleware)
 
 		r.Mount("/auth", authHandler.Routes())
