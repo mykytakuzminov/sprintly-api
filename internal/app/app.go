@@ -14,7 +14,6 @@ import (
 	"github.com/mykytakuzminov/task-manager-api/internal/auth"
 	"github.com/mykytakuzminov/task-manager-api/internal/config"
 	"github.com/mykytakuzminov/task-manager-api/internal/handler"
-	"github.com/mykytakuzminov/task-manager-api/internal/handler/middleware"
 	"github.com/mykytakuzminov/task-manager-api/internal/infra/pgclient"
 	"github.com/mykytakuzminov/task-manager-api/internal/infra/rdclient"
 	"github.com/mykytakuzminov/task-manager-api/internal/repository/pgrepo"
@@ -38,12 +37,12 @@ func New() *App {
 	l := zap.Must(zap.NewProduction())
 	logger := l.Sugar()
 
-	cfg := config.Load()
+	cfg := config.Load(logger)
 	auth := auth.NewAuth(cfg.JWT)
 
 	pool := initDB(cfg, logger)
 	client := initRedis(cfg, logger)
-	router := initRouter(pool, client, auth)
+	router := initRouter(logger, pool, client, auth)
 
 	return &App{
 		cfg:    cfg,
@@ -128,33 +127,38 @@ func initRedis(cfg *config.Config, logger *zap.SugaredLogger) *redis.Client {
 	return client
 }
 
-func initRouter(pool *pgxpool.Pool, client *redis.Client, auth *auth.Auth) chi.Router {
+func initRouter(
+	logger *zap.SugaredLogger,
+	pool *pgxpool.Pool,
+	client *redis.Client,
+	auth *auth.Auth,
+) chi.Router {
 	router := chi.NewRouter()
 
 	router.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	userRepo := pgrepo.NewUserRepository(pool)
 	userSvc := service.NewUserService(userRepo)
-	userHandler := handler.NewUserHandler(userSvc, auth)
+	userHandler := handler.NewUserHandler(userSvc, auth, logger)
 
 	tokenRepo := rdrepo.NewTokenRepository(client)
 	authSvc := service.NewAuthService(userRepo, tokenRepo, auth)
-	authHandler := handler.NewAuthHandler(authSvc)
+	authHandler := handler.NewAuthHandler(authSvc, logger)
 
 	boardRepo := pgrepo.NewBoardRepository(pool)
 	boardSvc := service.NewBoardService(boardRepo)
-	boardHandler := handler.NewBoardHandler(boardSvc, auth)
+	boardHandler := handler.NewBoardHandler(boardSvc, auth, logger)
 
 	columnRepo := pgrepo.NewColumnRepository(pool)
 	columnSvc := service.NewColumnService(columnRepo, boardRepo)
-	columnHandler := handler.NewColumnHandler(columnSvc, auth)
+	columnHandler := handler.NewColumnHandler(columnSvc, auth, logger)
 
 	taskRepo := pgrepo.NewTaskRepository(pool)
 	taskSvc := service.NewTaskService(taskRepo, columnRepo)
-	taskHandler := handler.NewTaskHandler(taskSvc, auth)
+	taskHandler := handler.NewTaskHandler(taskSvc, auth, logger)
 
 	router.Route("/api/v1", func(r chi.Router) {
-		r.Use(middleware.TraceMiddleware)
+		r.Use(handler.TraceMiddleware)
 
 		r.Mount("/auth", authHandler.Routes())
 		r.Mount("/users", userHandler.Routes())

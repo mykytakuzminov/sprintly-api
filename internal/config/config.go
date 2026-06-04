@@ -1,12 +1,12 @@
 package config
 
 import (
-	"log"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/joho/godotenv"
+	"go.uber.org/zap"
 )
 
 type Config struct {
@@ -16,9 +16,9 @@ type Config struct {
 	Redis    *RedisConfig
 }
 
-func Load() *Config {
+func Load(logger *zap.SugaredLogger) *Config {
 	if err := godotenv.Load(); err != nil {
-		log.Println("no .env file, reading from environment")
+		logger.Warnw("no .env file, reading from environment")
 	}
 
 	cfg := &Config{
@@ -48,16 +48,16 @@ func Load() *Config {
 	}
 
 	if cfg.Database.Password == "" {
-		log.Fatal("POSTGRES_PASSWORD is required")
+		logger.Fatalw("POSTGRES_PASSWORD is required")
 	}
 	if cfg.Database.DBName == "" {
-		log.Fatal("POSTGRES_DB is required")
+		logger.Fatalw("POSTGRES_DB is required")
 	}
 	if cfg.JWT.Secret == "" {
-		log.Fatal("JWT_SECRET is required")
+		logger.Fatalw("JWT_SECRET is required")
 	}
 	if cfg.Redis.Password == "" {
-		log.Fatal("REDIS_PASSWORD is required")
+		logger.Fatalw("REDIS_PASSWORD is required")
 	}
 
 	return cfg
