@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/mykytakuzminov/task-manager-api/internal/auth"
@@ -46,6 +47,15 @@ func TraceMiddleware(next http.Handler) http.Handler {
 		w.Header().Set("X-Trace-ID", traceID.String())
 
 		ctx := context.WithValue(r.Context(), TraceIDKey, traceID)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func TimeoutMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+		defer cancel()
+
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
