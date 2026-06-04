@@ -8,7 +8,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/mykytakuzminov/task-manager-api/internal/auth"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
-	"github.com/mykytakuzminov/task-manager-api/internal/handler/middleware"
 	"go.uber.org/zap"
 )
 
@@ -29,7 +28,7 @@ func NewBoardHandler(
 func (h *BoardHandler) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Use(middleware.AuthMiddleware(h.auth))
+	r.Use(AuthMiddleware(h.auth, h.logger))
 
 	r.Post("/", h.Create)
 	r.Get("/", h.GetAll)

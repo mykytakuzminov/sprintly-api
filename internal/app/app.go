@@ -14,7 +14,6 @@ import (
 	"github.com/mykytakuzminov/task-manager-api/internal/auth"
 	"github.com/mykytakuzminov/task-manager-api/internal/config"
 	"github.com/mykytakuzminov/task-manager-api/internal/handler"
-	"github.com/mykytakuzminov/task-manager-api/internal/handler/middleware"
 	"github.com/mykytakuzminov/task-manager-api/internal/infra/pgclient"
 	"github.com/mykytakuzminov/task-manager-api/internal/infra/rdclient"
 	"github.com/mykytakuzminov/task-manager-api/internal/repository/pgrepo"
@@ -159,7 +158,7 @@ func initRouter(
 	taskHandler := handler.NewTaskHandler(taskSvc, auth, logger)
 
 	router.Route("/api/v1", func(r chi.Router) {
-		r.Use(middleware.TraceMiddleware)
+		r.Use(handler.TraceMiddleware)
 
 		r.Mount("/auth", authHandler.Routes())
 		r.Mount("/users", userHandler.Routes())

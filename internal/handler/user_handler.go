@@ -8,7 +8,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/mykytakuzminov/task-manager-api/internal/auth"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
-	"github.com/mykytakuzminov/task-manager-api/internal/handler/middleware"
 	"go.uber.org/zap"
 )
 
@@ -32,7 +31,7 @@ func (h *UserHandler) Routes() chi.Router {
 	r.Post("/register", h.Register)
 
 	r.Group(func(r chi.Router) {
-		r.Use(middleware.AuthMiddleware(h.auth))
+		r.Use(AuthMiddleware(h.auth, h.logger))
 		r.Get("/me", h.Me)
 		r.Patch("/me/password", h.ChangePassword)
 	})

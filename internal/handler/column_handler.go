@@ -8,7 +8,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/mykytakuzminov/task-manager-api/internal/auth"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
-	"github.com/mykytakuzminov/task-manager-api/internal/handler/middleware"
 	"go.uber.org/zap"
 )
 
@@ -29,7 +28,7 @@ func NewColumnHandler(
 func (h *ColumnHandler) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Use(middleware.AuthMiddleware(h.auth))
+	r.Use(AuthMiddleware(h.auth, h.logger))
 
 	r.Get("/{id}", h.GetByID)
 	r.Patch("/{id}", h.Update)
@@ -41,7 +40,7 @@ func (h *ColumnHandler) Routes() chi.Router {
 func (h *ColumnHandler) BoardRoutes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Use(middleware.AuthMiddleware(h.auth))
+	r.Use(AuthMiddleware(h.auth, h.logger))
 
 	r.Post("/", h.Create)
 	r.Get("/", h.GetAll)

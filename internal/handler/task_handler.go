@@ -8,7 +8,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/mykytakuzminov/task-manager-api/internal/auth"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
-	"github.com/mykytakuzminov/task-manager-api/internal/handler/middleware"
 	"go.uber.org/zap"
 )
 
@@ -29,7 +28,7 @@ func NewTaskHandler(
 func (h *TaskHandler) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Use(middleware.AuthMiddleware(h.auth))
+	r.Use(AuthMiddleware(h.auth, h.logger))
 
 	r.Get("/{id}", h.GetByID)
 	r.Patch("/{id}", h.Update)
@@ -41,7 +40,7 @@ func (h *TaskHandler) Routes() chi.Router {
 func (h *TaskHandler) ColumnRoutes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Use(middleware.AuthMiddleware(h.auth))
+	r.Use(AuthMiddleware(h.auth, h.logger))
 
 	r.Post("/", h.Create)
 	r.Get("/", h.GetAllByColumnID)
@@ -52,7 +51,7 @@ func (h *TaskHandler) ColumnRoutes() chi.Router {
 func (h *TaskHandler) UserRoutes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Use(middleware.AuthMiddleware(h.auth))
+	r.Use(AuthMiddleware(h.auth, h.logger))
 
 	r.Get("/", h.GetAllByUserID)
 	r.Get("/assigned", h.GetAllByAssigneeID)

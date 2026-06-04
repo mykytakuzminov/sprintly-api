@@ -6,17 +6,16 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
-	"github.com/mykytakuzminov/task-manager-api/internal/handler/middleware"
 	"go.uber.org/zap"
 )
 
 func getUserID(r *http.Request) (uuid.UUID, bool) {
-	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	userID, ok := r.Context().Value(UserIDKey).(uuid.UUID)
 	return userID, ok
 }
 
 func getTraceID(r *http.Request, logger *zap.SugaredLogger) uuid.UUID {
-	traceID, ok := r.Context().Value(middleware.TraceIDKey).(uuid.UUID)
+	traceID, ok := r.Context().Value(TraceIDKey).(uuid.UUID)
 
 	if !ok {
 		traceID = uuid.Nil
