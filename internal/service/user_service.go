@@ -71,7 +71,7 @@ func (s *UserSvc) ChangePassword(
 		[]byte(user.HashPassword),
 		[]byte(input.OldPassword),
 	); err != nil {
-		return domain.ErrUnauthorized
+		return domain.ErrInvalidCredentials
 	}
 
 	hpwd, err := bcrypt.GenerateFromPassword([]byte(input.NewPassword), 12)
