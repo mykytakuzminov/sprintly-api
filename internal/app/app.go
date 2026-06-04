@@ -152,7 +152,7 @@ func initRouter(
 
 	columnRepo := pgrepo.NewColumnRepository(pool)
 	columnSvc := service.NewColumnService(columnRepo, boardRepo)
-	columnHandler := handler.NewColumnHandler(columnSvc, auth)
+	columnHandler := handler.NewColumnHandler(columnSvc, auth, logger)
 
 	taskRepo := pgrepo.NewTaskRepository(pool)
 	taskSvc := service.NewTaskService(taskRepo, columnRepo)
