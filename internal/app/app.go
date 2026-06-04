@@ -148,7 +148,7 @@ func initRouter(
 
 	boardRepo := pgrepo.NewBoardRepository(pool)
 	boardSvc := service.NewBoardService(boardRepo)
-	boardHandler := handler.NewBoardHandler(boardSvc, auth)
+	boardHandler := handler.NewBoardHandler(boardSvc, auth, logger)
 
 	columnRepo := pgrepo.NewColumnRepository(pool)
 	columnSvc := service.NewColumnService(columnRepo, boardRepo)
