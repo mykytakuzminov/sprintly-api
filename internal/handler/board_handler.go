@@ -143,11 +143,12 @@ func (h *BoardHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.svc.Update(r.Context(), boardID, userID, &input); err != nil {
-		if errors.Is(err, domain.ErrNotFound) {
+		switch {
+		case errors.Is(err, domain.ErrNotFound):
 			logWarn(h.logger, traceID, "board not found", err)
-		} else if errors.Is(err, domain.ErrForbidden) {
+		case errors.Is(err, domain.ErrForbidden):
 			logWarn(h.logger, traceID, "access denied", err)
-		} else {
+		default:
 			logUnexpectedError(h.logger, traceID, err)
 		}
 		errorResponse(w, err)
@@ -176,11 +177,12 @@ func (h *BoardHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.svc.Delete(r.Context(), boardID, userID); err != nil {
-		if errors.Is(err, domain.ErrNotFound) {
+		switch {
+		case errors.Is(err, domain.ErrNotFound):
 			logWarn(h.logger, traceID, "board not found", err)
-		} else if errors.Is(err, domain.ErrForbidden) {
+		case errors.Is(err, domain.ErrForbidden):
 			logWarn(h.logger, traceID, "access denied", err)
-		} else {
+		default:
 			logUnexpectedError(h.logger, traceID, err)
 		}
 		errorResponse(w, err)

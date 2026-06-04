@@ -52,18 +52,19 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.svc.Register(r.Context(), &input)
 	if err != nil {
-		if errors.Is(err, domain.ErrBadRequest) {
+		switch {
+		case errors.Is(err, domain.ErrBadRequest):
 			logWarn(h.logger, traceID, "invalid registration data", err)
-		} else if errors.Is(err, domain.ErrConflict) {
+		case errors.Is(err, domain.ErrConflict):
 			logWarn(h.logger, traceID, "user already exists", err)
-		} else {
+		default:
 			logUnexpectedError(h.logger, traceID, err)
 		}
 		errorResponse(w, err)
 		return
 	}
 
-	logSuccess(h.logger, traceID, "user successfully created", "user_id", user.ID)
+	logSuccess(h.logger, traceID, "user created", "user_id", user.ID)
 	successResponse(w, http.StatusCreated, toUserResponse(user))
 }
 
@@ -85,18 +86,19 @@ func (h *UserHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.svc.ChangePassword(r.Context(), userID, &input); err != nil {
-		if errors.Is(err, domain.ErrNotFound) {
+		switch {
+		case errors.Is(err, domain.ErrNotFound):
 			logWarn(h.logger, traceID, "user not found", err)
-		} else if errors.Is(err, domain.ErrUnauthorized) {
+		case errors.Is(err, domain.ErrUnauthorized):
 			logWarn(h.logger, traceID, "wrong current password", err)
-		} else {
+		default:
 			logUnexpectedError(h.logger, traceID, err)
 		}
 		errorResponse(w, err)
 		return
 	}
 
-	logSuccess(h.logger, traceID, "password successfully updated", "user_id", userID)
+	logSuccess(h.logger, traceID, "password updated", "user_id", userID)
 	noContentResponse(w)
 }
 

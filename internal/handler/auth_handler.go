@@ -50,7 +50,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logSuccess(h.logger, traceID, "user successfully authenthicated")
+	logSuccess(h.logger, traceID, "user authenticated")
 	successResponse(w, http.StatusOK, tokens)
 }
 
