@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"net"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -29,6 +30,17 @@ func getURLParam(r *http.Request, key string) (uuid.UUID, error) {
 	return uuid.Parse(chi.URLParam(r, key))
 }
 
+func getClientIP(r *http.Request) string {
+	if ip := r.Header.Get("X-Forwarded-For"); ip != "" {
+		return ip
+	}
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return r.RemoteAddr
+	}
+	return host
+}
+
 func logInvalidBody(logger *zap.SugaredLogger, traceID uuid.UUID, err error) {
 	logger.Warnw(
 		"invalid request body",
@@ -50,6 +62,14 @@ func logUnauthorizedAccess(logger *zap.SugaredLogger, traceID uuid.UUID) {
 		"unauthorized access",
 		"trace_id", traceID,
 		"error", domain.ErrUnauthorized,
+	)
+}
+
+func logTooManyRequests(logger *zap.SugaredLogger, traceID uuid.UUID) {
+	logger.Warnw(
+		"too many requests",
+		"trace_id", traceID,
+		"error", domain.ErrTooManyRequests,
 	)
 }
 

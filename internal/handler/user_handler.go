@@ -28,13 +28,16 @@ func NewUserHandler(
 func (h *UserHandler) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Post("/register", h.Register)
+	r.Get("/me", h.Me)
+	r.Patch("/me/password", h.ChangePassword)
 
-	r.Group(func(r chi.Router) {
-		r.Use(AuthMiddleware(h.auth, h.logger))
-		r.Get("/me", h.Me)
-		r.Patch("/me/password", h.ChangePassword)
-	})
+	return r
+}
+
+func (h *UserHandler) RouteRegister() chi.Router {
+	r := chi.NewRouter()
+
+	r.Post("/", h.Register)
 
 	return r
 }

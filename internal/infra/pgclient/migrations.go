@@ -17,7 +17,7 @@ func RunMigrations(cfg *config.Config) error {
 
 	driver, err := iofs.New(migrationsFS, "migrations")
 	if err != nil {
-    	return err
+		return err
 	}
 
 	m, err := migrate.NewWithSourceInstance("iofs", driver, url)

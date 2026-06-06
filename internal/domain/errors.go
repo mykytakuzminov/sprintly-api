@@ -9,4 +9,5 @@ var (
 	ErrUnauthorized       = errors.New("missing or invalid token")
 	ErrInvalidCredentials = errors.New("invalid credentials")
 	ErrBadRequest         = errors.New("invalid request body")
+	ErrTooManyRequests    = errors.New("too many requests")
 )
