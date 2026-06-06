@@ -28,8 +28,6 @@ func NewTaskHandler(
 func (h *TaskHandler) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Use(AuthMiddleware(h.auth, h.logger))
-
 	r.Get("/{id}", h.GetByID)
 	r.Patch("/{id}", h.Update)
 	r.Delete("/{id}", h.Delete)
@@ -39,8 +37,6 @@ func (h *TaskHandler) Routes() chi.Router {
 
 func (h *TaskHandler) ColumnRoutes() chi.Router {
 	r := chi.NewRouter()
-
-	r.Use(AuthMiddleware(h.auth, h.logger))
 
 	r.Post("/", h.Create)
 	r.Get("/", h.GetAllByColumnID)

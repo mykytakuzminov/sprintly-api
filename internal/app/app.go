@@ -137,6 +137,9 @@ func initRouter(
 
 	router.Get("/swagger/*", httpSwagger.WrapHandler)
 
+	rateLimitRepo := rdrepo.NewRateLimitRepo(client)
+	rateLimitSvc := service.NewRateLimitService(rateLimitRepo, 60.0, 1.0, time.Minute)
+
 	userRepo := pgrepo.NewUserRepository(pool)
 	userSvc := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userSvc, auth, logger)
@@ -161,17 +164,28 @@ func initRouter(
 		r.Use(handler.TimeoutMiddleware)
 		r.Use(handler.TraceMiddleware)
 
-		r.Mount("/auth", authHandler.Routes())
-		r.Mount("/users", userHandler.Routes())
-		r.Mount("/users/me/tasks", taskHandler.UserRoutes())
+		r.Group(func(r chi.Router) {
+			r.Use(handler.RateLimiterMiddleware(rateLimitSvc, logger))
 
-		r.Mount("/boards", boardHandler.Routes())
+			r.Mount("/auth", authHandler.Routes())
+			r.Mount("/users/register", userHandler.RouteRegister())
+		})
 
-		r.Mount("/boards/{boardID}/columns", columnHandler.BoardRoutes())
-		r.Mount("/columns", columnHandler.Routes())
+		r.Group(func(r chi.Router) {
+			r.Use(handler.AuthMiddleware(auth, logger))
+			r.Use(handler.RateLimiterMiddleware(rateLimitSvc, logger))
 
-		r.Mount("/columns/{columnID}/tasks", taskHandler.ColumnRoutes())
-		r.Mount("/tasks", taskHandler.Routes())
+			r.Mount("/users", userHandler.Routes())
+			r.Mount("/users/me/tasks", taskHandler.UserRoutes())
+
+			r.Mount("/boards", boardHandler.Routes())
+
+			r.Mount("/boards/{boardID}/columns", columnHandler.BoardRoutes())
+			r.Mount("/columns", columnHandler.Routes())
+
+			r.Mount("/columns/{columnID}/tasks", taskHandler.ColumnRoutes())
+			r.Mount("/tasks", taskHandler.Routes())
+		})
 	})
 
 	return router

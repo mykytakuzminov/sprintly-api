@@ -26,6 +26,8 @@ func errorResponse(w http.ResponseWriter, err error) {
 		status = http.StatusUnauthorized
 	case errors.Is(err, domain.ErrBadRequest):
 		status = http.StatusBadRequest
+	case errors.Is(err, domain.ErrTooManyRequests):
+		status = http.StatusTooManyRequests
 	default:
 		status = http.StatusInternalServerError
 	}

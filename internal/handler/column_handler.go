@@ -28,8 +28,6 @@ func NewColumnHandler(
 func (h *ColumnHandler) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Use(AuthMiddleware(h.auth, h.logger))
-
 	r.Get("/{id}", h.GetByID)
 	r.Patch("/{id}", h.Update)
 	r.Delete("/{id}", h.Delete)
@@ -39,8 +37,6 @@ func (h *ColumnHandler) Routes() chi.Router {
 
 func (h *ColumnHandler) BoardRoutes() chi.Router {
 	r := chi.NewRouter()
-
-	r.Use(AuthMiddleware(h.auth, h.logger))
 
 	r.Post("/", h.Create)
 	r.Get("/", h.GetAll)

@@ -28,8 +28,6 @@ func NewBoardHandler(
 func (h *BoardHandler) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Use(AuthMiddleware(h.auth, h.logger))
-
 	r.Post("/", h.Create)
 	r.Get("/", h.GetAll)
 	r.Get("/{id}", h.GetByID)
