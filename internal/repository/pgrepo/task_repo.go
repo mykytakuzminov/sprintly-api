@@ -6,16 +6,15 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
 )
 
 type TaskRepo struct {
-	pool *pgxpool.Pool
+	db DB
 }
 
-func NewTaskRepository(pool *pgxpool.Pool) domain.TaskRepository {
-	return &TaskRepo{pool: pool}
+func NewTaskRepository(db DB) domain.TaskRepository {
+	return &TaskRepo{db: db}
 }
 
 func (r *TaskRepo) Create(ctx context.Context, task *domain.Task) error {
@@ -25,7 +24,7 @@ func (r *TaskRepo) Create(ctx context.Context, task *domain.Task) error {
 		RETURNING created_at, updated_at
 	`
 
-	return r.pool.QueryRow(ctx, query,
+	return r.db.QueryRow(ctx, query,
 		task.ID,
 		task.OwnerID,
 		task.ColumnID,
@@ -43,7 +42,7 @@ func (r *TaskRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Task, err
 		WHERE id = $1
 	`
 
-	return scanTask(r.pool.QueryRow(ctx, query, id))
+	return scanTask(r.db.QueryRow(ctx, query, id))
 }
 
 func (r *TaskRepo) GetOwnerID(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
@@ -55,7 +54,7 @@ func (r *TaskRepo) GetOwnerID(ctx context.Context, id uuid.UUID) (uuid.UUID, err
 		WHERE tasks.id = $1
 	`
 
-	return scanOwnerID(r.pool.QueryRow(ctx, query, id))
+	return scanOwnerID(r.db.QueryRow(ctx, query, id))
 }
 
 func (r *TaskRepo) GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*domain.Task, error) {
@@ -65,7 +64,7 @@ func (r *TaskRepo) GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*dom
 		WHERE owner_id = $1
 	`
 
-	rows, err := r.pool.Query(ctx, query, userID)
+	rows, err := r.db.Query(ctx, query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +80,7 @@ func (r *TaskRepo) GetAllByColumnID(ctx context.Context, columnID uuid.UUID) ([]
 		WHERE column_id = $1
 	`
 
-	rows, err := r.pool.Query(ctx, query, columnID)
+	rows, err := r.db.Query(ctx, query, columnID)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +96,7 @@ func (r *TaskRepo) GetAllByAssigneeID(ctx context.Context, assigneeID uuid.UUID)
 		WHERE assignee_id = $1
 	`
 
-	rows, err := r.pool.Query(ctx, query, assigneeID)
+	rows, err := r.db.Query(ctx, query, assigneeID)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +112,7 @@ func (r *TaskRepo) Update(ctx context.Context, task *domain.Task) error {
 		WHERE id = $1
 	`
 
-	tag, err := r.pool.Exec(ctx, query,
+	tag, err := r.db.Exec(ctx, query,
 		task.ID,
 		task.ColumnID,
 		task.AssigneeID,
@@ -136,7 +135,7 @@ func (r *TaskRepo) Delete(ctx context.Context, id uuid.UUID) error {
 		DELETE FROM tasks WHERE id = $1
 	`
 
-	tag, err := r.pool.Exec(ctx, query, id)
+	tag, err := r.db.Exec(ctx, query, id)
 	if err != nil {
 		return err
 	}

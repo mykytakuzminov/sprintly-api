@@ -6,16 +6,15 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
 )
 
 type BoardRepo struct {
-	pool *pgxpool.Pool
+	db DB
 }
 
-func NewBoardRepository(pool *pgxpool.Pool) domain.BoardRepository {
-	return &BoardRepo{pool: pool}
+func NewBoardRepository(db DB) domain.BoardRepository {
+	return &BoardRepo{db: db}
 }
 
 func (r *BoardRepo) Create(ctx context.Context, board *domain.Board) error {
@@ -25,7 +24,7 @@ func (r *BoardRepo) Create(ctx context.Context, board *domain.Board) error {
 		RETURNING created_at, updated_at
 	`
 
-	return r.pool.QueryRow(ctx, query,
+	return r.db.QueryRow(ctx, query,
 		board.ID,
 		board.OwnerID,
 		board.Name,
@@ -40,7 +39,7 @@ func (r *BoardRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Board, e
 		WHERE id = $1
 	`
 
-	return scanBoard(r.pool.QueryRow(ctx, query, id))
+	return scanBoard(r.db.QueryRow(ctx, query, id))
 }
 
 func (r *BoardRepo) GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*domain.Board, error) {
@@ -52,7 +51,7 @@ func (r *BoardRepo) GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*do
 
 	var boards []*domain.Board
 
-	rows, err := r.pool.Query(ctx, query, userID)
+	rows, err := r.db.Query(ctx, query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +86,7 @@ func (r *BoardRepo) Update(ctx context.Context, board *domain.Board) error {
 		WHERE id = $1
 	`
 
-	tag, err := r.pool.Exec(ctx, query, board.ID, board.Name, board.Description)
+	tag, err := r.db.Exec(ctx, query, board.ID, board.Name, board.Description)
 	if err != nil {
 		return err
 	}
@@ -103,7 +102,7 @@ func (r *BoardRepo) Delete(ctx context.Context, id uuid.UUID) error {
 		DELETE FROM boards WHERE id = $1
 	`
 
-	tag, err := r.pool.Exec(ctx, query, id)
+	tag, err := r.db.Exec(ctx, query, id)
 	if err != nil {
 		return err
 	}
