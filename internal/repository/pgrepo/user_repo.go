@@ -7,16 +7,15 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
 )
 
 type UserRepo struct {
-	pool *pgxpool.Pool
+	db DB
 }
 
-func NewUserRepository(pool *pgxpool.Pool) domain.UserRepository {
-	return &UserRepo{pool: pool}
+func NewUserRepository(db DB) domain.UserRepository {
+	return &UserRepo{db: db}
 }
 
 func (r *UserRepo) Create(ctx context.Context, user *domain.User) error {
@@ -25,7 +24,7 @@ func (r *UserRepo) Create(ctx context.Context, user *domain.User) error {
 		VALUES ($1, $2, $3)
 		RETURNING created_at, updated_at
 	`
-	err := r.pool.QueryRow(ctx, query,
+	err := r.db.QueryRow(ctx, query,
 		user.ID,
 		user.Email,
 		user.HashPassword,
@@ -49,7 +48,7 @@ func (r *UserRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, err
 		WHERE id = $1
 	`
 
-	return scanUser(r.pool.QueryRow(ctx, query, id))
+	return scanUser(r.db.QueryRow(ctx, query, id))
 }
 
 func (r *UserRepo) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
@@ -59,7 +58,7 @@ func (r *UserRepo) GetByEmail(ctx context.Context, email string) (*domain.User, 
 		WHERE email = $1
 	`
 
-	return scanUser(r.pool.QueryRow(ctx, query, email))
+	return scanUser(r.db.QueryRow(ctx, query, email))
 }
 
 func (r *UserRepo) Update(ctx context.Context, user *domain.User) error {
@@ -69,7 +68,7 @@ func (r *UserRepo) Update(ctx context.Context, user *domain.User) error {
 		WHERE id = $1
 	`
 
-	tag, err := r.pool.Exec(ctx, query, user.ID, user.HashPassword)
+	tag, err := r.db.Exec(ctx, query, user.ID, user.HashPassword)
 	if err != nil {
 		return err
 	}
@@ -85,7 +84,7 @@ func (r *UserRepo) Delete(ctx context.Context, id uuid.UUID) error {
 		DELETE FROM users WHERE id = $1
 	`
 
-	tag, err := r.pool.Exec(ctx, query, id)
+	tag, err := r.db.Exec(ctx, query, id)
 	if err != nil {
 		return err
 	}

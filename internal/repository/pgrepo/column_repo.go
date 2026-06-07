@@ -6,16 +6,15 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
 )
 
 type ColumnRepo struct {
-	pool *pgxpool.Pool
+	db DB
 }
 
-func NewColumnRepository(pool *pgxpool.Pool) domain.ColumnRepository {
-	return &ColumnRepo{pool: pool}
+func NewColumnRepository(db DB) domain.ColumnRepository {
+	return &ColumnRepo{db: db}
 }
 
 func (r *ColumnRepo) Create(ctx context.Context, column *domain.Column) error {
@@ -24,7 +23,7 @@ func (r *ColumnRepo) Create(ctx context.Context, column *domain.Column) error {
 		VALUES ($1, $2, $3, $4)
 	`
 
-	_, err := r.pool.Exec(ctx, query,
+	_, err := r.db.Exec(ctx, query,
 		column.ID,
 		column.BoardID,
 		column.Name,
@@ -41,7 +40,7 @@ func (r *ColumnRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Column,
 		WHERE id = $1
 	`
 
-	return scanColumn(r.pool.QueryRow(ctx, query, id))
+	return scanColumn(r.db.QueryRow(ctx, query, id))
 }
 
 func (r *ColumnRepo) GetOwnerID(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
@@ -52,7 +51,7 @@ func (r *ColumnRepo) GetOwnerID(ctx context.Context, id uuid.UUID) (uuid.UUID, e
 		WHERE columns.id = $1
 	`
 
-	return scanOwnerID(r.pool.QueryRow(ctx, query, id))
+	return scanOwnerID(r.db.QueryRow(ctx, query, id))
 }
 
 func (r *ColumnRepo) GetAllByBoardID(ctx context.Context, boardID uuid.UUID) ([]*domain.Column, error) {
@@ -64,7 +63,7 @@ func (r *ColumnRepo) GetAllByBoardID(ctx context.Context, boardID uuid.UUID) ([]
 
 	var columns []*domain.Column
 
-	rows, err := r.pool.Query(ctx, query, boardID)
+	rows, err := r.db.Query(ctx, query, boardID)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +96,7 @@ func (r *ColumnRepo) Update(ctx context.Context, column *domain.Column) error {
 		WHERE id = $1
 	`
 
-	tag, err := r.pool.Exec(ctx, query, column.ID, column.Name, column.Position)
+	tag, err := r.db.Exec(ctx, query, column.ID, column.Name, column.Position)
 	if err != nil {
 		return err
 	}
@@ -113,7 +112,7 @@ func (r *ColumnRepo) Delete(ctx context.Context, id uuid.UUID) error {
 		DELETE FROM columns WHERE id = $1
 	`
 
-	tag, err := r.pool.Exec(ctx, query, id)
+	tag, err := r.db.Exec(ctx, query, id)
 	if err != nil {
 		return err
 	}
