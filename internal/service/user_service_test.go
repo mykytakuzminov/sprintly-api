@@ -1,0 +1,160 @@
+package service
+
+import (
+	"context"
+	"errors"
+	"testing"
+
+	"github.com/google/uuid"
+	"github.com/mykytakuzminov/task-manager-api/internal/domain"
+	"golang.org/x/crypto/bcrypt"
+)
+
+type MockUserRepository struct {
+	createFn     func(ctx context.Context, user *domain.User) error
+	getByIDFn    func(ctx context.Context, id uuid.UUID) (*domain.User, error)
+	getByEmailFn func(ctx context.Context, email string) (*domain.User, error)
+	updateFn     func(ctx context.Context, user *domain.User) error
+}
+
+func (m *MockUserRepository) Create(ctx context.Context, user *domain.User) error {
+	return m.createFn(ctx, user)
+}
+
+func (m *MockUserRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+	return m.getByIDFn(ctx, id)
+}
+
+func (m *MockUserRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
+	return m.getByEmailFn(ctx, email)
+}
+
+func (m *MockUserRepository) Update(ctx context.Context, user *domain.User) error {
+	return m.updateFn(ctx, user)
+}
+
+func (m *MockUserRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	return nil
+}
+
+func TestUserService_Register(t *testing.T) {
+	repo := &MockUserRepository{
+		getByEmailFn: func(_ context.Context, _ string) (*domain.User, error) {
+			return nil, domain.ErrNotFound
+		},
+		createFn: func(_ context.Context, _ *domain.User) error {
+			return nil
+		},
+	}
+
+	svc := NewUserService(repo)
+
+	user, err := svc.Register(context.Background(), &domain.RegisterInput{
+		Email:    "test@example.com",
+		Password: "password123",
+	})
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if user.Email != "test@example.com" {
+		t.Errorf("expected email %v, got %v", "test@example.com", user.Email)
+	}
+}
+
+func TestUserService_Register_InvalidRequestBody(t *testing.T) {
+	svc := NewUserService(&MockUserRepository{})
+
+	_, err := svc.Register(context.Background(), &domain.RegisterInput{
+		Email:    "test",
+		Password: "pass",
+	})
+	if !errors.Is(err, domain.ErrBadRequest) {
+		t.Fatalf("expected ErrBadRequest, got %v", err)
+	}
+}
+
+func TestUserService_Register_DuplicateEmail(t *testing.T) {
+	repo := &MockUserRepository{
+		getByEmailFn: func(_ context.Context, _ string) (*domain.User, error) {
+			return nil, nil
+		},
+	}
+
+	svc := NewUserService(repo)
+
+	_, err := svc.Register(context.Background(), &domain.RegisterInput{
+		Email:    "test@example.com",
+		Password: "password123",
+	})
+	if !errors.Is(err, domain.ErrConflict) {
+		t.Fatalf("expected ErrConflict, got %v", err)
+	}
+}
+
+func TestUserService_ChangePassword(t *testing.T) {
+	hpwd, _ := bcrypt.GenerateFromPassword([]byte("hashpassword"), 12)
+
+	repo := &MockUserRepository{
+		getByIDFn: func(_ context.Context, _ uuid.UUID) (*domain.User, error) {
+			user := &domain.User{
+				HashPassword: string(hpwd),
+			}
+			return user, nil
+		},
+		updateFn: func(_ context.Context, _ *domain.User) error {
+			return nil
+		},
+	}
+
+	svc := NewUserService(repo)
+
+	err := svc.ChangePassword(context.Background(), uuid.New(), &domain.ChangePasswordInput{
+		OldPassword: "hashpassword",
+		NewPassword: "newpassword",
+	})
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+}
+
+func TestUserService_ChangePassword_NotFound(t *testing.T) {
+	repo := &MockUserRepository{
+		getByIDFn: func(_ context.Context, _ uuid.UUID) (*domain.User, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	svc := NewUserService(repo)
+
+	err := svc.ChangePassword(context.Background(), uuid.New(), &domain.ChangePasswordInput{
+		OldPassword: "hashpassword",
+		NewPassword: "newpassword",
+	})
+	if !errors.Is(err, domain.ErrNotFound) {
+		t.Fatalf("expected ErrNotFound, got %v", err)
+	}
+}
+
+func TestUserService_ChangePassword_IvalidCredentials(t *testing.T) {
+	hpwd, _ := bcrypt.GenerateFromPassword([]byte("hashpassword"), 12)
+
+	repo := &MockUserRepository{
+		getByIDFn: func(_ context.Context, _ uuid.UUID) (*domain.User, error) {
+			user := &domain.User{
+				HashPassword: string(hpwd),
+			}
+			return user, nil
+		},
+	}
+
+	svc := NewUserService(repo)
+
+	err := svc.ChangePassword(context.Background(), uuid.New(), &domain.ChangePasswordInput{
+		OldPassword: "password",
+		NewPassword: "newpassword",
+	})
+	if !errors.Is(err, domain.ErrInvalidCredentials) {
+		t.Fatalf("expected ErrInvalidCredentials, got %v", err)
+	}
+}
