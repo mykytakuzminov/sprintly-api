@@ -32,10 +32,13 @@ func TestMain(m *testing.M) {
 
 	testPool, err = pgclient.NewPool(cfg)
 	if err != nil {
+		container.Terminate(ctx)
 		logger.Fatalf("create pool: %v", err)
 	}
 
 	if err = pgclient.RunMigrations(cfg); err != nil {
+		container.Terminate(ctx)
+		testPool.Close()
 		logger.Fatalf("run migrations: %v", err)
 	}
 
