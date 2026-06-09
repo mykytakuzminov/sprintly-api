@@ -15,25 +15,41 @@ type MockUserRepository struct {
 	getByIDFn    func(ctx context.Context, id uuid.UUID) (*domain.User, error)
 	getByEmailFn func(ctx context.Context, email string) (*domain.User, error)
 	updateFn     func(ctx context.Context, user *domain.User) error
+	deleteFn     func(ctx context.Context, id uuid.UUID) error
 }
 
 func (m *MockUserRepository) Create(ctx context.Context, user *domain.User) error {
-	return m.createFn(ctx, user)
+	if m.createFn != nil {
+		return m.createFn(ctx, user)
+	}
+	return nil
 }
 
 func (m *MockUserRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
-	return m.getByIDFn(ctx, id)
+	if m.getByIDFn != nil {
+		return m.getByIDFn(ctx, id)
+	}
+	return nil, nil
 }
 
 func (m *MockUserRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
-	return m.getByEmailFn(ctx, email)
+	if m.getByEmailFn != nil {
+		return m.getByEmailFn(ctx, email)
+	}
+	return nil, nil
 }
 
 func (m *MockUserRepository) Update(ctx context.Context, user *domain.User) error {
-	return m.updateFn(ctx, user)
+	if m.updateFn != nil {
+		return m.updateFn(ctx, user)
+	}
+	return nil
 }
 
 func (m *MockUserRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	if m.deleteFn != nil {
+		return m.deleteFn(ctx, id)
+	}
 	return nil
 }
 
@@ -68,6 +84,18 @@ func TestUserService_Register_InvalidRequestBody(t *testing.T) {
 	_, err := svc.Register(context.Background(), &domain.RegisterInput{
 		Email:    "test",
 		Password: "pass",
+	})
+	if !errors.Is(err, domain.ErrBadRequest) {
+		t.Fatalf("expected ErrBadRequest, got %v", err)
+	}
+}
+
+func TestUserService_Register_EmptyFields(t *testing.T) {
+	svc := NewUserService(&MockUserRepository{})
+
+	_, err := svc.Register(context.Background(), &domain.RegisterInput{
+		Email:    "",
+		Password: "",
 	})
 	if !errors.Is(err, domain.ErrBadRequest) {
 		t.Fatalf("expected ErrBadRequest, got %v", err)
@@ -136,7 +164,19 @@ func TestUserService_ChangePassword_NotFound(t *testing.T) {
 	}
 }
 
-func TestUserService_ChangePassword_IvalidCredentials(t *testing.T) {
+func TestUserService_ChangePassword_InvalidRequestBody(t *testing.T) {
+	svc := NewUserService(&MockUserRepository{})
+
+	err := svc.ChangePassword(context.Background(), uuid.New(), &domain.ChangePasswordInput{
+		OldPassword: "short",
+		NewPassword: "short",
+	})
+	if !errors.Is(err, domain.ErrBadRequest) {
+		t.Fatalf("expected ErrBadRequest, got %v", err)
+	}
+}
+
+func TestUserService_ChangePassword_InvalidCredentials(t *testing.T) {
 	hpwd, _ := bcrypt.GenerateFromPassword([]byte("hashpassword"), 12)
 
 	repo := &MockUserRepository{
