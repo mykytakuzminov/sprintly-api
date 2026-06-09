@@ -62,6 +62,10 @@ func (s *UserSvc) ChangePassword(
 	userID uuid.UUID,
 	input *domain.ChangePasswordInput,
 ) error {
+	if err := s.validate.Struct(input); err != nil {
+		return domain.ErrBadRequest
+	}
+
 	user, err := s.repo.GetByID(ctx, userID)
 	if err != nil {
 		return err
