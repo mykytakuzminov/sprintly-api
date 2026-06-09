@@ -17,7 +17,7 @@ import (
 var testClient *redis.Client
 
 func TestMain(m *testing.M) {
-	_ = godotenv.Load("../../../.env.test")
+	_ = godotenv.Load("../../../.env.example")
 
 	l := zap.Must(zap.NewDevelopment())
 	logger := l.Sugar()

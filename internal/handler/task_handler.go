@@ -47,8 +47,6 @@ func (h *TaskHandler) ColumnRoutes() chi.Router {
 func (h *TaskHandler) UserRoutes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Use(AuthMiddleware(h.auth, h.logger))
-
 	r.Get("/", h.GetAllByUserID)
 	r.Get("/assigned", h.GetAllByAssigneeID)
 
