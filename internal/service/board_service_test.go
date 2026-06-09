@@ -11,29 +11,45 @@ import (
 )
 
 type MockBoardRepository struct {
-	createFn  func(ctx context.Context, board *domain.Board) error
-	getByIDFn func(ctx context.Context, id uuid.UUID) (*domain.Board, error)
-	updateFn  func(ctx context.Context, board *domain.Board) error
-	deleteFn  func(ctx context.Context, id uuid.UUID) error
+	createFn         func(ctx context.Context, board *domain.Board) error
+	getByIDFn        func(ctx context.Context, id uuid.UUID) (*domain.Board, error)
+	getAllByUserIDFn func(ctx context.Context, userID uuid.UUID) ([]*domain.Board, error)
+	updateFn         func(ctx context.Context, board *domain.Board) error
+	deleteFn         func(ctx context.Context, id uuid.UUID) error
 }
 
 func (m *MockBoardRepository) Create(ctx context.Context, board *domain.Board) error {
-	return m.createFn(ctx, board)
+	if m.createFn != nil {
+		return m.createFn(ctx, board)
+	}
+	return nil
 }
 
 func (m *MockBoardRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.Board, error) {
-	return m.getByIDFn(ctx, id)
-}
-
-func (m *MockBoardRepository) GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*domain.Board, error) {
+	if m.getByIDFn != nil {
+		return m.getByIDFn(ctx, id)
+	}
 	return nil, nil
 }
 
+func (m *MockBoardRepository) GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*domain.Board, error) {
+	if m.getAllByUserIDFn != nil {
+		return m.getAllByUserIDFn(ctx, userID)
+	}
+	return []*domain.Board{}, nil
+}
+
 func (m *MockBoardRepository) Update(ctx context.Context, board *domain.Board) error {
-	return m.updateFn(ctx, board)
+	if m.updateFn != nil {
+		return m.updateFn(ctx, board)
+	}
+	return nil
 }
 
 func (m *MockBoardRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	if m.deleteFn != nil {
+		return m.deleteFn(ctx, id)
+	}
 	return nil
 }
 
@@ -70,6 +86,17 @@ func TestBoardService_Create_InvalidBodyRequest(t *testing.T) {
 	}
 }
 
+func TestBoardService_Create_EmptyName(t *testing.T) {
+	svc := NewBoardService(&MockBoardRepository{})
+
+	_, err := svc.Create(context.Background(), uuid.New(), &domain.CreateBoardInput{
+		Name: "",
+	})
+	if !errors.Is(err, domain.ErrBadRequest) {
+		t.Fatalf("expected ErrBadRequest, got %v", err)
+	}
+}
+
 func TestBoardService_Update(t *testing.T) {
 	boardID := uuid.New()
 	userID := uuid.New()
@@ -100,6 +127,17 @@ func TestBoardService_Update(t *testing.T) {
 	}
 	if board.Name != "newname" {
 		t.Errorf("expected board name %v, got %v", "newname", board.Name)
+	}
+}
+
+func TestBoardService_Update_InvalidBodyRequest(t *testing.T) {
+	svc := NewBoardService(&MockBoardRepository{})
+
+	err := svc.Update(context.Background(), uuid.New(), uuid.New(), &domain.UpdateBoardInput{
+		Name: strings.Repeat("a", 101),
+	})
+	if !errors.Is(err, domain.ErrBadRequest) {
+		t.Fatalf("expected ErrBadRequest, got %v", err)
 	}
 }
 
