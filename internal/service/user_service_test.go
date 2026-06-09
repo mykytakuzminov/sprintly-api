@@ -69,7 +69,6 @@ func TestUserService_Register(t *testing.T) {
 		Email:    "test@example.com",
 		Password: "password123",
 	})
-
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
@@ -125,10 +124,9 @@ func TestUserService_ChangePassword(t *testing.T) {
 
 	repo := &MockUserRepository{
 		getByIDFn: func(_ context.Context, _ uuid.UUID) (*domain.User, error) {
-			user := &domain.User{
+			return &domain.User{
 				HashPassword: string(hpwd),
-			}
-			return user, nil
+			}, nil
 		},
 		updateFn: func(_ context.Context, _ *domain.User) error {
 			return nil
@@ -181,10 +179,9 @@ func TestUserService_ChangePassword_InvalidCredentials(t *testing.T) {
 
 	repo := &MockUserRepository{
 		getByIDFn: func(_ context.Context, _ uuid.UUID) (*domain.User, error) {
-			user := &domain.User{
+			return &domain.User{
 				HashPassword: string(hpwd),
-			}
-			return user, nil
+			}, nil
 		},
 	}
 

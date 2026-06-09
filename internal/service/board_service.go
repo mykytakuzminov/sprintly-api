@@ -62,6 +62,10 @@ func (s *BoardSvc) Update(
 	boardID, userID uuid.UUID,
 	input *domain.UpdateBoardInput,
 ) error {
+	if err := s.validate.Struct(input); err != nil {
+		return domain.ErrBadRequest
+	}
+
 	board, err := s.repo.GetByID(ctx, boardID)
 	if err != nil {
 		return err
