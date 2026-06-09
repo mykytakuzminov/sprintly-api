@@ -39,7 +39,7 @@ func (s *RateLimitService) AllowRequest(ctx context.Context, key string) (bool, 
 				LastUpdated: now,
 			}
 		} else {
-			return false, nil
+			return false, err
 		}
 	} else {
 		elapsedSeconds := now - bucket.LastUpdated
@@ -60,11 +60,11 @@ func (s *RateLimitService) AllowRequest(ctx context.Context, key string) (bool, 
 
 		err := s.repo.SaveBucket(ctx, key, bucket, s.ttl)
 		if err != nil {
-			return false, nil
+			return false, err
 		}
 
 		return true, nil
 	}
 
-	return false, nil
+	return false, err
 }
