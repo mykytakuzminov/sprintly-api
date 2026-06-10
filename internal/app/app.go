@@ -140,6 +140,9 @@ func initRouter(
 	rateLimitRepo := rdrepo.NewRateLimitRepo(client)
 	rateLimitSvc := service.NewRateLimitService(rateLimitRepo, 60.0, 1.0, time.Minute)
 
+	healthSvc := service.NewHealthService(pool, client)
+	healthHandler := handler.NewHealthHandler(healthSvc, logger)
+
 	userRepo := pgrepo.NewUserRepository(pool)
 	userSvc := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userSvc, auth, logger)
@@ -163,6 +166,8 @@ func initRouter(
 	router.Route("/api/v1", func(r chi.Router) {
 		r.Use(handler.TimeoutMiddleware)
 		r.Use(handler.TraceMiddleware)
+
+		r.Mount("/health", healthHandler.Routes())
 
 		r.Group(func(r chi.Router) {
 			r.Use(handler.RateLimiterMiddleware(rateLimitSvc, logger))

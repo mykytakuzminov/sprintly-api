@@ -1,6 +1,20 @@
 package handler
 
 // ─────────────────────────────────────────────
+// HEALTH
+// ─────────────────────────────────────────────
+
+// Health godoc
+// @Summary     Health check
+// @Description Returns the health status of the service including database and Redis connectivity.
+// @Tags        health
+// @Produce     json
+// @Success     200 {object} domain.HealthStats "Service is healthy"
+// @Failure     503 {object} domain.HealthStats "Service is degraded"
+// @Router      /health [get]
+func swaggerHealth() {}
+
+// ─────────────────────────────────────────────
 // AUTH
 // ─────────────────────────────────────────────
 
