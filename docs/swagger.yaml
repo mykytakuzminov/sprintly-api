@@ -106,6 +106,21 @@ definitions:
     required:
     - name
     type: object
+  domain.HealthStats:
+    properties:
+      db:
+        example: ok
+        type: string
+      redis:
+        example: ok
+        type: string
+      status:
+        example: ok
+        type: string
+      uptime:
+        example: 3600
+        type: integer
+    type: object
   domain.LoginInput:
     properties:
       email:
@@ -789,6 +804,24 @@ paths:
       summary: Update a column
       tags:
       - columns
+  /health:
+    get:
+      description: Returns the health status of the service including database and
+        Redis connectivity.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Service is healthy
+          schema:
+            $ref: '#/definitions/domain.HealthStats'
+        "503":
+          description: Service is degraded
+          schema:
+            $ref: '#/definitions/domain.HealthStats'
+      summary: Health check
+      tags:
+      - health
   /tasks/{id}:
     delete:
       description: Deletes a task by ID. Only the task owner (board owner) can perform
