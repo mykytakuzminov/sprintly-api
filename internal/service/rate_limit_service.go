@@ -8,7 +8,7 @@ import (
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
 )
 
-type RateLimitService struct {
+type RateLimitSvc struct {
 	repo             domain.RateLimitRepository
 	maxTokens        float64
 	refillRatePerSec float64
@@ -21,14 +21,14 @@ func NewRateLimitService(
 	refillRatePerSec float64,
 	ttl time.Duration,
 ) domain.RateLimitService {
-	return &RateLimitService{
+	return &RateLimitSvc{
 		repo:             repo,
 		maxTokens:        maxTokens,
 		refillRatePerSec: refillRatePerSec, ttl: ttl,
 	}
 }
 
-func (s *RateLimitService) AllowRequest(ctx context.Context, key string) (bool, error) {
+func (s *RateLimitSvc) AllowRequest(ctx context.Context, key string) (bool, error) {
 	now := time.Now().Unix()
 
 	bucket, err := s.repo.GetBucket(ctx, key)
