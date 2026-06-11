@@ -4,20 +4,17 @@ import (
 	"context"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
-	"github.com/redis/go-redis/v9"
 )
 
 type HealthSvc struct {
 	startTime time.Time
-	pool      *pgxpool.Pool
-	client    *redis.Client
+	db        domain.DBPinger
+	client    domain.RedisPinger
 }
 
-func NewHealthService(pool *pgxpool.Pool, client *redis.Client) *HealthSvc {
-	startTime := time.Now()
-	return &HealthSvc{startTime: startTime, pool: pool, client: client}
+func NewHealthService(db domain.DBPinger, client domain.RedisPinger) *HealthSvc {
+	return &HealthSvc{startTime: time.Now(), db: db, client: client}
 }
 
 func (s *HealthSvc) Check(ctx context.Context) *domain.HealthStats {
@@ -28,12 +25,12 @@ func (s *HealthSvc) Check(ctx context.Context) *domain.HealthStats {
 		Uptime: int64(time.Since(s.startTime).Seconds()),
 	}
 
-	if err := s.pool.Ping(ctx); err != nil {
+	if err := s.db.Ping(ctx); err != nil {
 		healthStats.Status = "degraded"
 		healthStats.DB = "unavailable"
 	}
 
-	if err := s.client.Ping(ctx).Err(); err != nil {
+	if err := s.client.Ping(ctx); err != nil {
 		healthStats.Status = "degraded"
 		healthStats.Redis = "unavailable"
 	}
