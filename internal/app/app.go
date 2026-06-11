@@ -13,6 +13,7 @@ import (
 	_ "github.com/mykytakuzminov/task-manager-api/docs"
 	"github.com/mykytakuzminov/task-manager-api/internal/auth"
 	"github.com/mykytakuzminov/task-manager-api/internal/config"
+	"github.com/mykytakuzminov/task-manager-api/internal/domain"
 	"github.com/mykytakuzminov/task-manager-api/internal/handler"
 	"github.com/mykytakuzminov/task-manager-api/internal/infra/pgclient"
 	"github.com/mykytakuzminov/task-manager-api/internal/infra/rdclient"
@@ -140,7 +141,7 @@ func initRouter(
 	rateLimitRepo := rdrepo.NewRateLimitRepo(client)
 	rateLimitSvc := service.NewRateLimitService(rateLimitRepo, 60.0, 1.0, time.Minute)
 
-	healthSvc := service.NewHealthService(pool, client)
+	healthSvc := service.NewHealthService(pool, domain.NewRedisClientWrapper(client))
 	healthHandler := handler.NewHealthHandler(healthSvc, logger)
 
 	userRepo := pgrepo.NewUserRepository(pool)
