@@ -43,7 +43,7 @@ func TestRateLimitService_AllowRequest(t *testing.T) {
 	}
 
 	repo := &MockRateLimitRepository{
-		getBucketFn: func(ctx context.Context, key string) (*domain.LimitationBucket, error) {
+		getBucketFn: func(_ context.Context, _ string) (*domain.LimitationBucket, error) {
 			return bucket, nil
 		},
 	}
@@ -66,7 +66,7 @@ func TestRateLimitService_AllowRequest_TokenRefill(t *testing.T) {
 	}
 
 	repo := &MockRateLimitRepository{
-		getBucketFn: func(ctx context.Context, key string) (*domain.LimitationBucket, error) {
+		getBucketFn: func(_ context.Context, _ string) (*domain.LimitationBucket, error) {
 			return bucket, nil
 		},
 	}
@@ -92,7 +92,7 @@ func TestRateLimitService_AllowRequest_TokenCap(t *testing.T) {
 	}
 
 	repo := &MockRateLimitRepository{
-		getBucketFn: func(ctx context.Context, key string) (*domain.LimitationBucket, error) {
+		getBucketFn: func(_ context.Context, _ string) (*domain.LimitationBucket, error) {
 			return bucket, nil
 		},
 	}
@@ -113,7 +113,7 @@ func TestRateLimitService_AllowRequest_TokenCap(t *testing.T) {
 
 func TestRateLimitService_AllowRequest_NotFound(t *testing.T) {
 	repo := &MockRateLimitRepository{
-		getBucketFn: func(ctx context.Context, key string) (*domain.LimitationBucket, error) {
+		getBucketFn: func(_ context.Context, _ string) (*domain.LimitationBucket, error) {
 			return nil, domain.ErrNotFound
 		},
 	}
@@ -131,7 +131,7 @@ func TestRateLimitService_AllowRequest_NotFound(t *testing.T) {
 
 func TestRateLimitService_AllowRequest_UnexpectedGetBucketError(t *testing.T) {
 	repo := &MockRateLimitRepository{
-		getBucketFn: func(ctx context.Context, key string) (*domain.LimitationBucket, error) {
+		getBucketFn: func(_ context.Context, _ string) (*domain.LimitationBucket, error) {
 			return nil, errors.New("unexpected error")
 		},
 	}
@@ -154,7 +154,7 @@ func TestRateLimitService_AllowRequest_NotEnoughTokens(t *testing.T) {
 	}
 
 	repo := &MockRateLimitRepository{
-		getBucketFn: func(ctx context.Context, key string) (*domain.LimitationBucket, error) {
+		getBucketFn: func(_ context.Context, _ string) (*domain.LimitationBucket, error) {
 			return bucket, nil
 		},
 	}
@@ -180,10 +180,10 @@ func TestRateLimitService_AllowRequest_UnexpectedSaveBucketError(t *testing.T) {
 	}
 
 	repo := &MockRateLimitRepository{
-		getBucketFn: func(ctx context.Context, key string) (*domain.LimitationBucket, error) {
+		getBucketFn: func(_ context.Context, _ string) (*domain.LimitationBucket, error) {
 			return bucket, nil
 		},
-		saveBucketFn: func(ctx context.Context, key string, bucket *domain.LimitationBucket, ttl time.Duration) error {
+		saveBucketFn: func(_ context.Context, _ string, _ *domain.LimitationBucket, _ time.Duration) error {
 			return errors.New("unexpected error")
 		},
 	}
