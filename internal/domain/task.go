@@ -38,9 +38,9 @@ type TaskRepository interface {
 	Create(ctx context.Context, task *Task) error
 	GetByID(ctx context.Context, id uuid.UUID) (*Task, error)
 	GetOwnerID(ctx context.Context, id uuid.UUID) (uuid.UUID, error)
-	GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*Task, error)
-	GetAllByColumnID(ctx context.Context, columnID uuid.UUID) ([]*Task, error)
-	GetAllByAssigneeID(ctx context.Context, assigneeID uuid.UUID) ([]*Task, error)
+	GetAllByUserID(ctx context.Context, userID uuid.UUID, params *ListParams) ([]*Task, error)
+	GetAllByColumnID(ctx context.Context, columnID uuid.UUID, params *ListParams) ([]*Task, error)
+	GetAllByAssigneeID(ctx context.Context, assigneeID uuid.UUID, params *ListParams) ([]*Task, error)
 	Update(ctx context.Context, task *Task) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
@@ -48,9 +48,9 @@ type TaskRepository interface {
 type TaskService interface {
 	Create(ctx context.Context, userID, columnID uuid.UUID, input *CreateTaskInput) (*Task, error)
 	GetByID(ctx context.Context, taskID uuid.UUID) (*Task, error)
-	GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*Task, error)
-	GetAllByColumnID(ctx context.Context, columnID uuid.UUID) ([]*Task, error)
-	GetAllByAssigneeID(ctx context.Context, assigneeID uuid.UUID) ([]*Task, error)
+	GetAllByUserID(ctx context.Context, userID uuid.UUID, params *ListParams) ([]*Task, error)
+	GetAllByColumnID(ctx context.Context, columnID uuid.UUID, params *ListParams) ([]*Task, error)
+	GetAllByAssigneeID(ctx context.Context, assigneeID uuid.UUID, params *ListParams) ([]*Task, error)
 	Update(ctx context.Context, taskID, userID uuid.UUID, input *UpdateTaskInput) error
 	Delete(ctx context.Context, taskID, userID uuid.UUID) error
 }

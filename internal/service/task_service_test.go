@@ -15,9 +15,9 @@ type MockTaskRepository struct {
 	createFn           func(ctx context.Context, task *domain.Task) error
 	getByIDFn          func(ctx context.Context, id uuid.UUID) (*domain.Task, error)
 	getOwnerIDFn       func(ctx context.Context, id uuid.UUID) (uuid.UUID, error)
-	getAllByUserIDFn   func(ctx context.Context, userID uuid.UUID) ([]*domain.Task, error)
-	getAllByColumnIDFn func(ctx context.Context, columnID uuid.UUID) ([]*domain.Task, error)
-	getAllByAssigneeFn func(ctx context.Context, assigneeID uuid.UUID) ([]*domain.Task, error)
+	getAllByUserIDFn   func(ctx context.Context, userID uuid.UUID, params *domain.ListParams) ([]*domain.Task, error)
+	getAllByColumnIDFn func(ctx context.Context, columnID uuid.UUID, params *domain.ListParams) ([]*domain.Task, error)
+	getAllByAssigneeFn func(ctx context.Context, assigneeID uuid.UUID, params *domain.ListParams) ([]*domain.Task, error)
 	updateFn           func(ctx context.Context, task *domain.Task) error
 	deleteFn           func(ctx context.Context, id uuid.UUID) error
 }
@@ -43,23 +43,23 @@ func (m *MockTaskRepository) GetOwnerID(ctx context.Context, id uuid.UUID) (uuid
 	return uuid.Nil, nil
 }
 
-func (m *MockTaskRepository) GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*domain.Task, error) {
+func (m *MockTaskRepository) GetAllByUserID(ctx context.Context, userID uuid.UUID, params *domain.ListParams) ([]*domain.Task, error) {
 	if m.getAllByUserIDFn != nil {
-		return m.getAllByUserIDFn(ctx, userID)
+		return m.getAllByUserIDFn(ctx, userID, params)
 	}
 	return []*domain.Task{}, nil
 }
 
-func (m *MockTaskRepository) GetAllByColumnID(ctx context.Context, columnID uuid.UUID) ([]*domain.Task, error) {
+func (m *MockTaskRepository) GetAllByColumnID(ctx context.Context, columnID uuid.UUID, params *domain.ListParams) ([]*domain.Task, error) {
 	if m.getAllByColumnIDFn != nil {
-		return m.getAllByColumnIDFn(ctx, columnID)
+		return m.getAllByColumnIDFn(ctx, columnID, params)
 	}
 	return []*domain.Task{}, nil
 }
 
-func (m *MockTaskRepository) GetAllByAssigneeID(ctx context.Context, assigneeID uuid.UUID) ([]*domain.Task, error) {
+func (m *MockTaskRepository) GetAllByAssigneeID(ctx context.Context, assigneeID uuid.UUID, params *domain.ListParams) ([]*domain.Task, error) {
 	if m.getAllByAssigneeFn != nil {
-		return m.getAllByAssigneeFn(ctx, assigneeID)
+		return m.getAllByAssigneeFn(ctx, assigneeID, params)
 	}
 	return []*domain.Task{}, nil
 }
