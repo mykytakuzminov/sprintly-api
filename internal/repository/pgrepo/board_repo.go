@@ -3,6 +3,8 @@ package pgrepo
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -42,16 +44,16 @@ func (r *BoardRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Board, e
 	return scanBoard(r.db.QueryRow(ctx, query, id))
 }
 
-func (r *BoardRepo) GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*domain.Board, error) {
-	query := `
-		SELECT id, owner_id, name, description, created_at, updated_at
-		FROM boards
-		WHERE owner_id = $1
-	`
+func (r *BoardRepo) GetAllByUserID(
+	ctx context.Context,
+	userID uuid.UUID,
+	params *domain.ListParams,
+) ([]*domain.Board, error) {
+	query := getBoardListQuery(params)
 
 	var boards []*domain.Board
 
-	rows, err := r.db.Query(ctx, query, userID)
+	rows, err := r.db.Query(ctx, query, userID, params.Limit, params.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -131,4 +133,33 @@ func scanBoard(row pgx.Row) (*domain.Board, error) {
 	}
 
 	return board, nil
+}
+
+func buildOrderLimitClause(params *domain.ListParams, allowedSort map[string]string) string {
+	sortCol, ok := allowedSort[params.SortBy]
+	if !ok {
+		sortCol = "created_at"
+	}
+
+	order := "ASC"
+	if strings.ToUpper(params.Order) == "DESC" {
+		order = "DESC"
+	}
+
+	return fmt.Sprintf("ORDER BY %s %s LIMIT $2 OFFSET $3", sortCol, order)
+}
+
+func getBoardListQuery(params *domain.ListParams) string {
+	allowedSort := map[string]string{
+		"created_at": "created_at",
+		"name":       "name",
+		"updated_at": "updated_at",
+	}
+
+	return fmt.Sprintf(`
+		SELECT id, owner_id, name, description, created_at, updated_at
+		FROM boards
+		WHERE owner_id = $1
+		%s
+	`, buildOrderLimitClause(params, allowedSort))
 }

@@ -107,7 +107,9 @@ func (h *TaskHandler) GetAllByColumnID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tasks, err := h.svc.GetAllByColumnID(r.Context(), columnID)
+	params := parseListParams(r)
+
+	tasks, err := h.svc.GetAllByColumnID(r.Context(), columnID, params)
 	if err != nil {
 		logUnexpectedError(h.logger, traceID, err)
 		errorResponse(w, err)
@@ -128,7 +130,9 @@ func (h *TaskHandler) GetAllByUserID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tasks, err := h.svc.GetAllByUserID(r.Context(), userID)
+	params := parseListParams(r)
+
+	tasks, err := h.svc.GetAllByUserID(r.Context(), userID, params)
 	if err != nil {
 		logUnexpectedError(h.logger, traceID, err)
 		errorResponse(w, err)
@@ -149,7 +153,9 @@ func (h *TaskHandler) GetAllByAssigneeID(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	tasks, err := h.svc.GetAllByAssigneeID(r.Context(), userID)
+	params := parseListParams(r)
+
+	tasks, err := h.svc.GetAllByAssigneeID(r.Context(), userID, params)
 	if err != nil {
 		logUnexpectedError(h.logger, traceID, err)
 		errorResponse(w, err)

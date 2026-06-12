@@ -3,6 +3,8 @@ package pgrepo
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -54,16 +56,16 @@ func (r *ColumnRepo) GetOwnerID(ctx context.Context, id uuid.UUID) (uuid.UUID, e
 	return scanOwnerID(r.db.QueryRow(ctx, query, id))
 }
 
-func (r *ColumnRepo) GetAllByBoardID(ctx context.Context, boardID uuid.UUID) ([]*domain.Column, error) {
-	query := `
-		SELECT id, board_id, name, position
-		FROM columns
-		WHERE board_id = $1
-	`
+func (r *ColumnRepo) GetAllByBoardID(
+	ctx context.Context,
+	boardID uuid.UUID,
+	params *domain.ListParams,
+) ([]*domain.Column, error) {
+	query := getColumnListQuery(params)
 
 	var columns []*domain.Column
 
-	rows, err := r.db.Query(ctx, query, boardID)
+	rows, err := r.db.Query(ctx, query, boardID, params.Limit, params.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -152,4 +154,31 @@ func scanOwnerID(row pgx.Row) (uuid.UUID, error) {
 	}
 
 	return ownerID, nil
+}
+
+func buildColumnOrderLimitClause(params *domain.ListParams, allowedSort map[string]string) string {
+	sortCol, ok := allowedSort[params.SortBy]
+	if !ok {
+		sortCol = "name"
+	}
+
+	order := "ASC"
+	if strings.ToUpper(params.Order) == "DESC" {
+		order = "DESC"
+	}
+
+	return fmt.Sprintf("ORDER BY %s %s LIMIT $2 OFFSET $3", sortCol, order)
+}
+
+func getColumnListQuery(params *domain.ListParams) string {
+	allowedSort := map[string]string{
+		"name": "name",
+	}
+
+	return fmt.Sprintf(`
+		SELECT id, board_id, name, position
+		FROM columns
+		WHERE board_id = $1
+		%s
+	`, buildColumnOrderLimitClause(params, allowedSort))
 }

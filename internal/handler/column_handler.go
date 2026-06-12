@@ -98,7 +98,9 @@ func (h *ColumnHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	columns, err := h.svc.GetAllByBoardID(r.Context(), boardID)
+	params := parseListParams(r)
+
+	columns, err := h.svc.GetAllByBoardID(r.Context(), boardID, params)
 	if err != nil {
 		logUnexpectedError(h.logger, traceID, err)
 		errorResponse(w, err)

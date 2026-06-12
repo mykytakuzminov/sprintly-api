@@ -177,7 +177,7 @@ func TestTaskRepo_GetAllByUserID(t *testing.T) {
 			Name:     "task 2",
 		})
 
-		tasks, err := repo.GetAllByUserID(ctx, user.ID)
+		tasks, err := repo.GetAllByUserID(ctx, user.ID, createParams())
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -191,7 +191,7 @@ func TestTaskRepo_GetAllByUserID_Empty(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
 		repo := NewTaskRepository(db)
 
-		tasks, err := repo.GetAllByUserID(ctx, uuid.New())
+		tasks, err := repo.GetAllByUserID(ctx, uuid.New(), createParams())
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -222,7 +222,7 @@ func TestTaskRepo_GetAllByColumnID(t *testing.T) {
 			Name:     "task in column2",
 		})
 
-		tasks, err := repo.GetAllByColumnID(ctx, column1.ID)
+		tasks, err := repo.GetAllByColumnID(ctx, column1.ID, createParams())
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -239,7 +239,7 @@ func TestTaskRepo_GetAllByColumnID_Empty(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
 		repo := NewTaskRepository(db)
 
-		tasks, err := repo.GetAllByColumnID(ctx, uuid.New())
+		tasks, err := repo.GetAllByColumnID(ctx, uuid.New(), createParams())
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -271,7 +271,7 @@ func TestTaskRepo_GetAllByAssigneeID(t *testing.T) {
 			Name:     "unassigned task",
 		})
 
-		tasks, err := repo.GetAllByAssigneeID(ctx, assignee.ID)
+		tasks, err := repo.GetAllByAssigneeID(ctx, assignee.ID, createParams())
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -288,7 +288,7 @@ func TestTaskRepo_GetAllByAssigneeID_Empty(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
 		repo := NewTaskRepository(db)
 
-		tasks, err := repo.GetAllByAssigneeID(ctx, uuid.New())
+		tasks, err := repo.GetAllByAssigneeID(ctx, uuid.New(), createParams())
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}

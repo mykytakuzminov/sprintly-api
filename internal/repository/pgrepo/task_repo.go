@@ -3,6 +3,8 @@ package pgrepo
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -57,14 +59,19 @@ func (r *TaskRepo) GetOwnerID(ctx context.Context, id uuid.UUID) (uuid.UUID, err
 	return scanOwnerID(r.db.QueryRow(ctx, query, id))
 }
 
-func (r *TaskRepo) GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*domain.Task, error) {
+func (r *TaskRepo) GetAllByUserID(
+	ctx context.Context,
+	userID uuid.UUID,
+	params *domain.ListParams,
+) ([]*domain.Task, error) {
 	query := `
 		SELECT id, owner_id, column_id, assignee_id, name, description, due_date, created_at, updated_at
 		FROM tasks
 		WHERE owner_id = $1
 	`
+	query = getTaskListQuery(query, params)
 
-	rows, err := r.db.Query(ctx, query, userID)
+	rows, err := r.db.Query(ctx, query, userID, params.Limit, params.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -73,14 +80,19 @@ func (r *TaskRepo) GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*dom
 	return scanTasks(rows)
 }
 
-func (r *TaskRepo) GetAllByColumnID(ctx context.Context, columnID uuid.UUID) ([]*domain.Task, error) {
+func (r *TaskRepo) GetAllByColumnID(
+	ctx context.Context,
+	columnID uuid.UUID,
+	params *domain.ListParams,
+) ([]*domain.Task, error) {
 	query := `
 		SELECT id, owner_id, column_id, assignee_id, name, description, due_date, created_at, updated_at
 		FROM tasks
 		WHERE column_id = $1
 	`
+	query = getTaskListQuery(query, params)
 
-	rows, err := r.db.Query(ctx, query, columnID)
+	rows, err := r.db.Query(ctx, query, columnID, params.Limit, params.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -89,14 +101,19 @@ func (r *TaskRepo) GetAllByColumnID(ctx context.Context, columnID uuid.UUID) ([]
 	return scanTasks(rows)
 }
 
-func (r *TaskRepo) GetAllByAssigneeID(ctx context.Context, assigneeID uuid.UUID) ([]*domain.Task, error) {
+func (r *TaskRepo) GetAllByAssigneeID(
+	ctx context.Context,
+	assigneeID uuid.UUID,
+	params *domain.ListParams,
+) ([]*domain.Task, error) {
 	query := `
 		SELECT id, owner_id, column_id, assignee_id, name, description, due_date, created_at, updated_at
 		FROM tasks
 		WHERE assignee_id = $1
 	`
+	query = getTaskListQuery(query, params)
 
-	rows, err := r.db.Query(ctx, query, assigneeID)
+	rows, err := r.db.Query(ctx, query, assigneeID, params.Limit, params.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -195,4 +212,32 @@ func scanTasks(rows pgx.Rows) ([]*domain.Task, error) {
 	}
 
 	return tasks, nil
+}
+
+func buildTaskOrderLimitClause(params *domain.ListParams, allowedSort map[string]string) string {
+	sortCol, ok := allowedSort[params.SortBy]
+	if !ok {
+		sortCol = "created_at"
+	}
+
+	order := "ASC"
+	if strings.ToUpper(params.Order) == "DESC" {
+		order = "DESC"
+	}
+
+	return fmt.Sprintf("ORDER BY %s %s LIMIT $2 OFFSET $3", sortCol, order)
+}
+
+func getTaskListQuery(query string, params *domain.ListParams) string {
+	allowedSort := map[string]string{
+		"name":       "name",
+		"due_date":   "due_date",
+		"created_at": "created_at",
+		"updated_at": "updated_at",
+	}
+
+	return fmt.Sprintf(`
+		%s
+		%s
+	`, query, buildColumnOrderLimitClause(params, allowedSort))
 }

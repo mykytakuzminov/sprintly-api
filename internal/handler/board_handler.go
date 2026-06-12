@@ -79,7 +79,9 @@ func (h *BoardHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	boards, err := h.svc.GetAllByUserID(r.Context(), userID)
+	params := parseListParams(r)
+
+	boards, err := h.svc.GetAllByUserID(r.Context(), userID, params)
 	if err != nil {
 		logUnexpectedError(h.logger, traceID, err)
 		errorResponse(w, err)

@@ -14,7 +14,7 @@ type MockColumnRepository struct {
 	createFn        func(ctx context.Context, column *domain.Column) error
 	getByIDFn       func(ctx context.Context, id uuid.UUID) (*domain.Column, error)
 	getOwnerIDFn    func(ctx context.Context, id uuid.UUID) (uuid.UUID, error)
-	getAllByBoardFn func(ctx context.Context, boardID uuid.UUID) ([]*domain.Column, error)
+	getAllByBoardFn func(ctx context.Context, boardID uuid.UUID, params *domain.ListParams) ([]*domain.Column, error)
 	updateFn        func(ctx context.Context, column *domain.Column) error
 	deleteFn        func(ctx context.Context, id uuid.UUID) error
 }
@@ -40,9 +40,9 @@ func (m *MockColumnRepository) GetOwnerID(ctx context.Context, id uuid.UUID) (uu
 	return uuid.Nil, nil
 }
 
-func (m *MockColumnRepository) GetAllByBoardID(ctx context.Context, boardID uuid.UUID) ([]*domain.Column, error) {
+func (m *MockColumnRepository) GetAllByBoardID(ctx context.Context, boardID uuid.UUID, params *domain.ListParams) ([]*domain.Column, error) {
 	if m.getAllByBoardFn != nil {
-		return m.getAllByBoardFn(ctx, boardID)
+		return m.getAllByBoardFn(ctx, boardID, params)
 	}
 	return []*domain.Column{}, nil
 }

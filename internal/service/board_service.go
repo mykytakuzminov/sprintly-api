@@ -53,8 +53,9 @@ func (s *BoardSvc) GetByID(
 func (s *BoardSvc) GetAllByUserID(
 	ctx context.Context,
 	userID uuid.UUID,
+	params *domain.ListParams,
 ) ([]*domain.Board, error) {
-	return s.repo.GetAllByUserID(ctx, userID)
+	return s.repo.GetAllByUserID(ctx, userID, params)
 }
 
 func (s *BoardSvc) Update(

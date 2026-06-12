@@ -19,6 +19,15 @@ func createTestBoard(ctx context.Context, db DB, ownerID uuid.UUID) *domain.Boar
 	return board
 }
 
+func createParams() *domain.ListParams {
+	return &domain.ListParams{
+		Limit:  10,
+		Offset: 0,
+		SortBy: "created_at",
+		Order:  "ASC",
+	}
+}
+
 func TestBoardRepo_Create(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
 		user := createTestUser(ctx, db)
@@ -100,7 +109,7 @@ func TestBoardRepo_GetAllByUserID(t *testing.T) {
 			Name:    "board 2",
 		})
 
-		boards, err := boardRepo.GetAllByUserID(ctx, user.ID)
+		boards, err := boardRepo.GetAllByUserID(ctx, user.ID, createParams())
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -114,7 +123,7 @@ func TestBoardRepo_GetAllByUserID_Empty(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
 		repo := NewBoardRepository(db)
 
-		boards, err := repo.GetAllByUserID(ctx, uuid.New())
+		boards, err := repo.GetAllByUserID(ctx, uuid.New(), createParams())
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -141,7 +150,7 @@ func TestBoardRepo_GetAllByUserID_OnlyOwnBoards(t *testing.T) {
 			Name:    "user2 board",
 		})
 
-		boards, err := boardRepo.GetAllByUserID(ctx, user1.ID)
+		boards, err := boardRepo.GetAllByUserID(ctx, user1.ID, createParams())
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}

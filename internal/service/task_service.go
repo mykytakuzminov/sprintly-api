@@ -70,22 +70,25 @@ func (s *TaskSvc) GetByID(
 func (s *TaskSvc) GetAllByUserID(
 	ctx context.Context,
 	userID uuid.UUID,
+	params *domain.ListParams,
 ) ([]*domain.Task, error) {
-	return s.repo.GetAllByUserID(ctx, userID)
+	return s.repo.GetAllByUserID(ctx, userID, params)
 }
 
 func (s *TaskSvc) GetAllByColumnID(
 	ctx context.Context,
 	columnID uuid.UUID,
+	params *domain.ListParams,
 ) ([]*domain.Task, error) {
-	return s.repo.GetAllByColumnID(ctx, columnID)
+	return s.repo.GetAllByColumnID(ctx, columnID, params)
 }
 
 func (s *TaskSvc) GetAllByAssigneeID(
 	ctx context.Context,
 	assigneeID uuid.UUID,
+	params *domain.ListParams,
 ) ([]*domain.Task, error) {
-	return s.repo.GetAllByAssigneeID(ctx, assigneeID)
+	return s.repo.GetAllByAssigneeID(ctx, assigneeID, params)
 }
 
 func (s *TaskSvc) Update(

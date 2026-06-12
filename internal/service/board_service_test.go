@@ -13,7 +13,7 @@ import (
 type MockBoardRepository struct {
 	createFn         func(ctx context.Context, board *domain.Board) error
 	getByIDFn        func(ctx context.Context, id uuid.UUID) (*domain.Board, error)
-	getAllByUserIDFn func(ctx context.Context, userID uuid.UUID) ([]*domain.Board, error)
+	getAllByUserIDFn func(ctx context.Context, userID uuid.UUID, params *domain.ListParams) ([]*domain.Board, error)
 	updateFn         func(ctx context.Context, board *domain.Board) error
 	deleteFn         func(ctx context.Context, id uuid.UUID) error
 }
@@ -32,9 +32,9 @@ func (m *MockBoardRepository) GetByID(ctx context.Context, id uuid.UUID) (*domai
 	return nil, nil
 }
 
-func (m *MockBoardRepository) GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*domain.Board, error) {
+func (m *MockBoardRepository) GetAllByUserID(ctx context.Context, userID uuid.UUID, params *domain.ListParams) ([]*domain.Board, error) {
 	if m.getAllByUserIDFn != nil {
-		return m.getAllByUserIDFn(ctx, userID)
+		return m.getAllByUserIDFn(ctx, userID, params)
 	}
 	return []*domain.Board{}, nil
 }

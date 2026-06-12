@@ -29,7 +29,7 @@ type UpdateBoardInput struct {
 type BoardRepository interface {
 	Create(ctx context.Context, board *Board) error
 	GetByID(ctx context.Context, id uuid.UUID) (*Board, error)
-	GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*Board, error)
+	GetAllByUserID(ctx context.Context, userID uuid.UUID, params *ListParams) ([]*Board, error)
 	Update(ctx context.Context, board *Board) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
@@ -37,7 +37,7 @@ type BoardRepository interface {
 type BoardService interface {
 	Create(ctx context.Context, userID uuid.UUID, input *CreateBoardInput) (*Board, error)
 	GetByID(ctx context.Context, boardID uuid.UUID) (*Board, error)
-	GetAllByUserID(ctx context.Context, userID uuid.UUID) ([]*Board, error)
+	GetAllByUserID(ctx context.Context, userID uuid.UUID, params *ListParams) ([]*Board, error)
 	Update(ctx context.Context, boardID, userID uuid.UUID, input *UpdateBoardInput) error
 	Delete(ctx context.Context, boardID, userID uuid.UUID) error
 }
