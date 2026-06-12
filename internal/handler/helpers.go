@@ -3,6 +3,7 @@ package handler
 import (
 	"net"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -86,4 +87,28 @@ func logSuccess(logger *zap.SugaredLogger, traceID uuid.UUID, msg string, fields
 		msg,
 		append([]interface{}{"trace_id", traceID}, fields...)...,
 	)
+}
+
+func parseListParams(r *http.Request) *domain.ListParams {
+	q := r.URL.Query()
+
+	limit, err := strconv.Atoi(q.Get("limit"))
+	if err != nil || limit <= 0 {
+		limit = 20
+	}
+	if limit > 100 {
+		limit = 100
+	}
+
+	offset, err := strconv.Atoi(q.Get("offset"))
+	if err != nil || offset < 0 {
+		offset = 0
+	}
+
+	return &domain.ListParams{
+		Limit:  limit,
+		Offset: offset,
+		SortBy: q.Get("sort"),
+		Order:  q.Get("order"),
+	}
 }
