@@ -27,7 +27,7 @@ type ColumnRepository interface {
 	Create(ctx context.Context, column *Column) error
 	GetByID(ctx context.Context, id uuid.UUID) (*Column, error)
 	GetOwnerID(ctx context.Context, id uuid.UUID) (uuid.UUID, error)
-	GetAllByBoardID(ctx context.Context, boardID uuid.UUID) ([]*Column, error)
+	GetAllByBoardID(ctx context.Context, boardID uuid.UUID, params *ListParams) ([]*Column, error)
 	Update(ctx context.Context, column *Column) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
@@ -35,7 +35,7 @@ type ColumnRepository interface {
 type ColumnService interface {
 	Create(ctx context.Context, userID, boardID uuid.UUID, input *CreateColumnInput) (*Column, error)
 	GetByID(ctx context.Context, columnID uuid.UUID) (*Column, error)
-	GetAllByBoardID(ctx context.Context, boardID uuid.UUID) ([]*Column, error)
+	GetAllByBoardID(ctx context.Context, boardID uuid.UUID, params *ListParams) ([]*Column, error)
 	Update(ctx context.Context, columnID, userID uuid.UUID, input *UpdateColumnInput) error
 	Delete(ctx context.Context, columnID, userID uuid.UUID) error
 }

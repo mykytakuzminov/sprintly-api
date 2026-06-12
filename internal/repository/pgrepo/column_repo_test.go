@@ -127,7 +127,7 @@ func TestColumnRepo_GetAllByBoardID(t *testing.T) {
 			Position: 2,
 		})
 
-		columns, err := repo.GetAllByBoardID(ctx, board.ID)
+		columns, err := repo.GetAllByBoardID(ctx, board.ID, createParams())
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -141,7 +141,7 @@ func TestColumnRepo_GetAllByBoardID_Empty(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
 		repo := NewColumnRepository(db)
 
-		columns, err := repo.GetAllByBoardID(ctx, uuid.New())
+		columns, err := repo.GetAllByBoardID(ctx, uuid.New(), createParams())
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -171,7 +171,7 @@ func TestColumnRepo_GetAllByBoardID_OnlyOwnColumns(t *testing.T) {
 			Position: 1,
 		})
 
-		columns, err := repo.GetAllByBoardID(ctx, board1.ID)
+		columns, err := repo.GetAllByBoardID(ctx, board1.ID, createParams())
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}

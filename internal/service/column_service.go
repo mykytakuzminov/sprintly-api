@@ -66,8 +66,9 @@ func (s *ColumnSvc) GetByID(
 func (s *ColumnSvc) GetAllByBoardID(
 	ctx context.Context,
 	boardID uuid.UUID,
+	params *domain.ListParams,
 ) ([]*domain.Column, error) {
-	return s.repo.GetAllByBoardID(ctx, boardID)
+	return s.repo.GetAllByBoardID(ctx, boardID, params)
 }
 
 func (s *ColumnSvc) Update(

@@ -40,7 +40,7 @@ func (m *MockColumnRepository) GetOwnerID(ctx context.Context, id uuid.UUID) (uu
 	return uuid.Nil, nil
 }
 
-func (m *MockColumnRepository) GetAllByBoardID(ctx context.Context, boardID uuid.UUID) ([]*domain.Column, error) {
+func (m *MockColumnRepository) GetAllByBoardID(ctx context.Context, boardID uuid.UUID, params *domain.ListParams) ([]*domain.Column, error) {
 	if m.getAllByBoardFn != nil {
 		return m.getAllByBoardFn(ctx, boardID)
 	}
