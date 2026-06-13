@@ -98,3 +98,11 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	logSuccess(h.logger, traceID, "access token refreshed")
 	successResponse(w, http.StatusOK, toRefreshResponse(token))
 }
+
+type RefreshResponse struct {
+	AccessToken string `json:"access_token" example:"access_token"`
+}
+
+func toRefreshResponse(token string) RefreshResponse {
+	return RefreshResponse{AccessToken: token}
+}

@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	"github.com/mykytakuzminov/task-manager-api/internal/auth"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
 	"go.uber.org/zap"
@@ -127,4 +129,20 @@ func (h *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 
 	logSuccess(h.logger, traceID, "user profile retrieved", "user_id", userID)
 	successResponse(w, http.StatusOK, toUserResponse(user))
+}
+
+type UserResponse struct {
+	ID        uuid.UUID `json:"id"         example:"550e8400-e29b-41d4-a716-446655440000"`
+	Email     string    `json:"email"      example:"john@example.com"`
+	CreatedAt time.Time `json:"created_at" example:"2024-01-01T00:00:00Z"`
+	UpdatedAt time.Time `json:"updated_at" example:"2024-01-01T00:00:00Z"`
+}
+
+func toUserResponse(user *domain.User) UserResponse {
+	return UserResponse{
+		ID:        user.ID,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
 }
