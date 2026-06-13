@@ -3,30 +3,12 @@ package pgrepo
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
 )
-
-func createTestBoard(ctx context.Context, db DB, ownerID uuid.UUID) *domain.Board {
-	board := &domain.Board{
-		ID:      uuid.New(),
-		OwnerID: ownerID,
-		Name:    "board",
-	}
-	_ = NewBoardRepository(db).Create(ctx, board)
-	return board
-}
-
-func createParams() *domain.ListParams {
-	return &domain.ListParams{
-		Limit:  10,
-		Offset: 0,
-		SortBy: "created_at",
-		Order:  "ASC",
-	}
-}
 
 func TestBoardRepo_Create(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
@@ -96,6 +78,7 @@ func TestBoardRepo_GetByID_NotFound(t *testing.T) {
 func TestBoardRepo_GetAllByUserID(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
 		user := createTestUser(ctx, db)
+		params := createTestParams(5, 0, "created_at", "ASC")
 		boardRepo := NewBoardRepository(db)
 
 		_ = boardRepo.Create(ctx, &domain.Board{
@@ -109,7 +92,7 @@ func TestBoardRepo_GetAllByUserID(t *testing.T) {
 			Name:    "board 2",
 		})
 
-		boards, err := boardRepo.GetAllByUserID(ctx, user.ID, createParams())
+		boards, err := boardRepo.GetAllByUserID(ctx, user.ID, params)
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -122,8 +105,9 @@ func TestBoardRepo_GetAllByUserID(t *testing.T) {
 func TestBoardRepo_GetAllByUserID_Empty(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
 		repo := NewBoardRepository(db)
+		params := createTestParams(5, 0, "created_at", "ASC")
 
-		boards, err := repo.GetAllByUserID(ctx, uuid.New(), createParams())
+		boards, err := repo.GetAllByUserID(ctx, uuid.New(), params)
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -137,6 +121,7 @@ func TestBoardRepo_GetAllByUserID_OnlyOwnBoards(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
 		user1 := createTestUser(ctx, db)
 		user2 := createTestUser(ctx, db)
+		params := createTestParams(5, 0, "created_at", "ASC")
 		boardRepo := NewBoardRepository(db)
 
 		_ = boardRepo.Create(ctx, &domain.Board{
@@ -150,7 +135,7 @@ func TestBoardRepo_GetAllByUserID_OnlyOwnBoards(t *testing.T) {
 			Name:    "user2 board",
 		})
 
-		boards, err := boardRepo.GetAllByUserID(ctx, user1.ID, createParams())
+		boards, err := boardRepo.GetAllByUserID(ctx, user1.ID, params)
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -159,6 +144,54 @@ func TestBoardRepo_GetAllByUserID_OnlyOwnBoards(t *testing.T) {
 		}
 		if boards[0].OwnerID != user1.ID {
 			t.Errorf("expected OwnerID %v, got %v", user1.ID, boards[0].OwnerID)
+		}
+	})
+}
+
+func TestBoardRepo_GetAllByUserID_WithLimit(t *testing.T) {
+	withTx(t, func(ctx context.Context, db DB) {
+		user := createTestUser(ctx, db)
+		params := createTestParams(3, 0, "created_at", "ASC")
+		boardRepo := NewBoardRepository(db)
+
+		for i := 0; i < 5; i++ {
+			_ = boardRepo.Create(ctx, &domain.Board{
+				ID:      uuid.New(),
+				OwnerID: user.ID,
+				Name:    "board",
+			})
+		}
+
+		boards, err := boardRepo.GetAllByUserID(ctx, user.ID, params)
+		if err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+		if len(boards) != 3 {
+			t.Fatalf("expected 3 boards, got %v", len(boards))
+		}
+	})
+}
+
+func TestBoardRepo_GetAllByUserID_WithSortByAndOrder(t *testing.T) {
+	withTx(t, func(ctx context.Context, db DB) {
+		user := createTestUser(ctx, db)
+		params := createTestParams(3, 0, "name", "DESC")
+		boardRepo := NewBoardRepository(db)
+
+		for i := 0; i < 5; i++ {
+			_ = boardRepo.Create(ctx, &domain.Board{
+				ID:      uuid.New(),
+				OwnerID: user.ID,
+				Name:    fmt.Sprintf("board%d", i),
+			})
+		}
+
+		boards, err := boardRepo.GetAllByUserID(ctx, user.ID, params)
+		if err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+		if boards[0].Name != "board4" {
+			t.Fatalf("expected board4, got %v", boards[0].Name)
 		}
 	})
 }

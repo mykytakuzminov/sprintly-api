@@ -3,23 +3,13 @@ package pgrepo
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
 )
-
-func createTestTask(ctx context.Context, db DB, ownerID, columnID uuid.UUID) *domain.Task {
-	task := &domain.Task{
-		ID:       uuid.New(),
-		OwnerID:  ownerID,
-		ColumnID: columnID,
-		Name:     "task",
-	}
-	_ = NewTaskRepository(db).Create(ctx, task)
-	return task
-}
 
 func TestTaskRepo_Create(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
@@ -162,6 +152,7 @@ func TestTaskRepo_GetAllByUserID(t *testing.T) {
 		user := createTestUser(ctx, db)
 		board := createTestBoard(ctx, db, user.ID)
 		column := createTestColumn(ctx, db, board.ID)
+		params := createTestParams(5, 0, "created_at", "ASC")
 		repo := NewTaskRepository(db)
 
 		_ = repo.Create(ctx, &domain.Task{
@@ -177,7 +168,7 @@ func TestTaskRepo_GetAllByUserID(t *testing.T) {
 			Name:     "task 2",
 		})
 
-		tasks, err := repo.GetAllByUserID(ctx, user.ID, createParams())
+		tasks, err := repo.GetAllByUserID(ctx, user.ID, params)
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -189,9 +180,10 @@ func TestTaskRepo_GetAllByUserID(t *testing.T) {
 
 func TestTaskRepo_GetAllByUserID_Empty(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
+		params := createTestParams(5, 0, "created_at", "ASC")
 		repo := NewTaskRepository(db)
 
-		tasks, err := repo.GetAllByUserID(ctx, uuid.New(), createParams())
+		tasks, err := repo.GetAllByUserID(ctx, uuid.New(), params)
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -207,6 +199,7 @@ func TestTaskRepo_GetAllByColumnID(t *testing.T) {
 		board := createTestBoard(ctx, db, user.ID)
 		column1 := createTestColumn(ctx, db, board.ID)
 		column2 := createTestColumn(ctx, db, board.ID)
+		params := createTestParams(5, 0, "created_at", "ASC")
 		repo := NewTaskRepository(db)
 
 		_ = repo.Create(ctx, &domain.Task{
@@ -222,7 +215,7 @@ func TestTaskRepo_GetAllByColumnID(t *testing.T) {
 			Name:     "task in column2",
 		})
 
-		tasks, err := repo.GetAllByColumnID(ctx, column1.ID, createParams())
+		tasks, err := repo.GetAllByColumnID(ctx, column1.ID, params)
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -237,9 +230,10 @@ func TestTaskRepo_GetAllByColumnID(t *testing.T) {
 
 func TestTaskRepo_GetAllByColumnID_Empty(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
+		params := createTestParams(5, 0, "created_at", "ASC")
 		repo := NewTaskRepository(db)
 
-		tasks, err := repo.GetAllByColumnID(ctx, uuid.New(), createParams())
+		tasks, err := repo.GetAllByColumnID(ctx, uuid.New(), params)
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -255,6 +249,7 @@ func TestTaskRepo_GetAllByAssigneeID(t *testing.T) {
 		assignee := createTestUser(ctx, db)
 		board := createTestBoard(ctx, db, user.ID)
 		column := createTestColumn(ctx, db, board.ID)
+		params := createTestParams(5, 0, "created_at", "ASC")
 		repo := NewTaskRepository(db)
 
 		_ = repo.Create(ctx, &domain.Task{
@@ -271,7 +266,7 @@ func TestTaskRepo_GetAllByAssigneeID(t *testing.T) {
 			Name:     "unassigned task",
 		})
 
-		tasks, err := repo.GetAllByAssigneeID(ctx, assignee.ID, createParams())
+		tasks, err := repo.GetAllByAssigneeID(ctx, assignee.ID, params)
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -286,14 +281,73 @@ func TestTaskRepo_GetAllByAssigneeID(t *testing.T) {
 
 func TestTaskRepo_GetAllByAssigneeID_Empty(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
+		params := createTestParams(5, 0, "created_at", "ASC")
 		repo := NewTaskRepository(db)
 
-		tasks, err := repo.GetAllByAssigneeID(ctx, uuid.New(), createParams())
+		tasks, err := repo.GetAllByAssigneeID(ctx, uuid.New(), params)
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
 		if len(tasks) != 0 {
 			t.Fatalf("expected 0 tasks, got %v", len(tasks))
+		}
+	})
+}
+
+func TestTaskRepo_GetAllByAssigneeID_WithLimit(t *testing.T) {
+	withTx(t, func(ctx context.Context, db DB) {
+		user := createTestUser(ctx, db)
+		assignee := createTestUser(ctx, db)
+		board := createTestBoard(ctx, db, user.ID)
+		column := createTestColumn(ctx, db, board.ID)
+		params := createTestParams(3, 0, "created_at", "ASC")
+		repo := NewTaskRepository(db)
+
+		for i := 0; i < 5; i++ {
+			_ = repo.Create(ctx, &domain.Task{
+				ID:         uuid.New(),
+				OwnerID:    user.ID,
+				ColumnID:   column.ID,
+				AssigneeID: &assignee.ID,
+				Name:       "assigned task",
+			})
+		}
+
+		tasks, err := repo.GetAllByAssigneeID(ctx, assignee.ID, params)
+		if err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+		if len(tasks) != 3 {
+			t.Fatalf("expected 3 tasks, got %v", len(tasks))
+		}
+	})
+}
+
+func TestTaskRepo_GetAllByAssigneeID_WithSortByAndOrder(t *testing.T) {
+	withTx(t, func(ctx context.Context, db DB) {
+		user := createTestUser(ctx, db)
+		assignee := createTestUser(ctx, db)
+		board := createTestBoard(ctx, db, user.ID)
+		column := createTestColumn(ctx, db, board.ID)
+		params := createTestParams(3, 0, "name", "DESC")
+		repo := NewTaskRepository(db)
+
+		for i := 0; i < 5; i++ {
+			_ = repo.Create(ctx, &domain.Task{
+				ID:         uuid.New(),
+				OwnerID:    user.ID,
+				ColumnID:   column.ID,
+				AssigneeID: &assignee.ID,
+				Name:       fmt.Sprintf("assigned task%d", i),
+			})
+		}
+
+		tasks, err := repo.GetAllByAssigneeID(ctx, assignee.ID, params)
+		if err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+		if tasks[0].Name != "assigned task4" {
+			t.Fatalf("expected assigned task4, got %v", tasks[0].Name)
 		}
 	})
 }
