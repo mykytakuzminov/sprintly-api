@@ -35,7 +35,7 @@ func (r *ColumnRepo) Create(ctx context.Context, column *domain.Column) error {
 
 func (r *ColumnRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Column, error) {
 	query := `
-		SELECT id, board_id, name, position
+		SELECT id, board_id, name, position, created_at, updated_at
 		FROM columns
 		WHERE id = $1
 	`
@@ -76,6 +76,8 @@ func (r *ColumnRepo) GetAllByBoardID(
 			&column.BoardID,
 			&column.Name,
 			&column.Position,
+			&column.CreatedAt,
+			&column.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -92,7 +94,7 @@ func (r *ColumnRepo) GetAllByBoardID(
 func (r *ColumnRepo) Update(ctx context.Context, column *domain.Column) error {
 	query := `
 		UPDATE columns
-		SET name = $2, position = $3
+		SET name = $2, position = $3, updated_at = NOW()
 		WHERE id = $1
 	`
 
@@ -131,6 +133,8 @@ func scanColumn(row pgx.Row) (*domain.Column, error) {
 		&column.BoardID,
 		&column.Name,
 		&column.Position,
+		&column.CreatedAt,
+		&column.UpdatedAt,
 	); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, domain.ErrNotFound
@@ -143,14 +147,16 @@ func scanColumn(row pgx.Row) (*domain.Column, error) {
 
 func getColumnListQuery(params *domain.ListParams) string {
 	allowedSort := map[string]string{
-		"name": "name",
+		"name":       "name",
+		"created_at": "created_at",
+		"updated_at": "updated_at",
 	}
 
 	baseQuery := `
-		SELECT id, board_id, name, position
+		SELECT id, board_id, name, position, created_at, updated_at
 		FROM columns
 		WHERE board_id = $1
 	`
 
-	return buildListQuery(baseQuery, params, allowedSort, "name")
+	return buildListQuery(baseQuery, params, allowedSort, "created_at")
 }

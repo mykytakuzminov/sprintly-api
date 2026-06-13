@@ -135,8 +135,8 @@ func scanBoard(row pgx.Row) (*domain.Board, error) {
 
 func getBoardListQuery(params *domain.ListParams) string {
 	allowedSort := map[string]string{
-		"created_at": "created_at",
 		"name":       "name",
+		"created_at": "created_at",
 		"updated_at": "updated_at",
 	}
 
