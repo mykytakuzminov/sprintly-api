@@ -3,8 +3,6 @@ package pgrepo
 import (
 	"context"
 	"errors"
-	"fmt"
-	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -64,12 +62,12 @@ func (r *TaskRepo) GetAllByUserID(
 	userID uuid.UUID,
 	params *domain.ListParams,
 ) ([]*domain.Task, error) {
-	query := `
+	baseQuery := `
 		SELECT id, owner_id, column_id, assignee_id, name, description, due_date, created_at, updated_at
 		FROM tasks
 		WHERE owner_id = $1
 	`
-	query = getTaskListQuery(query, params)
+	query := getTaskListQuery(baseQuery, params)
 
 	rows, err := r.db.Query(ctx, query, userID, params.Limit, params.Offset)
 	if err != nil {
@@ -85,12 +83,12 @@ func (r *TaskRepo) GetAllByColumnID(
 	columnID uuid.UUID,
 	params *domain.ListParams,
 ) ([]*domain.Task, error) {
-	query := `
+	baseQuery := `
 		SELECT id, owner_id, column_id, assignee_id, name, description, due_date, created_at, updated_at
 		FROM tasks
 		WHERE column_id = $1
 	`
-	query = getTaskListQuery(query, params)
+	query := getTaskListQuery(baseQuery, params)
 
 	rows, err := r.db.Query(ctx, query, columnID, params.Limit, params.Offset)
 	if err != nil {
@@ -106,12 +104,12 @@ func (r *TaskRepo) GetAllByAssigneeID(
 	assigneeID uuid.UUID,
 	params *domain.ListParams,
 ) ([]*domain.Task, error) {
-	query := `
+	baseQuery := `
 		SELECT id, owner_id, column_id, assignee_id, name, description, due_date, created_at, updated_at
 		FROM tasks
 		WHERE assignee_id = $1
 	`
-	query = getTaskListQuery(query, params)
+	query := getTaskListQuery(baseQuery, params)
 
 	rows, err := r.db.Query(ctx, query, assigneeID, params.Limit, params.Offset)
 	if err != nil {
@@ -214,21 +212,7 @@ func scanTasks(rows pgx.Rows) ([]*domain.Task, error) {
 	return tasks, nil
 }
 
-func buildTaskOrderLimitClause(params *domain.ListParams, allowedSort map[string]string) string {
-	sortCol, ok := allowedSort[params.SortBy]
-	if !ok {
-		sortCol = "created_at"
-	}
-
-	order := "ASC"
-	if strings.ToUpper(params.Order) == "DESC" {
-		order = "DESC"
-	}
-
-	return fmt.Sprintf("ORDER BY %s %s LIMIT $2 OFFSET $3", sortCol, order)
-}
-
-func getTaskListQuery(query string, params *domain.ListParams) string {
+func getTaskListQuery(baseQuery string, params *domain.ListParams) string {
 	allowedSort := map[string]string{
 		"name":       "name",
 		"due_date":   "due_date",
@@ -236,8 +220,5 @@ func getTaskListQuery(query string, params *domain.ListParams) string {
 		"updated_at": "updated_at",
 	}
 
-	return fmt.Sprintf(`
-		%s
-		%s
-	`, query, buildColumnOrderLimitClause(params, allowedSort))
+	return buildListQuery(baseQuery, params, allowedSort, "created_at")
 }

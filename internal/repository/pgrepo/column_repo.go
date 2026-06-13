@@ -3,8 +3,6 @@ package pgrepo
 import (
 	"context"
 	"errors"
-	"fmt"
-	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -143,42 +141,16 @@ func scanColumn(row pgx.Row) (*domain.Column, error) {
 	return column, nil
 }
 
-func scanOwnerID(row pgx.Row) (uuid.UUID, error) {
-	var ownerID uuid.UUID
-
-	if err := row.Scan(&ownerID); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return uuid.Nil, domain.ErrNotFound
-		}
-		return uuid.Nil, err
-	}
-
-	return ownerID, nil
-}
-
-func buildColumnOrderLimitClause(params *domain.ListParams, allowedSort map[string]string) string {
-	sortCol, ok := allowedSort[params.SortBy]
-	if !ok {
-		sortCol = "name"
-	}
-
-	order := "ASC"
-	if strings.ToUpper(params.Order) == "DESC" {
-		order = "DESC"
-	}
-
-	return fmt.Sprintf("ORDER BY %s %s LIMIT $2 OFFSET $3", sortCol, order)
-}
-
 func getColumnListQuery(params *domain.ListParams) string {
 	allowedSort := map[string]string{
 		"name": "name",
 	}
 
-	return fmt.Sprintf(`
+	baseQuery := `
 		SELECT id, board_id, name, position
 		FROM columns
 		WHERE board_id = $1
-		%s
-	`, buildColumnOrderLimitClause(params, allowedSort))
+	`
+
+	return buildListQuery(baseQuery, params, allowedSort, "name")
 }
