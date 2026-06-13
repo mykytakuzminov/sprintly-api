@@ -3,8 +3,6 @@ package pgrepo
 import (
 	"context"
 	"errors"
-	"fmt"
-	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -135,20 +133,6 @@ func scanBoard(row pgx.Row) (*domain.Board, error) {
 	return board, nil
 }
 
-func buildOrderLimitClause(params *domain.ListParams, allowedSort map[string]string) string {
-	sortCol, ok := allowedSort[params.SortBy]
-	if !ok {
-		sortCol = "created_at"
-	}
-
-	order := "ASC"
-	if strings.ToUpper(params.Order) == "DESC" {
-		order = "DESC"
-	}
-
-	return fmt.Sprintf("ORDER BY %s %s LIMIT $2 OFFSET $3", sortCol, order)
-}
-
 func getBoardListQuery(params *domain.ListParams) string {
 	allowedSort := map[string]string{
 		"created_at": "created_at",
@@ -156,10 +140,11 @@ func getBoardListQuery(params *domain.ListParams) string {
 		"updated_at": "updated_at",
 	}
 
-	return fmt.Sprintf(`
+	baseQuery := `
 		SELECT id, owner_id, name, description, created_at, updated_at
 		FROM boards
 		WHERE owner_id = $1
-		%s
-	`, buildOrderLimitClause(params, allowedSort))
+	`
+
+	return buildListQuery(baseQuery, params, allowedSort, "created_at")
 }
