@@ -206,7 +206,7 @@ func TestColumnRepo_GetAllByBoardID_WithSortByAndOrder(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
 		user := createTestUser(ctx, db)
 		board := createTestBoard(ctx, db, user.ID)
-		params := createTestParams(3, 0, "position", "DESC")
+		params := createTestParams(3, 0, "name", "DESC")
 		repo := NewColumnRepository(db)
 
 		for i := 0; i < 5; i++ {
