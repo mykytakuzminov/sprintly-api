@@ -3,23 +3,12 @@ package pgrepo
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/mykytakuzminov/task-manager-api/internal/domain"
 )
-
-func createTestColumn(ctx context.Context, db DB, boardID uuid.UUID) *domain.Column {
-	column := &domain.Column{
-		ID:       uuid.New(),
-		BoardID:  boardID,
-		Name:     "column",
-		Position: 1,
-	}
-
-	_ = NewColumnRepository(db).Create(ctx, column)
-	return column
-}
 
 func TestColumnRepo_Create(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
@@ -112,6 +101,7 @@ func TestColumnRepo_GetAllByBoardID(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
 		user := createTestUser(ctx, db)
 		board := createTestBoard(ctx, db, user.ID)
+		params := createTestParams(5, 0, "created_at", "ASC")
 		repo := NewColumnRepository(db)
 
 		_ = repo.Create(ctx, &domain.Column{
@@ -127,7 +117,7 @@ func TestColumnRepo_GetAllByBoardID(t *testing.T) {
 			Position: 2,
 		})
 
-		columns, err := repo.GetAllByBoardID(ctx, board.ID, createParams())
+		columns, err := repo.GetAllByBoardID(ctx, board.ID, params)
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -139,9 +129,10 @@ func TestColumnRepo_GetAllByBoardID(t *testing.T) {
 
 func TestColumnRepo_GetAllByBoardID_Empty(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
+		params := createTestParams(5, 0, "created_at", "ASC")
 		repo := NewColumnRepository(db)
 
-		columns, err := repo.GetAllByBoardID(ctx, uuid.New(), createParams())
+		columns, err := repo.GetAllByBoardID(ctx, uuid.New(), params)
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -156,6 +147,7 @@ func TestColumnRepo_GetAllByBoardID_OnlyOwnColumns(t *testing.T) {
 		user := createTestUser(ctx, db)
 		board1 := createTestBoard(ctx, db, user.ID)
 		board2 := createTestBoard(ctx, db, user.ID)
+		params := createTestParams(5, 0, "created_at", "ASC")
 		repo := NewColumnRepository(db)
 
 		_ = repo.Create(ctx, &domain.Column{
@@ -171,7 +163,7 @@ func TestColumnRepo_GetAllByBoardID_OnlyOwnColumns(t *testing.T) {
 			Position: 1,
 		})
 
-		columns, err := repo.GetAllByBoardID(ctx, board1.ID, createParams())
+		columns, err := repo.GetAllByBoardID(ctx, board1.ID, params)
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -180,6 +172,58 @@ func TestColumnRepo_GetAllByBoardID_OnlyOwnColumns(t *testing.T) {
 		}
 		if columns[0].BoardID != board1.ID {
 			t.Errorf("expected BoardID %v, got %v", board1.ID, columns[0].BoardID)
+		}
+	})
+}
+
+func TestColumnRepo_GetAllByBoardID_WithLimit(t *testing.T) {
+	withTx(t, func(ctx context.Context, db DB) {
+		user := createTestUser(ctx, db)
+		board := createTestBoard(ctx, db, user.ID)
+		params := createTestParams(3, 0, "created_at", "ASC")
+		repo := NewColumnRepository(db)
+
+		for i := 0; i < 5; i++ {
+			_ = repo.Create(ctx, &domain.Column{
+				ID:       uuid.New(),
+				BoardID:  board.ID,
+				Name:     "column",
+				Position: 1,
+			})
+		}
+
+		columns, err := repo.GetAllByBoardID(ctx, board.ID, params)
+		if err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+		if len(columns) != 3 {
+			t.Fatalf("expected 3 columns, got %v", len(columns))
+		}
+	})
+}
+
+func TestColumnRepo_GetAllByBoardID_WithSortByAndOrder(t *testing.T) {
+	withTx(t, func(ctx context.Context, db DB) {
+		user := createTestUser(ctx, db)
+		board := createTestBoard(ctx, db, user.ID)
+		params := createTestParams(3, 0, "position", "DESC")
+		repo := NewColumnRepository(db)
+
+		for i := 0; i < 5; i++ {
+			_ = repo.Create(ctx, &domain.Column{
+				ID:       uuid.New(),
+				BoardID:  board.ID,
+				Name:     fmt.Sprintf("column%d", i),
+				Position: 1,
+			})
+		}
+
+		columns, err := repo.GetAllByBoardID(ctx, board.ID, params)
+		if err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+		if columns[0].Name != "column4" {
+			t.Fatalf("expected column4, got %v", columns[0].Name)
 		}
 	})
 }
