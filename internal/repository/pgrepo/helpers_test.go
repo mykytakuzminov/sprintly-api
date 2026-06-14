@@ -17,7 +17,11 @@ func withTx(t *testing.T, fn func(ctx context.Context, db DB)) {
 	if err != nil {
 		t.Fatalf("begin tx: %v", err)
 	}
-	defer tx.Rollback(ctx)
+	defer func() {
+		if err := tx.Rollback(ctx); err != nil {
+			t.Fatalf("failed to rollback transaction")
+		}
+	}()
 
 	fn(ctx, tx)
 }

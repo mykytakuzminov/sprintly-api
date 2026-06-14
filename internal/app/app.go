@@ -55,9 +55,13 @@ func New() *App {
 }
 
 func (a *App) Run() {
-	defer a.logger.Sync()
+	defer func() { _ = a.logger.Sync() }()
 	defer a.pool.Close()
-	defer a.client.Close()
+	defer func() {
+		if err := a.client.Close(); err != nil {
+			a.logger.Errorf("failed to close redis client")
+		}
+	}()
 
 	errCh := make(chan error, 1)
 	go func() {

@@ -29,6 +29,19 @@ func (h *AuthHandler) Routes() chi.Router {
 	return r
 }
 
+// Login godoc
+// @Summary     Login
+// @Description Authenticates a user with email and password. Returns a pair of JWT tokens.
+// @Tags        auth
+// @Accept      json
+// @Produce     json
+// @Param       body body domain.LoginInput true "Login credentials"
+// @Success     200 {object} domain.AuthTokens "Tokens issued successfully"
+// @Failure     400 "Invalid request body"
+// @Failure     403 {object} handler.ErrorResponse "Wrong password"
+// @Failure     404 {object} handler.ErrorResponse "User not found"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /auth/login [post]
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 
@@ -54,6 +67,17 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	successResponse(w, http.StatusOK, tokens)
 }
 
+// Logout godoc
+// @Summary     Logout
+// @Description Invalidates the provided refresh token.
+// @Tags        auth
+// @Accept      json
+// @Produce     json
+// @Param       body body domain.LogoutInput true "Refresh token to revoke"
+// @Success     204 "Logged out successfully"
+// @Failure     400 "Invalid request body"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /auth/logout [post]
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 
@@ -74,6 +98,18 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	noContentResponse(w)
 }
 
+// Refresh godoc
+// @Summary     Refresh access token
+// @Description Issues a new access token using a valid refresh token stored in Redis.
+// @Tags        auth
+// @Accept      json
+// @Produce     json
+// @Param       body body domain.RefreshInput true "Refresh token"
+// @Success     200 {object} handler.RefreshResponse "New access token"
+// @Failure     400 "Invalid request body"
+// @Failure     401 {object} handler.ErrorResponse "Refresh token not found or expired"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /auth/refresh [post]
 func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 

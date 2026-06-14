@@ -32,13 +32,19 @@ func errorResponse(w http.ResponseWriter, err error) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(ErrorResponse{Error: err.Error()})
+
+	if encErr := json.NewEncoder(w).Encode(ErrorResponse{Error: err.Error()}); encErr != nil {
+		http.Error(w, `{"error":"internal server error"}`, http.StatusInternalServerError)
+	}
 }
 
 func successResponse(w http.ResponseWriter, status int, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(data)
+
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		http.Error(w, `{"error":"internal server error"}`, http.StatusInternalServerError)
+	}
 }
 
 func noContentResponse(w http.ResponseWriter) {
