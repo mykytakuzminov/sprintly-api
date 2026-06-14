@@ -1,6 +1,6 @@
 services:
   app:
-    build: .
+    build: ghcr.io/${{ github.repository_owner }}/sprintly-api:latest
     container_name: app
     environment:
       - SERVER_HOST=${SERVER_HOST}

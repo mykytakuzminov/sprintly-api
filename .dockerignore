@@ -10,6 +10,7 @@ docker-compose.yml
 # Environment
 .env
 .env.example
+Makefile
 
 # Documentation
 README.md
