@@ -25,6 +25,14 @@ func (h *HealthHandler) Routes() chi.Router {
 	return r
 }
 
+// Health godoc
+// @Summary     Health check
+// @Description Returns the health status of the service including database and Redis connectivity.
+// @Tags        health
+// @Produce     json
+// @Success     200 {object} domain.HealthStats "Service is healthy"
+// @Failure     503 {object} domain.HealthStats "Service is degraded"
+// @Router      /health [get]
 func (h *HealthHandler) Health(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 

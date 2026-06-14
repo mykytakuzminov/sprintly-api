@@ -32,20 +32,20 @@ func TestMain(m *testing.M) {
 
 	testPool, err = pgclient.NewPool(cfg)
 	if err != nil {
-		container.Terminate(ctx)
+		terminatePostgresContainer(ctx, container, logger)
 		logger.Fatalf("create pool: %v", err)
 	}
 
 	if err = pgclient.RunMigrations(cfg); err != nil {
-		container.Terminate(ctx)
+		terminatePostgresContainer(ctx, container, logger)
 		testPool.Close()
 		logger.Fatalf("run migrations: %v", err)
 	}
 
 	code := m.Run()
 
-	logger.Sync()
-	container.Terminate(ctx)
+	_ = logger.Sync()
+	terminatePostgresContainer(ctx, container, logger)
 	testPool.Close()
 
 	os.Exit(code)
@@ -87,4 +87,14 @@ func startPostgresContainer(
 	cfg.Database.Port = port.Port()
 
 	return postgresC, nil
+}
+
+func terminatePostgresContainer(
+	ctx context.Context,
+	container testcontainers.Container,
+	logger *zap.SugaredLogger,
+) {
+	if err := container.Terminate(ctx); err != nil {
+		logger.Errorf("failed to terminate postgres container")
+	}
 }

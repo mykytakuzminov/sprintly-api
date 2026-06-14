@@ -53,6 +53,22 @@ func (h *TaskHandler) UserRoutes() chi.Router {
 	return r
 }
 
+// CreateTask godoc
+// @Summary     Create a task
+// @Description Creates a new task inside a column. Only the owner of the parent board can create tasks.
+// @Tags        tasks
+// @Accept      json
+// @Produce     json
+// @Security    BearerAuth
+// @Param       columnID path string                 true "Column ID (UUID)"
+// @Param       body     body domain.CreateTaskInput true "Task data"
+// @Success     201 {object} domain.Task "Task created successfully"
+// @Failure     400 "Invalid column ID format, request body, or validation error"
+// @Failure     401 "Missing or invalid access token"
+// @Failure     403 {object} handler.ErrorResponse "Caller is not the board owner"
+// @Failure     404 {object} handler.ErrorResponse "Column not found"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /columns/{columnID}/tasks [post]
 func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 
@@ -97,6 +113,18 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 	successResponse(w, http.StatusCreated, task)
 }
 
+// GetAllTasksByColumnID godoc
+// @Summary     Get all tasks in a column
+// @Description Returns all tasks belonging to the specified column.
+// @Tags        tasks
+// @Produce     json
+// @Security    BearerAuth
+// @Param       columnID path string true "Column ID (UUID)"
+// @Success     200 {array} domain.Task "List of tasks"
+// @Failure     400 "Invalid column ID format"
+// @Failure     401 "Missing or invalid access token"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /columns/{columnID}/tasks [get]
 func (h *TaskHandler) GetAllByColumnID(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 
@@ -120,6 +148,16 @@ func (h *TaskHandler) GetAllByColumnID(w http.ResponseWriter, r *http.Request) {
 	successResponse(w, http.StatusOK, tasks)
 }
 
+// GetAllTasksByUserID godoc
+// @Summary     Get all tasks created by current user
+// @Description Returns all tasks where owner_id matches the authenticated user.
+// @Tags        tasks
+// @Produce     json
+// @Security    BearerAuth
+// @Success     200 {array} domain.Task "List of tasks"
+// @Failure     401 "Missing or invalid access token"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /users/me/tasks [get]
 func (h *TaskHandler) GetAllByUserID(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 
@@ -143,6 +181,16 @@ func (h *TaskHandler) GetAllByUserID(w http.ResponseWriter, r *http.Request) {
 	successResponse(w, http.StatusOK, tasks)
 }
 
+// GetAllTasksByAssigneeID godoc
+// @Summary     Get all tasks assigned to current user
+// @Description Returns all tasks where assignee_id matches the authenticated user.
+// @Tags        tasks
+// @Produce     json
+// @Security    BearerAuth
+// @Success     200 {array} domain.Task "List of assigned tasks"
+// @Failure     401 "Missing or invalid access token"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /users/me/tasks/assigned [get]
 func (h *TaskHandler) GetAllByAssigneeID(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 
@@ -166,6 +214,19 @@ func (h *TaskHandler) GetAllByAssigneeID(w http.ResponseWriter, r *http.Request)
 	successResponse(w, http.StatusOK, tasks)
 }
 
+// GetTaskByID godoc
+// @Summary     Get task by ID
+// @Description Returns a specific task by its unique identifier.
+// @Tags        tasks
+// @Produce     json
+// @Security    BearerAuth
+// @Param       id path string true "Task ID (UUID)"
+// @Success     200 {object} domain.Task "Task data"
+// @Failure     400 "Invalid task ID format"
+// @Failure     401 "Missing or invalid access token"
+// @Failure     404 {object} handler.ErrorResponse "Task not found"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /tasks/{id} [get]
 func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 
@@ -191,6 +252,26 @@ func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	successResponse(w, http.StatusOK, task)
 }
 
+// UpdateTask godoc
+// @Summary     Update a task
+// @Description Updates task fields including column, assignee, name, description and due date.
+//
+//	The column_id can be used to move the task to another column.
+//	Only the task owner (board owner) can update it.
+//
+// @Tags        tasks
+// @Accept      json
+// @Produce     json
+// @Security    BearerAuth
+// @Param       id   path string                 true "Task ID (UUID)"
+// @Param       body body domain.UpdateTaskInput true "Updated task data"
+// @Success     204 "Task updated successfully"
+// @Failure     400 "Invalid task ID format, request body, or validation error"
+// @Failure     401 "Missing or invalid access token"
+// @Failure     403 {object} handler.ErrorResponse "Caller is not the task owner"
+// @Failure     404 {object} handler.ErrorResponse "Task not found"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /tasks/{id} [patch]
 func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 
@@ -234,6 +315,20 @@ func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 	noContentResponse(w)
 }
 
+// DeleteTask godoc
+// @Summary     Delete a task
+// @Description Deletes a task by ID. Only the task owner (board owner) can perform this action.
+// @Tags        tasks
+// @Produce     json
+// @Security    BearerAuth
+// @Param       id path string true "Task ID (UUID)"
+// @Success     204 "Task deleted successfully"
+// @Failure     400 "Invalid task ID format"
+// @Failure     401 "Missing or invalid access token"
+// @Failure     403 {object} handler.ErrorResponse "Caller is not the task owner"
+// @Failure     404 {object} handler.ErrorResponse "Task not found"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /tasks/{id} [delete]
 func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 

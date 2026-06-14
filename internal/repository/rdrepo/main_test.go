@@ -32,15 +32,17 @@ func TestMain(m *testing.M) {
 
 	testClient, err = rdclient.NewClient(cfg)
 	if err != nil {
-		container.Terminate(ctx)
+		terminateRedisContainer(ctx, container, logger)
 		logger.Fatalf("create client: %v", err)
 	}
 
 	code := m.Run()
 
-	logger.Sync()
-	container.Terminate(ctx)
-	testClient.Close()
+	_ = logger.Sync()
+	terminateRedisContainer(ctx, container, logger)
+	if err := testClient.Close(); err != nil {
+		logger.Errorf("failed to close redis client")
+	}
 
 	os.Exit(code)
 }
@@ -75,4 +77,14 @@ func startRedisContainer(
 	cfg.Redis.Port = port.Port()
 
 	return redisC, nil
+}
+
+func terminateRedisContainer(
+	ctx context.Context,
+	container testcontainers.Container,
+	logger *zap.SugaredLogger,
+) {
+	if err := container.Terminate(ctx); err != nil {
+		logger.Errorf("failed to terminate redis container")
+	}
 }

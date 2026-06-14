@@ -44,6 +44,22 @@ func (h *ColumnHandler) BoardRoutes() chi.Router {
 	return r
 }
 
+// CreateColumn godoc
+// @Summary     Create a column
+// @Description Creates a new column inside a board. Only the board owner can add columns.
+// @Tags        columns
+// @Accept      json
+// @Produce     json
+// @Security    BearerAuth
+// @Param       boardID path string                   true "Board ID (UUID)"
+// @Param       body    body domain.CreateColumnInput true "Column data"
+// @Success     201 {object} domain.Column "Column created successfully"
+// @Failure     400 "Invalid board ID format, request body, or validation error"
+// @Failure     401 "Missing or invalid access token"
+// @Failure     403 {object} handler.ErrorResponse "Caller is not the board owner"
+// @Failure     404 {object} handler.ErrorResponse "Board not found"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /boards/{boardID}/columns [post]
 func (h *ColumnHandler) Create(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 
@@ -88,6 +104,18 @@ func (h *ColumnHandler) Create(w http.ResponseWriter, r *http.Request) {
 	successResponse(w, http.StatusCreated, column)
 }
 
+// GetAllColumns godoc
+// @Summary     Get all columns of a board
+// @Description Returns all columns belonging to the specified board.
+// @Tags        columns
+// @Produce     json
+// @Security    BearerAuth
+// @Param       boardID path string true "Board ID (UUID)"
+// @Success     200 {array} domain.Column "List of columns"
+// @Failure     400 "Invalid board ID format"
+// @Failure     401 "Missing or invalid access token"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /boards/{boardID}/columns [get]
 func (h *ColumnHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 
@@ -111,6 +139,19 @@ func (h *ColumnHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	successResponse(w, http.StatusOK, columns)
 }
 
+// GetColumnByID godoc
+// @Summary     Get column by ID
+// @Description Returns a specific column by its unique identifier.
+// @Tags        columns
+// @Produce     json
+// @Security    BearerAuth
+// @Param       id path string true "Column ID (UUID)"
+// @Success     200 {object} domain.Column "Column data"
+// @Failure     400 "Invalid column ID format"
+// @Failure     401 "Missing or invalid access token"
+// @Failure     404 {object} handler.ErrorResponse "Column not found"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /columns/{id} [get]
 func (h *ColumnHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 
@@ -136,6 +177,22 @@ func (h *ColumnHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	successResponse(w, http.StatusOK, column)
 }
 
+// UpdateColumn godoc
+// @Summary     Update a column
+// @Description Updates the name and/or position of a column. Only the owner of the parent board can perform this action.
+// @Tags        columns
+// @Accept      json
+// @Produce     json
+// @Security    BearerAuth
+// @Param       id   path string                   true "Column ID (UUID)"
+// @Param       body body domain.UpdateColumnInput true "Updated column data"
+// @Success     204 "Column updated successfully"
+// @Failure     400 "Invalid column ID format, request body, or validation error"
+// @Failure     401 "Missing or invalid access token"
+// @Failure     403 {object} handler.ErrorResponse "Caller is not the board owner"
+// @Failure     404 {object} handler.ErrorResponse "Column not found"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /columns/{id} [patch]
 func (h *ColumnHandler) Update(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 
@@ -179,6 +236,20 @@ func (h *ColumnHandler) Update(w http.ResponseWriter, r *http.Request) {
 	noContentResponse(w)
 }
 
+// DeleteColumn godoc
+// @Summary     Delete a column
+// @Description Deletes a column by ID. Only the owner of the parent board can perform this action.
+// @Tags        columns
+// @Produce     json
+// @Security    BearerAuth
+// @Param       id path string true "Column ID (UUID)"
+// @Success     204 "Column deleted successfully"
+// @Failure     400 "Invalid column ID format"
+// @Failure     401 "Missing or invalid access token"
+// @Failure     403 {object} handler.ErrorResponse "Caller is not the board owner"
+// @Failure     404 {object} handler.ErrorResponse "Column not found"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /columns/{id} [delete]
 func (h *ColumnHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 

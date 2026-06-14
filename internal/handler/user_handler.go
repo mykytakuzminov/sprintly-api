@@ -44,6 +44,18 @@ func (h *UserHandler) RouteRegister() chi.Router {
 	return r
 }
 
+// Register godoc
+// @Summary     Register a new user
+// @Description Creates a new user account. Email must be unique.
+// @Tags        users
+// @Accept      json
+// @Produce     json
+// @Param       body body domain.RegisterInput true "Registration data"
+// @Success     201 {object} handler.UserResponse "User created successfully"
+// @Failure     400 "Invalid request body or validation error"
+// @Failure     409 {object} handler.ErrorResponse "Email already in use"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /users/register [post]
 func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 
@@ -72,6 +84,21 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	successResponse(w, http.StatusCreated, toUserResponse(user))
 }
 
+// ChangePassword godoc
+// @Summary     Change password
+// @Description Changes the password of the currently authenticated user. Requires the current password for verification.
+// @Tags        users
+// @Accept      json
+// @Produce     json
+// @Security    BearerAuth
+// @Param       body body domain.ChangePasswordInput true "Old and new passwords"
+// @Success     204 "Password changed successfully"
+// @Failure     400 "Invalid request body or validation error"
+// @Failure     401 "Missing or invalid access token"
+// @Failure     403 {object} handler.ErrorResponse "Old password is incorrect"
+// @Failure     404 {object} handler.ErrorResponse "User not found"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /users/me/password [patch]
 func (h *UserHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 
@@ -106,6 +133,17 @@ func (h *UserHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	noContentResponse(w)
 }
 
+// Me godoc
+// @Summary     Get current user
+// @Description Returns the profile of the currently authenticated user.
+// @Tags        users
+// @Produce     json
+// @Security    BearerAuth
+// @Success     200 {object} handler.UserResponse "Current user data"
+// @Failure     401 "Missing or invalid access token"
+// @Failure     404 {object} handler.ErrorResponse "User not found"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /users/me [get]
 func (h *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 
