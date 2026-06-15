@@ -120,7 +120,7 @@ func TestUserService_Register_DuplicateEmail(t *testing.T) {
 }
 
 func TestUserService_ChangePassword(t *testing.T) {
-	hpwd, _ := bcrypt.GenerateFromPassword([]byte("hashpassword"), 12)
+	hpwd, _ := bcrypt.GenerateFromPassword([]byte("hashpassword"), bcrypt.MinCost)
 
 	repo := &MockUserRepository{
 		getByIDFn: func(_ context.Context, _ uuid.UUID) (*domain.User, error) {
@@ -175,7 +175,7 @@ func TestUserService_ChangePassword_InvalidRequestBody(t *testing.T) {
 }
 
 func TestUserService_ChangePassword_InvalidCredentials(t *testing.T) {
-	hpwd, _ := bcrypt.GenerateFromPassword([]byte("hashpassword"), 12)
+	hpwd, _ := bcrypt.GenerateFromPassword([]byte("hashpassword"), bcrypt.MinCost)
 
 	repo := &MockUserRepository{
 		getByIDFn: func(_ context.Context, _ uuid.UUID) (*domain.User, error) {
