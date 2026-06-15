@@ -49,7 +49,7 @@ func createAuth() *auth.Auth {
 }
 
 func TestAuthService_Login(t *testing.T) {
-	hpwd, _ := bcrypt.GenerateFromPassword([]byte("hashpassword"), 12)
+	hpwd, _ := bcrypt.GenerateFromPassword([]byte("hashpassword"), bcrypt.MinCost)
 
 	user := &domain.User{
 		ID:           uuid.New(),
@@ -123,7 +123,7 @@ func TestAuthService_Login_NotFound(t *testing.T) {
 }
 
 func TestAuthService_Login_InvalidCredentials(t *testing.T) {
-	hpwd, _ := bcrypt.GenerateFromPassword([]byte("hashpassword"), 12)
+	hpwd, _ := bcrypt.GenerateFromPassword([]byte("hashpassword"), bcrypt.MinCost)
 
 	user := &domain.User{
 		ID:           uuid.New(),
@@ -151,7 +151,7 @@ func TestAuthService_Login_InvalidCredentials(t *testing.T) {
 }
 
 func TestAuthService_Login_TokenSaveError(t *testing.T) {
-	hpwd, _ := bcrypt.GenerateFromPassword([]byte("hashpassword"), 12)
+	hpwd, _ := bcrypt.GenerateFromPassword([]byte("hashpassword"), bcrypt.MinCost)
 
 	user := &domain.User{
 		ID:           uuid.New(),
