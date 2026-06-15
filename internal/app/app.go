@@ -140,6 +140,8 @@ func initRouter(
 ) chi.Router {
 	router := chi.NewRouter()
 
+	router.Use(handler.CORSMiddleware)
+
 	router.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	rateLimitRepo := rdrepo.NewRateLimitRepo(client)
