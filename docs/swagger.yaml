@@ -279,7 +279,7 @@ definitions:
         example: "2025-01-15T09:00:00Z"
         type: string
     type: object
-host: localhost:8080
+host: 37.27.218.231:8080
 info:
   contact:
     name: Mykyta Kuzminov
