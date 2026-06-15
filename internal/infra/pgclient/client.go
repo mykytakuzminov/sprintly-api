@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/mykytakuzminov/task-manager-api/internal/config"
+	"github.com/mykytakuzminov/sprintly-api/internal/config"
 )
 
 func NewPool(cfg *config.Config) (*pgxpool.Pool, error) {

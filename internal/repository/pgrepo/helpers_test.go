@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/mykytakuzminov/task-manager-api/internal/domain"
+	"github.com/mykytakuzminov/sprintly-api/internal/domain"
 )
 
 func withTx(t *testing.T, fn func(ctx context.Context, db DB)) {

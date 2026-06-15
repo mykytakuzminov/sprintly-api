@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/mykytakuzminov/task-manager-api/internal/auth"
-	"github.com/mykytakuzminov/task-manager-api/internal/domain"
+	"github.com/mykytakuzminov/sprintly-api/internal/auth"
+	"github.com/mykytakuzminov/sprintly-api/internal/domain"
 	"go.uber.org/zap"
 )
 
@@ -63,8 +63,8 @@ func (h *TaskHandler) UserRoutes() chi.Router {
 // @Param       columnID path string                 true "Column ID (UUID)"
 // @Param       body     body domain.CreateTaskInput true "Task data"
 // @Success     201 {object} domain.Task "Task created successfully"
-// @Failure     400 "Invalid column ID format, request body, or validation error"
-// @Failure     401 "Missing or invalid access token"
+// @Failure     400 {object} handler.ErrorResponse "Invalid column ID format, request body, or validation error"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
 // @Failure     403 {object} handler.ErrorResponse "Caller is not the board owner"
 // @Failure     404 {object} handler.ErrorResponse "Column not found"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"
@@ -115,14 +115,18 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 // GetAllTasksByColumnID godoc
 // @Summary     Get all tasks in a column
-// @Description Returns all tasks belonging to the specified column.
+// @Description Returns all tasks belonging to the specified column. Supports pagination and sorting.
 // @Tags        tasks
 // @Produce     json
 // @Security    BearerAuth
-// @Param       columnID path string true "Column ID (UUID)"
-// @Success     200 {array} domain.Task "List of tasks"
-// @Failure     400 "Invalid column ID format"
-// @Failure     401 "Missing or invalid access token"
+// @Param       columnID path   string true  "Column ID (UUID)"
+// @Param       limit    query  int    false "Number of results per page (default: 20, max: 100)"
+// @Param       offset   query  int    false "Number of results to skip (default: 0)"
+// @Param       sort     query  string false "Field to sort by: name, due_date, created_at, updated_at (default: created_at)"
+// @Param       order    query  string false "Sort direction: ASC or DESC (default: ASC)"
+// @Success     200 {array}  domain.Task "List of tasks"
+// @Failure     400 {object} handler.ErrorResponse "Invalid column ID format"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"
 // @Router      /columns/{columnID}/tasks [get]
 func (h *TaskHandler) GetAllByColumnID(w http.ResponseWriter, r *http.Request) {
@@ -150,12 +154,16 @@ func (h *TaskHandler) GetAllByColumnID(w http.ResponseWriter, r *http.Request) {
 
 // GetAllTasksByUserID godoc
 // @Summary     Get all tasks created by current user
-// @Description Returns all tasks where owner_id matches the authenticated user.
+// @Description Returns all tasks where owner_id matches the authenticated user. Supports pagination and sorting.
 // @Tags        tasks
 // @Produce     json
 // @Security    BearerAuth
-// @Success     200 {array} domain.Task "List of tasks"
-// @Failure     401 "Missing or invalid access token"
+// @Param       limit  query int    false "Number of results per page (default: 20, max: 100)"
+// @Param       offset query int    false "Number of results to skip (default: 0)"
+// @Param       sort   query string false "Field to sort by: name, due_date, created_at, updated_at (default: created_at)"
+// @Param       order  query string false "Sort direction: ASC or DESC (default: ASC)"
+// @Success     200 {array}  domain.Task "List of tasks"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"
 // @Router      /users/me/tasks [get]
 func (h *TaskHandler) GetAllByUserID(w http.ResponseWriter, r *http.Request) {
@@ -183,12 +191,16 @@ func (h *TaskHandler) GetAllByUserID(w http.ResponseWriter, r *http.Request) {
 
 // GetAllTasksByAssigneeID godoc
 // @Summary     Get all tasks assigned to current user
-// @Description Returns all tasks where assignee_id matches the authenticated user.
+// @Description Returns all tasks where assignee_id matches the authenticated user. Supports pagination and sorting.
 // @Tags        tasks
 // @Produce     json
 // @Security    BearerAuth
-// @Success     200 {array} domain.Task "List of assigned tasks"
-// @Failure     401 "Missing or invalid access token"
+// @Param       limit  query int    false "Number of results per page (default: 20, max: 100)"
+// @Param       offset query int    false "Number of results to skip (default: 0)"
+// @Param       sort   query string false "Field to sort by: name, due_date, created_at, updated_at (default: created_at)"
+// @Param       order  query string false "Sort direction: ASC or DESC (default: ASC)"
+// @Success     200 {array}  domain.Task "List of assigned tasks"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"
 // @Router      /users/me/tasks/assigned [get]
 func (h *TaskHandler) GetAllByAssigneeID(w http.ResponseWriter, r *http.Request) {
@@ -222,8 +234,8 @@ func (h *TaskHandler) GetAllByAssigneeID(w http.ResponseWriter, r *http.Request)
 // @Security    BearerAuth
 // @Param       id path string true "Task ID (UUID)"
 // @Success     200 {object} domain.Task "Task data"
-// @Failure     400 "Invalid task ID format"
-// @Failure     401 "Missing or invalid access token"
+// @Failure     400 {object} handler.ErrorResponse "Invalid task ID format"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
 // @Failure     404 {object} handler.ErrorResponse "Task not found"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"
 // @Router      /tasks/{id} [get]
@@ -255,10 +267,8 @@ func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 // UpdateTask godoc
 // @Summary     Update a task
 // @Description Updates task fields including column, assignee, name, description and due date.
-//
-//	The column_id can be used to move the task to another column.
-//	Only the task owner (board owner) can update it.
-//
+// @Description The column_id can be used to move the task to another column.
+// @Description Only the task owner (board owner) can update it.
 // @Tags        tasks
 // @Accept      json
 // @Produce     json
@@ -266,8 +276,8 @@ func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Param       id   path string                 true "Task ID (UUID)"
 // @Param       body body domain.UpdateTaskInput true "Updated task data"
 // @Success     204 "Task updated successfully"
-// @Failure     400 "Invalid task ID format, request body, or validation error"
-// @Failure     401 "Missing or invalid access token"
+// @Failure     400 {object} handler.ErrorResponse "Invalid task ID format, request body, or validation error"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
 // @Failure     403 {object} handler.ErrorResponse "Caller is not the task owner"
 // @Failure     404 {object} handler.ErrorResponse "Task not found"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"
@@ -323,8 +333,8 @@ func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 // @Security    BearerAuth
 // @Param       id path string true "Task ID (UUID)"
 // @Success     204 "Task deleted successfully"
-// @Failure     400 "Invalid task ID format"
-// @Failure     401 "Missing or invalid access token"
+// @Failure     400 {object} handler.ErrorResponse "Invalid task ID format"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
 // @Failure     403 {object} handler.ErrorResponse "Caller is not the task owner"
 // @Failure     404 {object} handler.ErrorResponse "Task not found"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"

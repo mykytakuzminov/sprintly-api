@@ -8,8 +8,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/mykytakuzminov/task-manager-api/internal/auth"
-	"github.com/mykytakuzminov/task-manager-api/internal/domain"
+	"github.com/mykytakuzminov/sprintly-api/internal/auth"
+	"github.com/mykytakuzminov/sprintly-api/internal/domain"
 	"go.uber.org/zap"
 )
 
@@ -52,7 +52,7 @@ func (h *UserHandler) RouteRegister() chi.Router {
 // @Produce     json
 // @Param       body body domain.RegisterInput true "Registration data"
 // @Success     201 {object} handler.UserResponse "User created successfully"
-// @Failure     400 "Invalid request body or validation error"
+// @Failure     400 {object} handler.ErrorResponse "Invalid request body or validation error"
 // @Failure     409 {object} handler.ErrorResponse "Email already in use"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"
 // @Router      /users/register [post]
@@ -93,9 +93,8 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 // @Security    BearerAuth
 // @Param       body body domain.ChangePasswordInput true "Old and new passwords"
 // @Success     204 "Password changed successfully"
-// @Failure     400 "Invalid request body or validation error"
-// @Failure     401 "Missing or invalid access token"
-// @Failure     403 {object} handler.ErrorResponse "Old password is incorrect"
+// @Failure     400 {object} handler.ErrorResponse "Invalid request body or validation error"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token or wrong old password"
 // @Failure     404 {object} handler.ErrorResponse "User not found"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"
 // @Router      /users/me/password [patch]
@@ -140,7 +139,7 @@ func (h *UserHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 // @Produce     json
 // @Security    BearerAuth
 // @Success     200 {object} handler.UserResponse "Current user data"
-// @Failure     401 "Missing or invalid access token"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
 // @Failure     404 {object} handler.ErrorResponse "User not found"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"
 // @Router      /users/me [get]
@@ -170,10 +169,10 @@ func (h *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 }
 
 type UserResponse struct {
-	ID        uuid.UUID `json:"id"         example:"550e8400-e29b-41d4-a716-446655440000"`
-	Email     string    `json:"email"      example:"john@example.com"`
-	CreatedAt time.Time `json:"created_at" example:"2024-01-01T00:00:00Z"`
-	UpdatedAt time.Time `json:"updated_at" example:"2024-01-01T00:00:00Z"`
+	ID        uuid.UUID `json:"id"         example:"7bc4f9d2-1a3e-4c8f-9b2d-5e7a0c4f1d63"`
+	Email     string    `json:"email"      example:"user@example.com"`
+	CreatedAt time.Time `json:"created_at" example:"2025-01-15T09:00:00Z"`
+	UpdatedAt time.Time `json:"updated_at" example:"2025-01-15T09:00:00Z"`
 }
 
 func toUserResponse(user *domain.User) UserResponse {

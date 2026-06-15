@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/joho/godotenv"
-	"github.com/mykytakuzminov/task-manager-api/internal/config"
-	"github.com/mykytakuzminov/task-manager-api/internal/infra/rdclient"
+	"github.com/mykytakuzminov/sprintly-api/internal/config"
+	"github.com/mykytakuzminov/sprintly-api/internal/infra/rdclient"
 	"github.com/redis/go-redis/v9"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"

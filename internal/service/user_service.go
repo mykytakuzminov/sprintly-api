@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/mykytakuzminov/task-manager-api/internal/domain"
+	"github.com/mykytakuzminov/sprintly-api/internal/domain"
 )
 
 type UserSvc struct {

@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
-	"github.com/mykytakuzminov/task-manager-api/internal/domain"
+	"github.com/mykytakuzminov/sprintly-api/internal/domain"
 )
 
 type TaskSvc struct {

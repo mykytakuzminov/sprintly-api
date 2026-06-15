@@ -1,21 +1,27 @@
 package main
 
 import (
-	"github.com/mykytakuzminov/task-manager-api/internal/app"
+	"github.com/mykytakuzminov/sprintly-api/internal/app"
 )
 
-// @title           Task Manager API
+// @title           Sprintly API
 // @version         1.0
 // @description     REST API for managing boards, columns and tasks with JWT authentication.
+// @description     Supports token-based auth, rate limiting, pagination, sorting and filtering.
 //
 // @contact.name    Mykyta Kuzminov
+// @contact.url     https://github.com/mykytakuzminov
 //
-// @host            37.27.218.231:8080
+// @license.name    MIT
+// @license.url     https://opensource.org/licenses/MIT
+//
+// @host            localhost:8080
 // @BasePath        /api/v1
 //
 // @securityDefinitions.apikey BearerAuth
 // @in                         header
 // @name                       Authorization
+// @description                Enter your Bearer token in the format: Bearer <token>
 func main() {
 	app := app.New()
 	app.Run()

@@ -7,8 +7,8 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
-	"github.com/mykytakuzminov/task-manager-api/internal/config"
-	"github.com/mykytakuzminov/task-manager-api/internal/infra/pgclient"
+	"github.com/mykytakuzminov/sprintly-api/internal/config"
+	"github.com/mykytakuzminov/sprintly-api/internal/infra/pgclient"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 	"go.uber.org/zap"

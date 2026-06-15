@@ -10,7 +10,12 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {
-            "name": "Mykyta Kuzminov"
+            "name": "Mykyta Kuzminov",
+            "url": "https://github.com/mykytakuzminov"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
         },
         "version": "{{.Version}}"
     },
@@ -49,10 +54,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid request body"
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
-                    "403": {
-                        "description": "Wrong password",
+                    "401": {
+                        "description": "Invalid credentials",
                         "schema": {
                             "$ref": "#/definitions/handler.ErrorResponse"
                         }
@@ -101,7 +109,10 @@ const docTemplate = `{
                         "description": "Logged out successfully"
                     },
                     "400": {
-                        "description": "Invalid request body"
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "500": {
                         "description": "Internal server error",
@@ -144,7 +155,10 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid request body"
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "401": {
                         "description": "Refresh token not found or expired",
@@ -168,7 +182,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Returns all boards owned by the authenticated user.",
+                "description": "Returns all boards owned by the authenticated user. Supports pagination and sorting.",
                 "produces": [
                     "application/json"
                 ],
@@ -176,6 +190,32 @@ const docTemplate = `{
                     "boards"
                 ],
                 "summary": "Get all boards",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Number of results per page (default: 20, max: 100)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of results to skip (default: 0)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Field to sort by: name, created_at, updated_at (default: created_at)",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort direction: ASC or DESC (default: ASC)",
+                        "name": "order",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "List of boards",
@@ -187,7 +227,10 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
+                        "description": "Missing or invalid access token",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "500": {
                         "description": "Internal server error",
@@ -233,10 +276,16 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid request body or validation error"
+                        "description": "Invalid request body or validation error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
+                        "description": "Missing or invalid access token",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "500": {
                         "description": "Internal server error",
@@ -254,7 +303,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Returns all columns belonging to the specified board.",
+                "description": "Returns all columns belonging to the specified board. Supports pagination and sorting.",
                 "produces": [
                     "application/json"
                 ],
@@ -269,6 +318,30 @@ const docTemplate = `{
                         "name": "boardID",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of results per page (default: 20, max: 100)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of results to skip (default: 0)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Field to sort by: name, created_at, updated_at (default: created_at)",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort direction: ASC or DESC (default: ASC)",
+                        "name": "order",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -282,10 +355,16 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid board ID format"
+                        "description": "Invalid board ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
+                        "description": "Missing or invalid access token",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "500": {
                         "description": "Internal server error",
@@ -338,10 +417,16 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid board ID format, request body, or validation error"
+                        "description": "Invalid board ID format, request body, or validation error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
+                        "description": "Missing or invalid access token",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "403": {
                         "description": "Caller is not the board owner",
@@ -396,10 +481,16 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid board ID format"
+                        "description": "Invalid board ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
+                        "description": "Missing or invalid access token",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "404": {
                         "description": "Board not found",
@@ -443,10 +534,16 @@ const docTemplate = `{
                         "description": "Board deleted successfully"
                     },
                     "400": {
-                        "description": "Invalid board ID format"
+                        "description": "Invalid board ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
+                        "description": "Missing or invalid access token",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "403": {
                         "description": "Caller is not the board owner",
@@ -508,10 +605,16 @@ const docTemplate = `{
                         "description": "Board updated successfully"
                     },
                     "400": {
-                        "description": "Invalid board ID format or request body"
+                        "description": "Invalid board ID format or request body",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
+                        "description": "Missing or invalid access token",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "403": {
                         "description": "Caller is not the board owner",
@@ -541,7 +644,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Returns all tasks belonging to the specified column.",
+                "description": "Returns all tasks belonging to the specified column. Supports pagination and sorting.",
                 "produces": [
                     "application/json"
                 ],
@@ -556,6 +659,30 @@ const docTemplate = `{
                         "name": "columnID",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of results per page (default: 20, max: 100)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of results to skip (default: 0)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Field to sort by: name, due_date, created_at, updated_at (default: created_at)",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort direction: ASC or DESC (default: ASC)",
+                        "name": "order",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -569,10 +696,16 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid column ID format"
+                        "description": "Invalid column ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
+                        "description": "Missing or invalid access token",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "500": {
                         "description": "Internal server error",
@@ -625,10 +758,16 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid column ID format, request body, or validation error"
+                        "description": "Invalid column ID format, request body, or validation error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
+                        "description": "Missing or invalid access token",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "403": {
                         "description": "Caller is not the board owner",
@@ -683,10 +822,16 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid column ID format"
+                        "description": "Invalid column ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
+                        "description": "Missing or invalid access token",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "404": {
                         "description": "Column not found",
@@ -730,10 +875,16 @@ const docTemplate = `{
                         "description": "Column deleted successfully"
                     },
                     "400": {
-                        "description": "Invalid column ID format"
+                        "description": "Invalid column ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
+                        "description": "Missing or invalid access token",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "403": {
                         "description": "Caller is not the board owner",
@@ -795,10 +946,16 @@ const docTemplate = `{
                         "description": "Column updated successfully"
                     },
                     "400": {
-                        "description": "Invalid column ID format, request body, or validation error"
+                        "description": "Invalid column ID format, request body, or validation error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
+                        "description": "Missing or invalid access token",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "403": {
                         "description": "Caller is not the board owner",
@@ -839,7 +996,7 @@ const docTemplate = `{
                         }
                     },
                     "503": {
-                        "description": "Service is degraded",
+                        "description": "Service is degraded — one or more dependencies are unavailable",
                         "schema": {
                             "$ref": "#/definitions/domain.HealthStats"
                         }
@@ -879,10 +1036,16 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid task ID format"
+                        "description": "Invalid task ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
+                        "description": "Missing or invalid access token",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "404": {
                         "description": "Task not found",
@@ -926,10 +1089,16 @@ const docTemplate = `{
                         "description": "Task deleted successfully"
                     },
                     "400": {
-                        "description": "Invalid task ID format"
+                        "description": "Invalid task ID format",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
+                        "description": "Missing or invalid access token",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "403": {
                         "description": "Caller is not the task owner",
@@ -957,7 +1126,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Updates task fields including column, assignee, name, description and due date.",
+                "description": "Updates task fields including column, assignee, name, description and due date.\nThe column_id can be used to move the task to another column.\nOnly the task owner (board owner) can update it.",
                 "consumes": [
                     "application/json"
                 ],
@@ -991,10 +1160,16 @@ const docTemplate = `{
                         "description": "Task updated successfully"
                     },
                     "400": {
-                        "description": "Invalid task ID format, request body, or validation error"
+                        "description": "Invalid task ID format, request body, or validation error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
+                        "description": "Missing or invalid access token",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "403": {
                         "description": "Caller is not the task owner",
@@ -1040,7 +1215,10 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
+                        "description": "Missing or invalid access token",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "404": {
                         "description": "User not found",
@@ -1091,13 +1269,13 @@ const docTemplate = `{
                         "description": "Password changed successfully"
                     },
                     "400": {
-                        "description": "Invalid request body or validation error"
+                        "description": "Invalid request body or validation error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
-                    },
-                    "403": {
-                        "description": "Old password is incorrect",
+                        "description": "Missing or invalid access token or wrong old password",
                         "schema": {
                             "$ref": "#/definitions/handler.ErrorResponse"
                         }
@@ -1124,7 +1302,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Returns all tasks where owner_id matches the authenticated user.",
+                "description": "Returns all tasks where owner_id matches the authenticated user. Supports pagination and sorting.",
                 "produces": [
                     "application/json"
                 ],
@@ -1132,6 +1310,32 @@ const docTemplate = `{
                     "tasks"
                 ],
                 "summary": "Get all tasks created by current user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Number of results per page (default: 20, max: 100)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of results to skip (default: 0)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Field to sort by: name, due_date, created_at, updated_at (default: created_at)",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort direction: ASC or DESC (default: ASC)",
+                        "name": "order",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "List of tasks",
@@ -1143,7 +1347,10 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
+                        "description": "Missing or invalid access token",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "500": {
                         "description": "Internal server error",
@@ -1161,7 +1368,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Returns all tasks where assignee_id matches the authenticated user.",
+                "description": "Returns all tasks where assignee_id matches the authenticated user. Supports pagination and sorting.",
                 "produces": [
                     "application/json"
                 ],
@@ -1169,6 +1376,32 @@ const docTemplate = `{
                     "tasks"
                 ],
                 "summary": "Get all tasks assigned to current user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Number of results per page (default: 20, max: 100)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of results to skip (default: 0)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Field to sort by: name, due_date, created_at, updated_at (default: created_at)",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort direction: ASC or DESC (default: ASC)",
+                        "name": "order",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "List of assigned tasks",
@@ -1180,7 +1413,10 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Missing or invalid access token"
+                        "description": "Missing or invalid access token",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "500": {
                         "description": "Internal server error",
@@ -1223,7 +1459,10 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid request body or validation error"
+                        "description": "Invalid request body or validation error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
                     },
                     "409": {
                         "description": "Email already in use",
@@ -1247,11 +1486,11 @@ const docTemplate = `{
             "properties": {
                 "access_token": {
                     "type": "string",
-                    "example": "access_token"
+                    "example": "\u003caccess_token\u003e"
                 },
                 "refresh_token": {
                     "type": "string",
-                    "example": "refresh_token"
+                    "example": "\u003crefresh_token\u003e"
                 }
             }
         },
@@ -1260,27 +1499,27 @@ const docTemplate = `{
             "properties": {
                 "created_at": {
                     "type": "string",
-                    "example": "2024-01-01T00:00:00Z"
+                    "example": "2025-01-15T09:00:00Z"
                 },
                 "description": {
                     "type": "string",
-                    "example": "Project description"
+                    "example": "Planning board for Q3 product initiatives"
                 },
                 "id": {
                     "type": "string",
-                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                    "example": "2af3e6a1-5c4d-4b7e-8f1a-3d9c6b2e0a85"
                 },
                 "name": {
                     "type": "string",
-                    "example": "My Project"
+                    "example": "Q3 Product Roadmap"
                 },
                 "owner_id": {
                     "type": "string",
-                    "example": "550e8400-e29b-41d4-a716-446655440001"
+                    "example": "7bc4f9d2-1a3e-4c8f-9b2d-5e7a0c4f1d63"
                 },
                 "updated_at": {
                     "type": "string",
-                    "example": "2024-01-01T00:00:00Z"
+                    "example": "2025-01-15T09:00:00Z"
                 }
             }
         },
@@ -1295,13 +1534,13 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 72,
                     "minLength": 8,
-                    "example": "newpassword123"
+                    "example": "newpassword"
                 },
                 "old_password": {
                     "type": "string",
                     "maxLength": 72,
                     "minLength": 8,
-                    "example": "oldpassword123"
+                    "example": "password"
                 }
             }
         },
@@ -1310,15 +1549,15 @@ const docTemplate = `{
             "properties": {
                 "board_id": {
                     "type": "string",
-                    "example": "550e8400-e29b-41d4-a716-446655440001"
+                    "example": "2af3e6a1-5c4d-4b7e-8f1a-3d9c6b2e0a85"
                 },
                 "created_at": {
                     "type": "string",
-                    "example": "2024-01-01T00:00:00Z"
+                    "example": "2025-01-15T09:00:00Z"
                 },
                 "id": {
                     "type": "string",
-                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                    "example": "b3c4d5e6-f7a8-9012-bcde-f12345678901"
                 },
                 "name": {
                     "type": "string",
@@ -1326,11 +1565,11 @@ const docTemplate = `{
                 },
                 "position": {
                     "type": "integer",
-                    "example": 1
+                    "example": 2
                 },
                 "updated_at": {
                     "type": "string",
-                    "example": "2024-01-01T00:00:00Z"
+                    "example": "2025-01-15T09:00:00Z"
                 }
             }
         },
@@ -1343,12 +1582,12 @@ const docTemplate = `{
                 "description": {
                     "type": "string",
                     "maxLength": 500,
-                    "example": "Project description"
+                    "example": "Planning board for Q3 product initiatives"
                 },
                 "name": {
                     "type": "string",
                     "maxLength": 100,
-                    "example": "My Project"
+                    "example": "Q3 Product Roadmap"
                 }
             }
         },
@@ -1366,7 +1605,7 @@ const docTemplate = `{
                 },
                 "position": {
                     "type": "integer",
-                    "example": 1
+                    "example": 2
                 }
             }
         },
@@ -1378,21 +1617,21 @@ const docTemplate = `{
             "properties": {
                 "assignee_id": {
                     "type": "string",
-                    "example": "550e8400-e29b-41d4-a716-446655440003"
+                    "example": "9ec632eb-2345-5678-90bc-def012345678"
                 },
                 "description": {
                     "type": "string",
                     "maxLength": 500,
-                    "example": "Task description"
+                    "example": "Token expiration is not handled correctly on the client side"
                 },
                 "due_date": {
                     "type": "string",
-                    "example": "2024-12-31T00:00:00Z"
+                    "example": "2025-06-30T23:59:59Z"
                 },
                 "name": {
                     "type": "string",
                     "maxLength": 100,
-                    "example": "Fix login bug"
+                    "example": "Fix authentication bug"
                 }
             }
         },
@@ -1427,13 +1666,13 @@ const docTemplate = `{
                 "email": {
                     "type": "string",
                     "maxLength": 254,
-                    "example": "john@example.com"
+                    "example": "user@example.com"
                 },
                 "password": {
                     "type": "string",
                     "maxLength": 72,
                     "minLength": 8,
-                    "example": "password123"
+                    "example": "password"
                 }
             }
         },
@@ -1445,7 +1684,7 @@ const docTemplate = `{
             "properties": {
                 "refresh_token": {
                     "type": "string",
-                    "example": "refresh_token"
+                    "example": "\u003crefresh_token\u003e"
                 }
             }
         },
@@ -1457,7 +1696,7 @@ const docTemplate = `{
             "properties": {
                 "refresh_token": {
                     "type": "string",
-                    "example": "refresh_token"
+                    "example": "\u003crefresh_token\u003e"
                 }
             }
         },
@@ -1471,13 +1710,13 @@ const docTemplate = `{
                 "email": {
                     "type": "string",
                     "maxLength": 254,
-                    "example": "john@example.com"
+                    "example": "user@example.com"
                 },
                 "password": {
                     "type": "string",
                     "maxLength": 72,
                     "minLength": 8,
-                    "example": "password123"
+                    "example": "password"
                 }
             }
         },
@@ -1486,39 +1725,39 @@ const docTemplate = `{
             "properties": {
                 "assignee_id": {
                     "type": "string",
-                    "example": "550e8400-e29b-41d4-a716-446655440003"
+                    "example": "9ec632eb-2345-5678-90bc-def012345678"
                 },
                 "column_id": {
                     "type": "string",
-                    "example": "550e8400-e29b-41d4-a716-446655440002"
+                    "example": "b3c4d5e6-f7a8-9012-bcde-f12345678901"
                 },
                 "created_at": {
                     "type": "string",
-                    "example": "2024-01-01T00:00:00Z"
+                    "example": "2025-01-15T09:00:00Z"
                 },
                 "description": {
                     "type": "string",
-                    "example": "Task description"
+                    "example": "Token expiration is not handled correctly on the client side"
                 },
                 "due_date": {
                     "type": "string",
-                    "example": "2024-12-31T00:00:00Z"
+                    "example": "2025-06-30T23:59:59Z"
                 },
                 "id": {
                     "type": "string",
-                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                    "example": "c4d5e6f7-a8b9-0123-cdef-123456789012"
                 },
                 "name": {
                     "type": "string",
-                    "example": "Fix login bug"
+                    "example": "Fix authentication bug"
                 },
                 "owner_id": {
                     "type": "string",
-                    "example": "550e8400-e29b-41d4-a716-446655440001"
+                    "example": "7bc4f9d2-1a3e-4c8f-9b2d-5e7a0c4f1d63"
                 },
                 "updated_at": {
                     "type": "string",
-                    "example": "2024-01-01T00:00:00Z"
+                    "example": "2025-01-15T09:00:00Z"
                 }
             }
         },
@@ -1531,12 +1770,12 @@ const docTemplate = `{
                 "description": {
                     "type": "string",
                     "maxLength": 500,
-                    "example": "Project description"
+                    "example": "Planning board for Q3 product initiatives"
                 },
                 "name": {
                     "type": "string",
                     "maxLength": 100,
-                    "example": "My Project"
+                    "example": "Q3 Product Roadmap"
                 }
             }
         },
@@ -1554,7 +1793,7 @@ const docTemplate = `{
                 },
                 "position": {
                     "type": "integer",
-                    "example": 1
+                    "example": 2
                 }
             }
         },
@@ -1567,25 +1806,25 @@ const docTemplate = `{
             "properties": {
                 "assignee_id": {
                     "type": "string",
-                    "example": "550e8400-e29b-41d4-a716-446655440003"
+                    "example": "9ec632eb-2345-5678-90bc-def012345678"
                 },
                 "column_id": {
                     "type": "string",
-                    "example": "550e8400-e29b-41d4-a716-446655440002"
+                    "example": "b3c4d5e6-f7a8-9012-bcde-f12345678901"
                 },
                 "description": {
                     "type": "string",
                     "maxLength": 500,
-                    "example": "Task description"
+                    "example": "Token expiration is not handled correctly on the client side"
                 },
                 "due_date": {
                     "type": "string",
-                    "example": "2024-12-31T00:00:00Z"
+                    "example": "2025-06-30T23:59:59Z"
                 },
                 "name": {
                     "type": "string",
                     "maxLength": 100,
-                    "example": "Fix login bug"
+                    "example": "Fix authentication bug"
                 }
             }
         },
@@ -1603,7 +1842,7 @@ const docTemplate = `{
             "properties": {
                 "access_token": {
                     "type": "string",
-                    "example": "access_token"
+                    "example": "\u003caccess_token\u003e"
                 }
             }
         },
@@ -1612,25 +1851,26 @@ const docTemplate = `{
             "properties": {
                 "created_at": {
                     "type": "string",
-                    "example": "2024-01-01T00:00:00Z"
+                    "example": "2025-01-15T09:00:00Z"
                 },
                 "email": {
                     "type": "string",
-                    "example": "john@example.com"
+                    "example": "user@example.com"
                 },
                 "id": {
                     "type": "string",
-                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                    "example": "7bc4f9d2-1a3e-4c8f-9b2d-5e7a0c4f1d63"
                 },
                 "updated_at": {
                     "type": "string",
-                    "example": "2024-01-01T00:00:00Z"
+                    "example": "2025-01-15T09:00:00Z"
                 }
             }
         }
     },
     "securityDefinitions": {
         "BearerAuth": {
+            "description": "Enter your Bearer token in the format: Bearer \u003ctoken\u003e",
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"
@@ -1641,11 +1881,11 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "37.27.218.231:8080",
+	Host:             "localhost:8080",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "Task Manager API",
-	Description:      "REST API for managing boards, columns and tasks with JWT authentication.",
+	Title:            "Sprintly API",
+	Description:      "REST API for managing boards, columns and tasks with JWT authentication.\nSupports token-based auth, rate limiting, pagination, sorting and filtering.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

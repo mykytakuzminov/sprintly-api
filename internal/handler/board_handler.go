@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/mykytakuzminov/task-manager-api/internal/auth"
-	"github.com/mykytakuzminov/task-manager-api/internal/domain"
+	"github.com/mykytakuzminov/sprintly-api/internal/auth"
+	"github.com/mykytakuzminov/sprintly-api/internal/domain"
 	"go.uber.org/zap"
 )
 
@@ -46,8 +46,8 @@ func (h *BoardHandler) Routes() chi.Router {
 // @Security    BearerAuth
 // @Param       body body domain.CreateBoardInput true "Board data"
 // @Success     201 {object} domain.Board "Board created successfully"
-// @Failure     400 "Invalid request body or validation error"
-// @Failure     401 "Missing or invalid access token"
+// @Failure     400 {object} handler.ErrorResponse "Invalid request body or validation error"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"
 // @Router      /boards [post]
 func (h *BoardHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -84,12 +84,16 @@ func (h *BoardHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 // GetAllBoards godoc
 // @Summary     Get all boards
-// @Description Returns all boards owned by the authenticated user.
+// @Description Returns all boards owned by the authenticated user. Supports pagination and sorting.
 // @Tags        boards
 // @Produce     json
 // @Security    BearerAuth
-// @Success     200 {array} domain.Board "List of boards"
-// @Failure     401 "Missing or invalid access token"
+// @Param       limit  query int    false "Number of results per page (default: 20, max: 100)"
+// @Param       offset query int    false "Number of results to skip (default: 0)"
+// @Param       sort   query string false "Field to sort by: name, created_at, updated_at (default: created_at)"
+// @Param       order  query string false "Sort direction: ASC or DESC (default: ASC)"
+// @Success     200 {array}  domain.Board "List of boards"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"
 // @Router      /boards [get]
 func (h *BoardHandler) GetAll(w http.ResponseWriter, r *http.Request) {
@@ -123,8 +127,8 @@ func (h *BoardHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 // @Security    BearerAuth
 // @Param       id path string true "Board ID (UUID)"
 // @Success     200 {object} domain.Board "Board data"
-// @Failure     400 "Invalid board ID format"
-// @Failure     401 "Missing or invalid access token"
+// @Failure     400 {object} handler.ErrorResponse "Invalid board ID format"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
 // @Failure     404 {object} handler.ErrorResponse "Board not found"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"
 // @Router      /boards/{id} [get]
@@ -163,8 +167,8 @@ func (h *BoardHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Param       id   path string                  true "Board ID (UUID)"
 // @Param       body body domain.UpdateBoardInput true "Updated board data"
 // @Success     204 "Board updated successfully"
-// @Failure     400 "Invalid board ID format or request body"
-// @Failure     401 "Missing or invalid access token"
+// @Failure     400 {object} handler.ErrorResponse "Invalid board ID format or request body"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
 // @Failure     403 {object} handler.ErrorResponse "Caller is not the board owner"
 // @Failure     404 {object} handler.ErrorResponse "Board not found"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"
@@ -218,8 +222,8 @@ func (h *BoardHandler) Update(w http.ResponseWriter, r *http.Request) {
 // @Security    BearerAuth
 // @Param       id path string true "Board ID (UUID)"
 // @Success     204 "Board deleted successfully"
-// @Failure     400 "Invalid board ID format"
-// @Failure     401 "Missing or invalid access token"
+// @Failure     400 {object} handler.ErrorResponse "Invalid board ID format"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
 // @Failure     403 {object} handler.ErrorResponse "Caller is not the board owner"
 // @Failure     404 {object} handler.ErrorResponse "Board not found"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"

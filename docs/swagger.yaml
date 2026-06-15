@@ -3,42 +3,42 @@ definitions:
   domain.AuthTokens:
     properties:
       access_token:
-        example: access_token
+        example: <access_token>
         type: string
       refresh_token:
-        example: refresh_token
+        example: <refresh_token>
         type: string
     type: object
   domain.Board:
     properties:
       created_at:
-        example: "2024-01-01T00:00:00Z"
+        example: "2025-01-15T09:00:00Z"
         type: string
       description:
-        example: Project description
+        example: Planning board for Q3 product initiatives
         type: string
       id:
-        example: 550e8400-e29b-41d4-a716-446655440000
+        example: 2af3e6a1-5c4d-4b7e-8f1a-3d9c6b2e0a85
         type: string
       name:
-        example: My Project
+        example: Q3 Product Roadmap
         type: string
       owner_id:
-        example: 550e8400-e29b-41d4-a716-446655440001
+        example: 7bc4f9d2-1a3e-4c8f-9b2d-5e7a0c4f1d63
         type: string
       updated_at:
-        example: "2024-01-01T00:00:00Z"
+        example: "2025-01-15T09:00:00Z"
         type: string
     type: object
   domain.ChangePasswordInput:
     properties:
       new_password:
-        example: newpassword123
+        example: newpassword
         maxLength: 72
         minLength: 8
         type: string
       old_password:
-        example: oldpassword123
+        example: password
         maxLength: 72
         minLength: 8
         type: string
@@ -49,32 +49,32 @@ definitions:
   domain.Column:
     properties:
       board_id:
-        example: 550e8400-e29b-41d4-a716-446655440001
+        example: 2af3e6a1-5c4d-4b7e-8f1a-3d9c6b2e0a85
         type: string
       created_at:
-        example: "2024-01-01T00:00:00Z"
+        example: "2025-01-15T09:00:00Z"
         type: string
       id:
-        example: 550e8400-e29b-41d4-a716-446655440000
+        example: b3c4d5e6-f7a8-9012-bcde-f12345678901
         type: string
       name:
         example: In Progress
         type: string
       position:
-        example: 1
+        example: 2
         type: integer
       updated_at:
-        example: "2024-01-01T00:00:00Z"
+        example: "2025-01-15T09:00:00Z"
         type: string
     type: object
   domain.CreateBoardInput:
     properties:
       description:
-        example: Project description
+        example: Planning board for Q3 product initiatives
         maxLength: 500
         type: string
       name:
-        example: My Project
+        example: Q3 Product Roadmap
         maxLength: 100
         type: string
     required:
@@ -87,7 +87,7 @@ definitions:
         maxLength: 100
         type: string
       position:
-        example: 1
+        example: 2
         type: integer
     required:
     - name
@@ -96,17 +96,17 @@ definitions:
   domain.CreateTaskInput:
     properties:
       assignee_id:
-        example: 550e8400-e29b-41d4-a716-446655440003
+        example: 9ec632eb-2345-5678-90bc-def012345678
         type: string
       description:
-        example: Task description
+        example: Token expiration is not handled correctly on the client side
         maxLength: 500
         type: string
       due_date:
-        example: "2024-12-31T00:00:00Z"
+        example: "2025-06-30T23:59:59Z"
         type: string
       name:
-        example: Fix login bug
+        example: Fix authentication bug
         maxLength: 100
         type: string
     required:
@@ -130,11 +130,11 @@ definitions:
   domain.LoginInput:
     properties:
       email:
-        example: john@example.com
+        example: user@example.com
         maxLength: 254
         type: string
       password:
-        example: password123
+        example: password
         maxLength: 72
         minLength: 8
         type: string
@@ -145,7 +145,7 @@ definitions:
   domain.LogoutInput:
     properties:
       refresh_token:
-        example: refresh_token
+        example: <refresh_token>
         type: string
     required:
     - refresh_token
@@ -153,7 +153,7 @@ definitions:
   domain.RefreshInput:
     properties:
       refresh_token:
-        example: refresh_token
+        example: <refresh_token>
         type: string
     required:
     - refresh_token
@@ -161,11 +161,11 @@ definitions:
   domain.RegisterInput:
     properties:
       email:
-        example: john@example.com
+        example: user@example.com
         maxLength: 254
         type: string
       password:
-        example: password123
+        example: password
         maxLength: 72
         minLength: 8
         type: string
@@ -176,41 +176,41 @@ definitions:
   domain.Task:
     properties:
       assignee_id:
-        example: 550e8400-e29b-41d4-a716-446655440003
+        example: 9ec632eb-2345-5678-90bc-def012345678
         type: string
       column_id:
-        example: 550e8400-e29b-41d4-a716-446655440002
+        example: b3c4d5e6-f7a8-9012-bcde-f12345678901
         type: string
       created_at:
-        example: "2024-01-01T00:00:00Z"
+        example: "2025-01-15T09:00:00Z"
         type: string
       description:
-        example: Task description
+        example: Token expiration is not handled correctly on the client side
         type: string
       due_date:
-        example: "2024-12-31T00:00:00Z"
+        example: "2025-06-30T23:59:59Z"
         type: string
       id:
-        example: 550e8400-e29b-41d4-a716-446655440000
+        example: c4d5e6f7-a8b9-0123-cdef-123456789012
         type: string
       name:
-        example: Fix login bug
+        example: Fix authentication bug
         type: string
       owner_id:
-        example: 550e8400-e29b-41d4-a716-446655440001
+        example: 7bc4f9d2-1a3e-4c8f-9b2d-5e7a0c4f1d63
         type: string
       updated_at:
-        example: "2024-01-01T00:00:00Z"
+        example: "2025-01-15T09:00:00Z"
         type: string
     type: object
   domain.UpdateBoardInput:
     properties:
       description:
-        example: Project description
+        example: Planning board for Q3 product initiatives
         maxLength: 500
         type: string
       name:
-        example: My Project
+        example: Q3 Product Roadmap
         maxLength: 100
         type: string
     required:
@@ -223,7 +223,7 @@ definitions:
         maxLength: 100
         type: string
       position:
-        example: 1
+        example: 2
         type: integer
     required:
     - name
@@ -232,20 +232,20 @@ definitions:
   domain.UpdateTaskInput:
     properties:
       assignee_id:
-        example: 550e8400-e29b-41d4-a716-446655440003
+        example: 9ec632eb-2345-5678-90bc-def012345678
         type: string
       column_id:
-        example: 550e8400-e29b-41d4-a716-446655440002
+        example: b3c4d5e6-f7a8-9012-bcde-f12345678901
         type: string
       description:
-        example: Task description
+        example: Token expiration is not handled correctly on the client side
         maxLength: 500
         type: string
       due_date:
-        example: "2024-12-31T00:00:00Z"
+        example: "2025-06-30T23:59:59Z"
         type: string
       name:
-        example: Fix login bug
+        example: Fix authentication bug
         maxLength: 100
         type: string
     required:
@@ -261,30 +261,36 @@ definitions:
   handler.RefreshResponse:
     properties:
       access_token:
-        example: access_token
+        example: <access_token>
         type: string
     type: object
   handler.UserResponse:
     properties:
       created_at:
-        example: "2024-01-01T00:00:00Z"
+        example: "2025-01-15T09:00:00Z"
         type: string
       email:
-        example: john@example.com
+        example: user@example.com
         type: string
       id:
-        example: 550e8400-e29b-41d4-a716-446655440000
+        example: 7bc4f9d2-1a3e-4c8f-9b2d-5e7a0c4f1d63
         type: string
       updated_at:
-        example: "2024-01-01T00:00:00Z"
+        example: "2025-01-15T09:00:00Z"
         type: string
     type: object
-host: 37.27.218.231:8080
+host: localhost:8080
 info:
   contact:
     name: Mykyta Kuzminov
-  description: REST API for managing boards, columns and tasks with JWT authentication.
-  title: Task Manager API
+    url: https://github.com/mykytakuzminov
+  description: |-
+    REST API for managing boards, columns and tasks with JWT authentication.
+    Supports token-based auth, rate limiting, pagination, sorting and filtering.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Sprintly API
   version: "1.0"
 paths:
   /auth/login:
@@ -309,8 +315,10 @@ paths:
             $ref: '#/definitions/domain.AuthTokens'
         "400":
           description: Invalid request body
-        "403":
-          description: Wrong password
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Invalid credentials
           schema:
             $ref: '#/definitions/handler.ErrorResponse'
         "404":
@@ -343,6 +351,8 @@ paths:
           description: Logged out successfully
         "400":
           description: Invalid request body
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "500":
           description: Internal server error
           schema:
@@ -372,6 +382,8 @@ paths:
             $ref: '#/definitions/handler.RefreshResponse'
         "400":
           description: Invalid request body
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "401":
           description: Refresh token not found or expired
           schema:
@@ -385,7 +397,25 @@ paths:
       - auth
   /boards:
     get:
-      description: Returns all boards owned by the authenticated user.
+      description: Returns all boards owned by the authenticated user. Supports pagination
+        and sorting.
+      parameters:
+      - description: 'Number of results per page (default: 20, max: 100)'
+        in: query
+        name: limit
+        type: integer
+      - description: 'Number of results to skip (default: 0)'
+        in: query
+        name: offset
+        type: integer
+      - description: 'Field to sort by: name, created_at, updated_at (default: created_at)'
+        in: query
+        name: sort
+        type: string
+      - description: 'Sort direction: ASC or DESC (default: ASC)'
+        in: query
+        name: order
+        type: string
       produces:
       - application/json
       responses:
@@ -397,6 +427,8 @@ paths:
             type: array
         "401":
           description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "500":
           description: Internal server error
           schema:
@@ -426,8 +458,12 @@ paths:
             $ref: '#/definitions/domain.Board'
         "400":
           description: Invalid request body or validation error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "401":
           description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "500":
           description: Internal server error
           schema:
@@ -439,12 +475,29 @@ paths:
       - boards
   /boards/{boardID}/columns:
     get:
-      description: Returns all columns belonging to the specified board.
+      description: Returns all columns belonging to the specified board. Supports
+        pagination and sorting.
       parameters:
       - description: Board ID (UUID)
         in: path
         name: boardID
         required: true
+        type: string
+      - description: 'Number of results per page (default: 20, max: 100)'
+        in: query
+        name: limit
+        type: integer
+      - description: 'Number of results to skip (default: 0)'
+        in: query
+        name: offset
+        type: integer
+      - description: 'Field to sort by: name, created_at, updated_at (default: created_at)'
+        in: query
+        name: sort
+        type: string
+      - description: 'Sort direction: ASC or DESC (default: ASC)'
+        in: query
+        name: order
         type: string
       produces:
       - application/json
@@ -457,8 +510,12 @@ paths:
             type: array
         "400":
           description: Invalid board ID format
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "401":
           description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "500":
           description: Internal server error
           schema:
@@ -494,8 +551,12 @@ paths:
             $ref: '#/definitions/domain.Column'
         "400":
           description: Invalid board ID format, request body, or validation error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "401":
           description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "403":
           description: Caller is not the board owner
           schema:
@@ -529,8 +590,12 @@ paths:
           description: Board deleted successfully
         "400":
           description: Invalid board ID format
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "401":
           description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "403":
           description: Caller is not the board owner
           schema:
@@ -565,8 +630,12 @@ paths:
             $ref: '#/definitions/domain.Board'
         "400":
           description: Invalid board ID format
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "401":
           description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "404":
           description: Board not found
           schema:
@@ -604,8 +673,12 @@ paths:
           description: Board updated successfully
         "400":
           description: Invalid board ID format or request body
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "401":
           description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "403":
           description: Caller is not the board owner
           schema:
@@ -625,12 +698,30 @@ paths:
       - boards
   /columns/{columnID}/tasks:
     get:
-      description: Returns all tasks belonging to the specified column.
+      description: Returns all tasks belonging to the specified column. Supports pagination
+        and sorting.
       parameters:
       - description: Column ID (UUID)
         in: path
         name: columnID
         required: true
+        type: string
+      - description: 'Number of results per page (default: 20, max: 100)'
+        in: query
+        name: limit
+        type: integer
+      - description: 'Number of results to skip (default: 0)'
+        in: query
+        name: offset
+        type: integer
+      - description: 'Field to sort by: name, due_date, created_at, updated_at (default:
+          created_at)'
+        in: query
+        name: sort
+        type: string
+      - description: 'Sort direction: ASC or DESC (default: ASC)'
+        in: query
+        name: order
         type: string
       produces:
       - application/json
@@ -643,8 +734,12 @@ paths:
             type: array
         "400":
           description: Invalid column ID format
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "401":
           description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "500":
           description: Internal server error
           schema:
@@ -680,8 +775,12 @@ paths:
             $ref: '#/definitions/domain.Task'
         "400":
           description: Invalid column ID format, request body, or validation error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "401":
           description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "403":
           description: Caller is not the board owner
           schema:
@@ -716,8 +815,12 @@ paths:
           description: Column deleted successfully
         "400":
           description: Invalid column ID format
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "401":
           description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "403":
           description: Caller is not the board owner
           schema:
@@ -752,8 +855,12 @@ paths:
             $ref: '#/definitions/domain.Column'
         "400":
           description: Invalid column ID format
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "401":
           description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "404":
           description: Column not found
           schema:
@@ -791,8 +898,12 @@ paths:
           description: Column updated successfully
         "400":
           description: Invalid column ID format, request body, or validation error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "401":
           description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "403":
           description: Caller is not the board owner
           schema:
@@ -822,7 +933,7 @@ paths:
           schema:
             $ref: '#/definitions/domain.HealthStats'
         "503":
-          description: Service is degraded
+          description: Service is degraded — one or more dependencies are unavailable
           schema:
             $ref: '#/definitions/domain.HealthStats'
       summary: Health check
@@ -845,8 +956,12 @@ paths:
           description: Task deleted successfully
         "400":
           description: Invalid task ID format
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "401":
           description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "403":
           description: Caller is not the task owner
           schema:
@@ -881,8 +996,12 @@ paths:
             $ref: '#/definitions/domain.Task'
         "400":
           description: Invalid task ID format
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "401":
           description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "404":
           description: Task not found
           schema:
@@ -899,8 +1018,10 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Updates task fields including column, assignee, name, description
-        and due date.
+      description: |-
+        Updates task fields including column, assignee, name, description and due date.
+        The column_id can be used to move the task to another column.
+        Only the task owner (board owner) can update it.
       parameters:
       - description: Task ID (UUID)
         in: path
@@ -920,8 +1041,12 @@ paths:
           description: Task updated successfully
         "400":
           description: Invalid task ID format, request body, or validation error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "401":
           description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "403":
           description: Caller is not the task owner
           schema:
@@ -951,6 +1076,8 @@ paths:
             $ref: '#/definitions/handler.UserResponse'
         "401":
           description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "404":
           description: User not found
           schema:
@@ -984,10 +1111,10 @@ paths:
           description: Password changed successfully
         "400":
           description: Invalid request body or validation error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "401":
-          description: Missing or invalid access token
-        "403":
-          description: Old password is incorrect
+          description: Missing or invalid access token or wrong old password
           schema:
             $ref: '#/definitions/handler.ErrorResponse'
         "404":
@@ -1006,6 +1133,25 @@ paths:
   /users/me/tasks:
     get:
       description: Returns all tasks where owner_id matches the authenticated user.
+        Supports pagination and sorting.
+      parameters:
+      - description: 'Number of results per page (default: 20, max: 100)'
+        in: query
+        name: limit
+        type: integer
+      - description: 'Number of results to skip (default: 0)'
+        in: query
+        name: offset
+        type: integer
+      - description: 'Field to sort by: name, due_date, created_at, updated_at (default:
+          created_at)'
+        in: query
+        name: sort
+        type: string
+      - description: 'Sort direction: ASC or DESC (default: ASC)'
+        in: query
+        name: order
+        type: string
       produces:
       - application/json
       responses:
@@ -1017,6 +1163,8 @@ paths:
             type: array
         "401":
           description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "500":
           description: Internal server error
           schema:
@@ -1029,6 +1177,25 @@ paths:
   /users/me/tasks/assigned:
     get:
       description: Returns all tasks where assignee_id matches the authenticated user.
+        Supports pagination and sorting.
+      parameters:
+      - description: 'Number of results per page (default: 20, max: 100)'
+        in: query
+        name: limit
+        type: integer
+      - description: 'Number of results to skip (default: 0)'
+        in: query
+        name: offset
+        type: integer
+      - description: 'Field to sort by: name, due_date, created_at, updated_at (default:
+          created_at)'
+        in: query
+        name: sort
+        type: string
+      - description: 'Sort direction: ASC or DESC (default: ASC)'
+        in: query
+        name: order
+        type: string
       produces:
       - application/json
       responses:
@@ -1040,6 +1207,8 @@ paths:
             type: array
         "401":
           description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "500":
           description: Internal server error
           schema:
@@ -1070,6 +1239,8 @@ paths:
             $ref: '#/definitions/handler.UserResponse'
         "400":
           description: Invalid request body or validation error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
         "409":
           description: Email already in use
           schema:
@@ -1083,6 +1254,7 @@ paths:
       - users
 securityDefinitions:
   BearerAuth:
+    description: 'Enter your Bearer token in the format: Bearer <token>'
     in: header
     name: Authorization
     type: apiKey

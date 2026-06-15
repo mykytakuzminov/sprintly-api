@@ -1,4 +1,4 @@
-module github.com/mykytakuzminov/task-manager-api
+module github.com/mykytakuzminov/sprintly-api
 
 go 1.26.3
 
