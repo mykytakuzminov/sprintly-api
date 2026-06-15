@@ -1312,6 +1312,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "550e8400-e29b-41d4-a716-446655440001"
                 },
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-01-01T00:00:00Z"
+                },
                 "id": {
                     "type": "string",
                     "example": "550e8400-e29b-41d4-a716-446655440000"
@@ -1323,6 +1327,10 @@ const docTemplate = `{
                 "position": {
                     "type": "integer",
                     "example": 1
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-01-01T00:00:00Z"
                 }
             }
         },
@@ -1633,7 +1641,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "37.27.218.231:8080",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "Task Manager API",
