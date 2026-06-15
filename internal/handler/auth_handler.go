@@ -37,8 +37,8 @@ func (h *AuthHandler) Routes() chi.Router {
 // @Produce     json
 // @Param       body body domain.LoginInput true "Login credentials"
 // @Success     200 {object} domain.AuthTokens "Tokens issued successfully"
-// @Failure     400 "Invalid request body"
-// @Failure     403 {object} handler.ErrorResponse "Wrong password"
+// @Failure     400 {object} handler.ErrorResponse "Invalid request body"
+// @Failure     401 {object} handler.ErrorResponse "Invalid credentials"
 // @Failure     404 {object} handler.ErrorResponse "User not found"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"
 // @Router      /auth/login [post]
@@ -75,7 +75,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 // @Produce     json
 // @Param       body body domain.LogoutInput true "Refresh token to revoke"
 // @Success     204 "Logged out successfully"
-// @Failure     400 "Invalid request body"
+// @Failure     400 {object} handler.ErrorResponse "Invalid request body"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"
 // @Router      /auth/logout [post]
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
@@ -106,7 +106,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 // @Produce     json
 // @Param       body body domain.RefreshInput true "Refresh token"
 // @Success     200 {object} handler.RefreshResponse "New access token"
-// @Failure     400 "Invalid request body"
+// @Failure     400 {object} handler.ErrorResponse "Invalid request body"
 // @Failure     401 {object} handler.ErrorResponse "Refresh token not found or expired"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"
 // @Router      /auth/refresh [post]
@@ -136,7 +136,7 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 }
 
 type RefreshResponse struct {
-	AccessToken string `json:"access_token" example:"access_token"`
+	AccessToken string `json:"access_token" example:"<access_token>"`
 }
 
 func toRefreshResponse(token string) RefreshResponse {

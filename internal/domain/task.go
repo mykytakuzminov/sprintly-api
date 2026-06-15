@@ -8,30 +8,30 @@ import (
 )
 
 type Task struct {
-	ID          uuid.UUID  `json:"id"          example:"550e8400-e29b-41d4-a716-446655440000"`
-	OwnerID     uuid.UUID  `json:"owner_id"    example:"550e8400-e29b-41d4-a716-446655440001"`
-	ColumnID    uuid.UUID  `json:"column_id"   example:"550e8400-e29b-41d4-a716-446655440002"`
-	AssigneeID  *uuid.UUID `json:"assignee_id" example:"550e8400-e29b-41d4-a716-446655440003"`
-	Name        string     `json:"name"        example:"Fix login bug"`
-	Description *string    `json:"description" example:"Task description"`
-	DueDate     *time.Time `json:"due_date"    example:"2024-12-31T00:00:00Z"`
-	CreatedAt   time.Time  `json:"created_at"  example:"2024-01-01T00:00:00Z"`
-	UpdatedAt   time.Time  `json:"updated_at"  example:"2024-01-01T00:00:00Z"`
+	ID          uuid.UUID  `json:"id"          example:"c4d5e6f7-a8b9-0123-cdef-123456789012"`
+	OwnerID     uuid.UUID  `json:"owner_id"    example:"7bc4f9d2-1a3e-4c8f-9b2d-5e7a0c4f1d63"`
+	ColumnID    uuid.UUID  `json:"column_id"   example:"b3c4d5e6-f7a8-9012-bcde-f12345678901"`
+	AssigneeID  *uuid.UUID `json:"assignee_id" example:"9ec632eb-2345-5678-90bc-def012345678"`
+	Name        string     `json:"name"        example:"Fix authentication bug"`
+	Description *string    `json:"description" example:"Token expiration is not handled correctly on the client side"`
+	DueDate     *time.Time `json:"due_date"    example:"2025-06-30T23:59:59Z"`
+	CreatedAt   time.Time  `json:"created_at"  example:"2025-01-15T09:00:00Z"`
+	UpdatedAt   time.Time  `json:"updated_at"  example:"2025-01-15T09:00:00Z"`
 }
 
 type CreateTaskInput struct {
-	AssigneeID  *uuid.UUID `json:"assignee_id" validate:"omitempty"         example:"550e8400-e29b-41d4-a716-446655440003"`
-	Name        string     `json:"name"        validate:"required,max=100"  example:"Fix login bug"`
-	Description *string    `json:"description" validate:"omitempty,max=500" example:"Task description"`
-	DueDate     *time.Time `json:"due_date"    validate:"omitempty"         example:"2024-12-31T00:00:00Z"`
+	AssigneeID  *uuid.UUID `json:"assignee_id" validate:"omitempty"         example:"9ec632eb-2345-5678-90bc-def012345678"`
+	Name        string     `json:"name"        validate:"required,max=100"  example:"Fix authentication bug"`
+	Description *string    `json:"description" validate:"omitempty,max=500" example:"Token expiration is not handled correctly on the client side"`
+	DueDate     *time.Time `json:"due_date"    validate:"omitempty"         example:"2025-06-30T23:59:59Z"`
 }
 
 type UpdateTaskInput struct {
-	ColumnID    uuid.UUID  `json:"column_id"   validate:"required"          example:"550e8400-e29b-41d4-a716-446655440002"`
-	AssigneeID  *uuid.UUID `json:"assignee_id" validate:"omitempty"         example:"550e8400-e29b-41d4-a716-446655440003"`
-	Name        string     `json:"name"        validate:"required,max=100"  example:"Fix login bug"`
-	Description *string    `json:"description" validate:"omitempty,max=500" example:"Task description"`
-	DueDate     *time.Time `json:"due_date"    validate:"omitempty"         example:"2024-12-31T00:00:00Z"`
+	ColumnID    uuid.UUID  `json:"column_id"   validate:"required"          example:"b3c4d5e6-f7a8-9012-bcde-f12345678901"`
+	AssigneeID  *uuid.UUID `json:"assignee_id" validate:"omitempty"         example:"9ec632eb-2345-5678-90bc-def012345678"`
+	Name        string     `json:"name"        validate:"required,max=100"  example:"Fix authentication bug"`
+	Description *string    `json:"description" validate:"omitempty,max=500" example:"Token expiration is not handled correctly on the client side"`
+	DueDate     *time.Time `json:"due_date"    validate:"omitempty"         example:"2025-06-30T23:59:59Z"`
 }
 
 type TaskRepository interface {

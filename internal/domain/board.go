@@ -8,22 +8,22 @@ import (
 )
 
 type Board struct {
-	ID          uuid.UUID `json:"id"          example:"550e8400-e29b-41d4-a716-446655440000"`
-	OwnerID     uuid.UUID `json:"owner_id"    example:"550e8400-e29b-41d4-a716-446655440001"`
-	Name        string    `json:"name"        example:"My Project"`
-	Description *string   `json:"description" example:"Project description"`
-	CreatedAt   time.Time `json:"created_at"  example:"2024-01-01T00:00:00Z"`
-	UpdatedAt   time.Time `json:"updated_at"  example:"2024-01-01T00:00:00Z"`
+	ID          uuid.UUID `json:"id"          example:"2af3e6a1-5c4d-4b7e-8f1a-3d9c6b2e0a85"`
+	OwnerID     uuid.UUID `json:"owner_id"    example:"7bc4f9d2-1a3e-4c8f-9b2d-5e7a0c4f1d63"`
+	Name        string    `json:"name"        example:"Q3 Product Roadmap"`
+	Description *string   `json:"description" example:"Planning board for Q3 product initiatives"`
+	CreatedAt   time.Time `json:"created_at"  example:"2025-01-15T09:00:00Z"`
+	UpdatedAt   time.Time `json:"updated_at"  example:"2025-01-15T09:00:00Z"`
 }
 
 type CreateBoardInput struct {
-	Name        string  `json:"name"        validate:"required,max=100"  example:"My Project"`
-	Description *string `json:"description" validate:"omitempty,max=500" example:"Project description"`
+	Name        string  `json:"name"        validate:"required,max=100"  example:"Q3 Product Roadmap"`
+	Description *string `json:"description" validate:"omitempty,max=500" example:"Planning board for Q3 product initiatives"`
 }
 
 type UpdateBoardInput struct {
-	Name        string  `json:"name"        validate:"required,max=100"  example:"My Project"`
-	Description *string `json:"description" validate:"omitempty,max=500" example:"Project description"`
+	Name        string  `json:"name"        validate:"required,max=100"  example:"Q3 Product Roadmap"`
+	Description *string `json:"description" validate:"omitempty,max=500" example:"Planning board for Q3 product initiatives"`
 }
 
 type BoardRepository interface {

@@ -31,7 +31,7 @@ func (h *HealthHandler) Routes() chi.Router {
 // @Tags        health
 // @Produce     json
 // @Success     200 {object} domain.HealthStats "Service is healthy"
-// @Failure     503 {object} domain.HealthStats "Service is degraded"
+// @Failure     503 {object} domain.HealthStats "Service is degraded — one or more dependencies are unavailable"
 // @Router      /health [get]
 func (h *HealthHandler) Health(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
