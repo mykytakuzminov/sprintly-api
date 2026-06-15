@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/mykytakuzminov/task-manager-api/internal/app"
+	"github.com/mykytakuzminov/sprintly-api/internal/app"
 )
 
 // @title           Sprintly API

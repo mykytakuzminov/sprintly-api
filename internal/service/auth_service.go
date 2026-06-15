@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/mykytakuzminov/task-manager-api/internal/auth"
-	"github.com/mykytakuzminov/task-manager-api/internal/domain"
+	"github.com/mykytakuzminov/sprintly-api/internal/auth"
+	"github.com/mykytakuzminov/sprintly-api/internal/domain"
 	"golang.org/x/crypto/bcrypt"
 )
 

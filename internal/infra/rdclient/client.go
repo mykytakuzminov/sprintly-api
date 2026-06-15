@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/mykytakuzminov/task-manager-api/internal/config"
+	"github.com/mykytakuzminov/sprintly-api/internal/config"
 	"github.com/redis/go-redis/v9"
 )
 
