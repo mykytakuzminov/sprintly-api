@@ -12,7 +12,7 @@ rate limiting, pagination, and full CI/CD deployment to a Hetzner VPS.
 [![Go Version](https://img.shields.io/badge/Go-1.26-00ADD8?logo=go)](https://go.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-[API Docs (Swagger UI)](http://37.27.218.231:8080/swagger/index.html) · [Health Check](http://37.27.218.231:8080/api/v1/health)
+[API Docs (Swagger UI)](http://204.168.173.88:8080/swagger/index.html) · [Health Check](http://204.168.173.88:8080/api/v1/health)
 
 </div>
 
