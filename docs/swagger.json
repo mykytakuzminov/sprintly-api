@@ -13,7 +13,7 @@
         },
         "version": "1.0"
     },
-    "host": "204.168.173.88",
+    "host": "204.168.173.88:8080",
     "basePath": "/api/v1",
     "paths": {
         "/auth/login": {
