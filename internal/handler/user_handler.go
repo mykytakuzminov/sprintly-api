@@ -36,18 +36,10 @@ func (h *UserHandler) Routes() chi.Router {
 	return r
 }
 
-func (h *UserHandler) RouteRegister() chi.Router {
-	r := chi.NewRouter()
-
-	r.Post("/", h.Register)
-
-	return r
-}
-
 // Register godoc
 // @Summary     Register a new user
 // @Description Creates a new user account. Email must be unique.
-// @Tags        users
+// @Tags        auth
 // @Accept      json
 // @Produce     json
 // @Param       body body domain.RegisterInput true "Registration data"
@@ -55,7 +47,7 @@ func (h *UserHandler) RouteRegister() chi.Router {
 // @Failure     400 {object} handler.ErrorResponse "Invalid request body or validation error"
 // @Failure     409 {object} handler.ErrorResponse "Email already in use"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"
-// @Router      /users/register [post]
+// @Router      /auth/register [post]
 func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 

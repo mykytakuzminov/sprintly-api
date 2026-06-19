@@ -275,6 +275,9 @@ definitions:
       id:
         example: 7bc4f9d2-1a3e-4c8f-9b2d-5e7a0c4f1d63
         type: string
+      role:
+        example: member
+        type: string
       updated_at:
         example: "2025-01-15T09:00:00Z"
         type: string
@@ -393,6 +396,40 @@ paths:
           schema:
             $ref: '#/definitions/handler.ErrorResponse'
       summary: Refresh access token
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account. Email must be unique.
+      parameters:
+      - description: Registration data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.RegisterInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully
+          schema:
+            $ref: '#/definitions/handler.UserResponse'
+        "400":
+          description: Invalid request body or validation error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "409":
+          description: Email already in use
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Register a new user
       tags:
       - auth
   /boards:
@@ -1218,40 +1255,6 @@ paths:
       summary: Get all tasks assigned to current user
       tags:
       - tasks
-  /users/register:
-    post:
-      consumes:
-      - application/json
-      description: Creates a new user account. Email must be unique.
-      parameters:
-      - description: Registration data
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/domain.RegisterInput'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: User created successfully
-          schema:
-            $ref: '#/definitions/handler.UserResponse'
-        "400":
-          description: Invalid request body or validation error
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "409":
-          description: Email already in use
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-      summary: Register a new user
-      tags:
-      - users
 securityDefinitions:
   BearerAuth:
     description: 'Enter your Bearer token in the format: Bearer <token>'
