@@ -25,7 +25,7 @@ func AuthMiddleware(a *auth.Auth, logger *zap.SugaredLogger) func(http.Handler) 
 				return
 			}
 
-			userID, err := a.ParseToken(tokenString)
+			userID, role, err := a.ParseToken(tokenString)
 			if err != nil {
 				logUnauthorizedAccess(logger, traceID)
 				errorResponse(w, domain.ErrUnauthorized)
@@ -34,7 +34,32 @@ func AuthMiddleware(a *auth.Auth, logger *zap.SugaredLogger) func(http.Handler) 
 
 			logSuccess(logger, traceID, "authorized", "user_id", userID)
 			ctx := context.WithValue(r.Context(), UserIDKey, userID)
+			ctx = context.WithValue(ctx, UserRoleKey, role)
 			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
+func RequireAdminMiddleware(logger *zap.SugaredLogger) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			traceID := getTraceID(r, logger)
+
+			role, ok := getUserRole(r)
+			if !ok {
+				logUnexpectedError(logger, traceID, domain.ErrMissingRole)
+				errorResponse(w, domain.ErrMissingRole)
+				return
+			}
+
+			if role != "admin" {
+				logInvalidRole(logger, traceID)
+				errorResponse(w, domain.ErrForbidden)
+				return
+			}
+
+			logSuccess(logger, traceID, "", "role", role)
+			next.ServeHTTP(w, r)
 		})
 	}
 }

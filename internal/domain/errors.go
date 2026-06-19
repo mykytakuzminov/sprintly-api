@@ -10,4 +10,5 @@ var (
 	ErrInvalidCredentials = errors.New("invalid credentials")
 	ErrBadRequest         = errors.New("invalid request body")
 	ErrTooManyRequests    = errors.New("too many requests")
+	ErrMissingRole        = errors.New("missing role")
 )

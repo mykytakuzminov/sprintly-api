@@ -55,6 +55,7 @@ func TestAuthService_Login(t *testing.T) {
 		ID:           uuid.New(),
 		Email:        "test@example.com",
 		HashPassword: string(hpwd),
+		Role:         "member",
 	}
 
 	userRepo := &MockUserRepository{
@@ -85,17 +86,23 @@ func TestAuthService_Login(t *testing.T) {
 		t.Errorf("expected refresh token to be set")
 	}
 
-	userID, err := auth.ParseToken(tokens.AccessToken)
+	userID, role, err := auth.ParseToken(tokens.AccessToken)
 	if err != nil {
 		t.Fatalf("expected valid access token, got error: %v", err)
+	}
+	if role != "member" {
+		t.Errorf("expected role member, got %v", role)
 	}
 	if userID != user.ID {
 		t.Errorf("expected user ID %v, got %v", user.ID, userID)
 	}
 
-	userID, err = auth.ParseToken(tokens.RefreshToken)
+	userID, role, err = auth.ParseToken(tokens.RefreshToken)
 	if err != nil {
 		t.Fatalf("expected valid refresh token, got error: %v", err)
+	}
+	if role != "member" {
+		t.Errorf("expected role member, got %v", role)
 	}
 	if userID != user.ID {
 		t.Errorf("expected user ID %v, got %v", user.ID, userID)
@@ -185,7 +192,14 @@ func TestAuthService_Login_TokenSaveError(t *testing.T) {
 func TestAuthService_Refresh(t *testing.T) {
 	userID := uuid.New()
 
-	userRepo := &MockUserRepository{}
+	userRepo := &MockUserRepository{
+		getByIDFn: func(_ context.Context, _ uuid.UUID) (*domain.User, error) {
+			return &domain.User{
+				ID:   userID,
+				Role: "member",
+			}, nil
+		},
+	}
 	tokenRepo := &MockTokenRepository{
 		getFn: func(_ context.Context, _ string) (uuid.UUID, error) {
 			return userID, nil
@@ -205,7 +219,7 @@ func TestAuthService_Refresh(t *testing.T) {
 		t.Errorf("expected access token to be set")
 	}
 
-	userIDFromToken, err := auth.ParseToken(atoken)
+	userIDFromToken, _, err := auth.ParseToken(atoken)
 	if err != nil {
 		t.Fatalf("expected valid access token, got error: %v", err)
 	}
