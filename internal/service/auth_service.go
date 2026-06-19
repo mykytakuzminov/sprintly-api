@@ -43,12 +43,12 @@ func (s *AuthSvc) Login(
 		return nil, domain.ErrInvalidCredentials
 	}
 
-	atoken, err := s.auth.GenerateAccessToken(user.ID)
+	atoken, err := s.auth.GenerateAccessToken(user.ID, user.Role)
 	if err != nil {
 		return nil, err
 	}
 
-	rtoken, err := s.auth.GenerateRefreshToken(user.ID)
+	rtoken, err := s.auth.GenerateRefreshToken(user.ID, user.Role)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,12 @@ func (s *AuthSvc) Refresh(
 		return "", err
 	}
 
-	atoken, err := s.auth.GenerateAccessToken(userID)
+	user, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		return "", err
+	}
+
+	atoken, err := s.auth.GenerateAccessToken(userID, user.Role)
 	if err != nil {
 		return "", err
 	}

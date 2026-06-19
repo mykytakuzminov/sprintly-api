@@ -11,6 +11,7 @@ type User struct {
 	ID           uuid.UUID
 	Email        string
 	HashPassword string
+	Role         string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }

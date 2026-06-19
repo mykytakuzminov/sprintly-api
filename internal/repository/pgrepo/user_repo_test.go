@@ -34,6 +34,9 @@ func TestUserRepo_Create(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
+		if user.Role != "member" {
+			t.Errorf("expected role member, got %v", user.Role)
+		}
 		if user.CreatedAt.IsZero() {
 			t.Errorf("expected CreatedAt to be set")
 		}

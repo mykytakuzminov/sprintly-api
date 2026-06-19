@@ -26,8 +26,8 @@ func (a *Auth) RefreshTTL() time.Duration {
 	return a.cfg.RefreshTTL
 }
 
-func (a *Auth) GenerateAccessToken(userID uuid.UUID) (string, error) {
-	token, err := a.generateJWT(userID, a.cfg.AccessTTL)
+func (a *Auth) GenerateAccessToken(userID uuid.UUID, role string) (string, error) {
+	token, err := a.generateJWT(userID, role, a.cfg.AccessTTL)
 	if err != nil {
 		return "", err
 	}
@@ -35,9 +35,9 @@ func (a *Auth) GenerateAccessToken(userID uuid.UUID) (string, error) {
 	return token, err
 }
 
-func (a *Auth) GenerateRefreshToken(userID uuid.UUID) (string, error) {
+func (a *Auth) GenerateRefreshToken(userID uuid.UUID, role string) (string, error) {
 
-	token, err := a.generateJWT(userID, a.cfg.RefreshTTL)
+	token, err := a.generateJWT(userID, role, a.cfg.RefreshTTL)
 	if err != nil {
 		return "", err
 	}
@@ -69,10 +69,15 @@ func (a *Auth) ParseToken(token string) (uuid.UUID, error) {
 	return userID, nil
 }
 
-func (a *Auth) generateJWT(userID uuid.UUID, ttl time.Duration) (string, error) {
+func (a *Auth) generateJWT(
+	userID uuid.UUID,
+	role string,
+	ttl time.Duration,
+) (string, error) {
 	claims := jwt.MapClaims{
-		"sub": userID,
-		"exp": time.Now().Add(ttl).Unix(),
+		"sub":  userID,
+		"role": role,
+		"exp":  time.Now().Add(ttl).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
