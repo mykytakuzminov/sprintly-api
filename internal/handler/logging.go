@@ -38,6 +38,13 @@ func logTooManyRequests(logger *zap.SugaredLogger, traceID uuid.UUID) {
 	)
 }
 
+func logInvalidRole(logger *zap.SugaredLogger, traceID uuid.UUID) {
+	logger.Warnw(
+		"invalid user role",
+		"trace_id", traceID,
+	)
+}
+
 func logWarn(logger *zap.SugaredLogger, traceID uuid.UUID, msg string, err error) {
 	logger.Warnw(
 		msg,

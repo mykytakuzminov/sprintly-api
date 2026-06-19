@@ -22,13 +22,13 @@ func (r *UserRepo) Create(ctx context.Context, user *domain.User) error {
 	query := `
 		INSERT INTO users (id, email, hash_password)
 		VALUES ($1, $2, $3)
-		RETURNING created_at, updated_at
+		RETURNING role, created_at, updated_at
 	`
 	err := r.db.QueryRow(ctx, query,
 		user.ID,
 		user.Email,
 		user.HashPassword,
-	).Scan(&user.CreatedAt, &user.UpdatedAt)
+	).Scan(&user.Role, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
 		var pgErr *pgconn.PgError
@@ -43,7 +43,7 @@ func (r *UserRepo) Create(ctx context.Context, user *domain.User) error {
 
 func (r *UserRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	query := `
-		SELECT id, email, hash_password, created_at, updated_at
+		SELECT id, email, hash_password, role, created_at, updated_at
 		FROM users
 		WHERE id = $1
 	`
@@ -53,7 +53,7 @@ func (r *UserRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, err
 
 func (r *UserRepo) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
 	query := `
-		SELECT id, email, hash_password, created_at, updated_at
+		SELECT id, email, hash_password, role, created_at, updated_at
 		FROM users
 		WHERE email = $1
 	`
@@ -102,6 +102,7 @@ func scanUser(row pgx.Row) (*domain.User, error) {
 		&user.ID,
 		&user.Email,
 		&user.HashPassword,
+		&user.Role,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	); err != nil {

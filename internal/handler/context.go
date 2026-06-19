@@ -10,11 +10,17 @@ import (
 type contextKey struct{}
 
 var UserIDKey = contextKey{}
+var UserRoleKey = contextKey{}
 var TraceIDKey = contextKey{}
 
 func getUserID(r *http.Request) (uuid.UUID, bool) {
 	userID, ok := r.Context().Value(UserIDKey).(uuid.UUID)
 	return userID, ok
+}
+
+func getUserRole(r *http.Request) (string, bool) {
+	role, ok := r.Context().Value(UserRoleKey).(string)
+	return role, ok
 }
 
 func getTraceID(r *http.Request, logger *zap.SugaredLogger) uuid.UUID {

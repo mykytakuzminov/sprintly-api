@@ -171,6 +171,7 @@ func (h *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 type UserResponse struct {
 	ID        uuid.UUID `json:"id"         example:"7bc4f9d2-1a3e-4c8f-9b2d-5e7a0c4f1d63"`
 	Email     string    `json:"email"      example:"user@example.com"`
+	Role      string    `json:"role"       example:"member"`
 	CreatedAt time.Time `json:"created_at" example:"2025-01-15T09:00:00Z"`
 	UpdatedAt time.Time `json:"updated_at" example:"2025-01-15T09:00:00Z"`
 }
@@ -179,6 +180,7 @@ func toUserResponse(user *domain.User) UserResponse {
 	return UserResponse{
 		ID:        user.ID,
 		Email:     user.Email,
+		Role:      user.Role,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}

@@ -12,6 +12,7 @@ import (
 var (
 	ErrInvalidToken         = errors.New("invalid token")
 	ErrInvalidSigningMethod = errors.New("unexpected signing method")
+	ErrInvalidClaim         = errors.New("missing or invalid claim")
 )
 
 type Auth struct {
@@ -26,8 +27,8 @@ func (a *Auth) RefreshTTL() time.Duration {
 	return a.cfg.RefreshTTL
 }
 
-func (a *Auth) GenerateAccessToken(userID uuid.UUID) (string, error) {
-	token, err := a.generateJWT(userID, a.cfg.AccessTTL)
+func (a *Auth) GenerateAccessToken(userID uuid.UUID, role string) (string, error) {
+	token, err := a.generateJWT(userID, role, a.cfg.AccessTTL)
 	if err != nil {
 		return "", err
 	}
@@ -35,9 +36,9 @@ func (a *Auth) GenerateAccessToken(userID uuid.UUID) (string, error) {
 	return token, err
 }
 
-func (a *Auth) GenerateRefreshToken(userID uuid.UUID) (string, error) {
+func (a *Auth) GenerateRefreshToken(userID uuid.UUID, role string) (string, error) {
 
-	token, err := a.generateJWT(userID, a.cfg.RefreshTTL)
+	token, err := a.generateJWT(userID, role, a.cfg.RefreshTTL)
 	if err != nil {
 		return "", err
 	}
@@ -45,7 +46,7 @@ func (a *Auth) GenerateRefreshToken(userID uuid.UUID) (string, error) {
 	return token, err
 }
 
-func (a *Auth) ParseToken(token string) (uuid.UUID, error) {
+func (a *Auth) ParseToken(token string) (uuid.UUID, string, error) {
 	parsedToken, err := jwt.Parse(token, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, ErrInvalidSigningMethod
@@ -53,26 +54,40 @@ func (a *Auth) ParseToken(token string) (uuid.UUID, error) {
 		return []byte(a.cfg.Secret), nil
 	})
 	if err != nil {
-		return uuid.Nil, ErrInvalidToken
+		return uuid.Nil, "", ErrInvalidToken
 	}
 
 	claims, ok := parsedToken.Claims.(jwt.MapClaims)
 	if !ok || !parsedToken.Valid {
-		return uuid.Nil, ErrInvalidToken
+		return uuid.Nil, "", ErrInvalidToken
 	}
 
-	userID, err := uuid.Parse(claims["sub"].(string))
+	sub, err := a.getStringClaim(claims, "sub")
 	if err != nil {
-		return uuid.Nil, ErrInvalidToken
+		return uuid.Nil, "", err
+	}
+	role, err := a.getStringClaim(claims, "role")
+	if err != nil {
+		return uuid.Nil, "", err
 	}
 
-	return userID, nil
+	userID, err := uuid.Parse(sub)
+	if err != nil {
+		return uuid.Nil, "", ErrInvalidToken
+	}
+
+	return userID, role, nil
 }
 
-func (a *Auth) generateJWT(userID uuid.UUID, ttl time.Duration) (string, error) {
+func (a *Auth) generateJWT(
+	userID uuid.UUID,
+	role string,
+	ttl time.Duration,
+) (string, error) {
 	claims := jwt.MapClaims{
-		"sub": userID,
-		"exp": time.Now().Add(ttl).Unix(),
+		"sub":  userID,
+		"role": role,
+		"exp":  time.Now().Add(ttl).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -82,4 +97,12 @@ func (a *Auth) generateJWT(userID uuid.UUID, ttl time.Duration) (string, error) 
 	}
 
 	return signed, nil
+}
+
+func (a *Auth) getStringClaim(claims jwt.MapClaims, key string) (string, error) {
+	val, ok := claims[key].(string)
+	if !ok {
+		return "", ErrInvalidClaim
+	}
+	return val, nil
 }
