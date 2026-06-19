@@ -7,11 +7,13 @@ import (
 	"go.uber.org/zap"
 )
 
-type contextKey struct{}
+type userIDKeyType struct{}
+type userRoleKeyType struct{}
+type traceIDKeyType struct{}
 
-var UserIDKey = contextKey{}
-var UserRoleKey = contextKey{}
-var TraceIDKey = contextKey{}
+var UserIDKey = userIDKeyType{}
+var UserRoleKey = userRoleKeyType{}
+var TraceIDKey = traceIDKeyType{}
 
 func getUserID(r *http.Request) (uuid.UUID, bool) {
 	userID, ok := r.Context().Value(UserIDKey).(uuid.UUID)
