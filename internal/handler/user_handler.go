@@ -55,7 +55,7 @@ func (h *UserHandler) RouteRegister() chi.Router {
 // @Failure     400 {object} handler.ErrorResponse "Invalid request body or validation error"
 // @Failure     409 {object} handler.ErrorResponse "Email already in use"
 // @Failure     500 {object} handler.ErrorResponse "Internal server error"
-// @Router      /users/register [post]
+// @Router      /auth/register [post]
 func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	traceID := getTraceID(r, h.logger)
 

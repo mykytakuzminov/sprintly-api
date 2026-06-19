@@ -180,7 +180,7 @@ func initRouter(
 			r.Use(handler.RateLimiterMiddleware(rateLimitSvc, logger))
 
 			r.Mount("/auth", authHandler.Routes())
-			r.Mount("/users/register", userHandler.RouteRegister())
+			r.Mount("/auth/register", userHandler.RouteRegister())
 		})
 
 		r.Group(func(r chi.Router) {
