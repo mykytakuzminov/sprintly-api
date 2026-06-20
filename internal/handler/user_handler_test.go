@@ -21,6 +21,7 @@ type MockUserService struct {
 	registerFn       func(ctx context.Context, input *domain.RegisterInput) (*domain.User, error)
 	changePasswordFn func(ctx context.Context, userID uuid.UUID, input *domain.ChangePasswordInput) error
 	getByIDFn        func(ctx context.Context, userID uuid.UUID) (*domain.User, error)
+	getAll           func(ctx context.Context, params *domain.ListParams) ([]*domain.User, error)
 }
 
 func (m *MockUserService) Register(
@@ -50,6 +51,16 @@ func (m *MockUserService) GetByID(
 ) (*domain.User, error) {
 	if m.getByIDFn != nil {
 		return m.getByIDFn(ctx, userID)
+	}
+	return nil, nil
+}
+
+func (m *MockUserService) GetAll(
+	ctx context.Context,
+	params *domain.ListParams,
+) ([]*domain.User, error) {
+	if m.getAll != nil {
+		return m.getAll(ctx, params)
 	}
 	return nil, nil
 }

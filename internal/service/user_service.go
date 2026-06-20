@@ -98,3 +98,7 @@ func (s *UserSvc) GetByID(
 ) (*domain.User, error) {
 	return s.repo.GetByID(ctx, userID)
 }
+
+func (s *UserSvc) GetAll(ctx context.Context, params *domain.ListParams) ([]*domain.User, error) {
+	return s.repo.GetAll(ctx, params)
+}

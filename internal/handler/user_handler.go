@@ -36,6 +36,14 @@ func (h *UserHandler) Routes() chi.Router {
 	return r
 }
 
+func (h *UserHandler) AdminRoutes() chi.Router {
+	r := chi.NewRouter()
+
+	r.Get("/all", h.GetAll)
+
+	return r
+}
+
 // Register godoc
 // @Summary     Register a new user
 // @Description Creates a new user account. Email must be unique.
@@ -158,6 +166,49 @@ func (h *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 
 	logSuccess(h.logger, traceID, "user profile retrieved", "user_id", userID)
 	successResponse(w, http.StatusOK, toUserResponse(user))
+}
+
+// GetAll godoc
+// @Summary     Get all users
+// @Description Returns all users. Requires admin role. Supports pagination and sorting.
+// @Tags        admin
+// @Produce     json
+// @Security    BearerAuth
+// @Param       limit    query  int    false "Number of results per page (default: 20, max: 100)"
+// @Param       offset   query  int    false "Number of results to skip (default: 0)"
+// @Param       sort     query  string false "Field to sort by: email, created_at, updated_at (default: created_at)"
+// @Param       order    query  string false "Sort direction: ASC or DESC (default: ASC)"
+// @Success     200 {array}  handler.UserResponse "List of users"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
+// @Failure     403 {object} handler.ErrorResponse "Forbidden: admin role required"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /admin/users/all [get]
+func (h *UserHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+	traceID := getTraceID(r, h.logger)
+
+	userID, ok := getUserID(r)
+	if !ok {
+		logUnauthorizedAccess(h.logger, traceID)
+		errorResponse(w, domain.ErrUnauthorized)
+		return
+	}
+
+	params := parseListParams(r)
+
+	users, err := h.svc.GetAll(r.Context(), params)
+	if err != nil {
+		logUnexpectedError(h.logger, traceID, err)
+		errorResponse(w, err)
+		return
+	}
+
+	responses := make([]UserResponse, 0, len(users))
+	for _, user := range users {
+		responses = append(responses, toUserResponse(user))
+	}
+
+	logSuccess(h.logger, traceID, "all users retrieved", "user_id", userID)
+	successResponse(w, http.StatusOK, responses)
 }
 
 type UserResponse struct {

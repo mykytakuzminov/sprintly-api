@@ -198,6 +198,14 @@ func initRouter(
 			r.Mount("/columns/{columnID}/tasks", taskHandler.ColumnRoutes())
 			r.Mount("/tasks", taskHandler.Routes())
 		})
+
+		r.Group(func(r chi.Router) {
+			r.Use(handler.AuthMiddleware(auth, logger))
+			r.Use(handler.RequireAdminMiddleware(logger))
+			r.Use(handler.RateLimiterMiddleware(rateLimitSvc, logger))
+
+			r.Mount("/admin/users", userHandler.AdminRoutes())
+		})
 	})
 
 	return router

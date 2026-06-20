@@ -14,6 +14,7 @@ type MockUserRepository struct {
 	createFn     func(ctx context.Context, user *domain.User) error
 	getByIDFn    func(ctx context.Context, id uuid.UUID) (*domain.User, error)
 	getByEmailFn func(ctx context.Context, email string) (*domain.User, error)
+	getAll       func(ctx context.Context, params *domain.ListParams) ([]*domain.User, error)
 	updateFn     func(ctx context.Context, user *domain.User) error
 	deleteFn     func(ctx context.Context, id uuid.UUID) error
 }
@@ -35,6 +36,13 @@ func (m *MockUserRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain
 func (m *MockUserRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
 	if m.getByEmailFn != nil {
 		return m.getByEmailFn(ctx, email)
+	}
+	return nil, nil
+}
+
+func (m *MockUserRepository) GetAll(ctx context.Context, params *domain.ListParams) ([]*domain.User, error) {
+	if m.getAll != nil {
+		return m.getAll(ctx, params)
 	}
 	return nil, nil
 }
