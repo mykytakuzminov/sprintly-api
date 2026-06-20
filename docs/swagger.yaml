@@ -296,6 +296,44 @@ info:
   title: Sprintly API
   version: "1.0"
 paths:
+  /admin/users/{id}:
+    get:
+      description: Returns the profile of a specific user by their ID. Requires admin
+        role.
+      parameters:
+      - description: User ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User data
+          schema:
+            $ref: '#/definitions/handler.UserResponse'
+        "401":
+          description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "403":
+          description: 'Forbidden: admin role required'
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user by id
+      tags:
+      - admin
   /admin/users/all:
     get:
       description: Returns all users. Requires admin role. Supports pagination and
