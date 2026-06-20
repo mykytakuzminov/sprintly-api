@@ -1101,6 +1101,53 @@ paths:
       summary: Update a task
       tags:
       - tasks
+  /users/all:
+    get:
+      description: Returns all users. Requires admin role. Supports pagination and
+        sorting.
+      parameters:
+      - description: 'Number of results per page (default: 20, max: 100)'
+        in: query
+        name: limit
+        type: integer
+      - description: 'Number of results to skip (default: 0)'
+        in: query
+        name: offset
+        type: integer
+      - description: 'Field to sort by: email, created_at, updated_at (default: created_at)'
+        in: query
+        name: sort
+        type: string
+      - description: 'Sort direction: ASC or DESC (default: ASC)'
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of users
+          schema:
+            items:
+              $ref: '#/definitions/handler.UserResponse'
+            type: array
+        "401":
+          description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "403":
+          description: 'Forbidden: admin role required'
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all users
+      tags:
+      - admin
   /users/me:
     get:
       description: Returns the profile of the currently authenticated user.
