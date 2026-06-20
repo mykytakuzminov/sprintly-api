@@ -61,6 +61,22 @@ func (r *UserRepo) GetByEmail(ctx context.Context, email string) (*domain.User, 
 	return scanUser(r.db.QueryRow(ctx, query, email))
 }
 
+func (r *UserRepo) GetAll(ctx context.Context, params *domain.ListParams) ([]*domain.User, error) {
+	baseQuery := `
+		SELECT id, email, hash_password, role, created_at, updated_at
+		FROM users
+	`
+	query := getUserListQuery(baseQuery, params)
+
+	rows, err := r.db.Query(ctx, query, params.Limit, params.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return scanUsers(rows)
+}
+
 func (r *UserRepo) Update(ctx context.Context, user *domain.User) error {
 	query := `
 		UPDATE users
@@ -113,4 +129,39 @@ func scanUser(row pgx.Row) (*domain.User, error) {
 	}
 
 	return user, nil
+}
+
+func scanUsers(rows pgx.Rows) ([]*domain.User, error) {
+	var users []*domain.User
+
+	for rows.Next() {
+		user := &domain.User{}
+		if err := rows.Scan(
+			&user.ID,
+			&user.Email,
+			&user.HashPassword,
+			&user.Role,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
+func getUserListQuery(baseQuery string, params *domain.ListParams) string {
+	allowedSort := map[string]string{
+		"email":      "email",
+		"created_at": "created_at",
+		"updated_at": "updated_at",
+	}
+
+	return buildListQuery(baseQuery, params, allowedSort, "created_at")
 }
