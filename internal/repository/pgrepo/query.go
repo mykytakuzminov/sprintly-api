@@ -38,7 +38,7 @@ func buildOrderLimitClause(
 		order = "DESC"
 	}
 
-	return fmt.Sprintf("ORDER BY %s %s LIMIT $2 OFFSET $3", sortCol, order)
+	return fmt.Sprintf("ORDER BY %s %s LIMIT $1 OFFSET $2", sortCol, order)
 }
 
 func buildListQuery(

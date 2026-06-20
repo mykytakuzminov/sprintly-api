@@ -51,7 +51,7 @@ func (r *BoardRepo) GetAllByUserID(
 
 	var boards []*domain.Board
 
-	rows, err := r.db.Query(ctx, query, userID, params.Limit, params.Offset)
+	rows, err := r.db.Query(ctx, query, params.Limit, params.Offset, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +143,7 @@ func getBoardListQuery(params *domain.ListParams) string {
 	baseQuery := `
 		SELECT id, owner_id, name, description, created_at, updated_at
 		FROM boards
-		WHERE owner_id = $1
+		WHERE owner_id = $3
 	`
 
 	return buildListQuery(baseQuery, params, allowedSort, "created_at")
