@@ -35,7 +35,7 @@ jobs:
           script: |
             cd ~/sprintly-api
             git fetch origin
-            get reset --hard origin/main
+            git reset --hard origin/main
             docker compose pull
             docker compose up -d --force-recreate
             docker image prune -f
