@@ -39,6 +39,7 @@ func (h *UserHandler) Routes() chi.Router {
 func (h *UserHandler) AdminRoutes() chi.Router {
 	r := chi.NewRouter()
 
+	r.Get("/{id}", h.GetByID)
 	r.Get("/all", h.GetAll)
 
 	return r
@@ -165,6 +166,51 @@ func (h *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logSuccess(h.logger, traceID, "user profile retrieved", "user_id", userID)
+	successResponse(w, http.StatusOK, toUserResponse(user))
+}
+
+// GetByID godoc
+// @Summary     Get user by id
+// @Description Returns the profile of a specific user by their ID. Requires admin role.
+// @Tags        admin
+// @Produce     json
+// @Security    BearerAuth
+// @Param       id path string true "User ID (UUID)"
+// @Success     200 {object} handler.UserResponse "User data"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
+// @Failure     403 {object} handler.ErrorResponse "Forbidden: admin role required"
+// @Failure     404 {object} handler.ErrorResponse "User not found"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /admin/users/{id} [get]
+func (h *UserHandler) GetByID(w http.ResponseWriter, r *http.Request) {
+	traceID := getTraceID(r, h.logger)
+
+	adminID, ok := getUserID(r)
+	if !ok {
+		logUnauthorizedAccess(h.logger, traceID)
+		errorResponse(w, domain.ErrUnauthorized)
+		return
+	}
+
+	userID, err := getURLParam(r, "id")
+	if err != nil {
+		logInvalidBody(h.logger, traceID, err)
+		errorResponse(w, domain.ErrBadRequest)
+		return
+	}
+
+	user, err := h.svc.GetByID(r.Context(), userID)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			logWarn(h.logger, traceID, "user not found", err)
+		} else {
+			logUnexpectedError(h.logger, traceID, err)
+		}
+		errorResponse(w, err)
+		return
+	}
+
+	logSuccess(h.logger, traceID, "user profile retrieved", "admin_id", adminID, "user_id", userID)
 	successResponse(w, http.StatusOK, toUserResponse(user))
 }
 
