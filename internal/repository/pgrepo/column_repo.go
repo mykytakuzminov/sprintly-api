@@ -63,7 +63,7 @@ func (r *ColumnRepo) GetAllByBoardID(
 
 	var columns []*domain.Column
 
-	rows, err := r.db.Query(ctx, query, boardID, params.Limit, params.Offset)
+	rows, err := r.db.Query(ctx, query, params.Limit, params.Offset, boardID)
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +155,7 @@ func getColumnListQuery(params *domain.ListParams) string {
 	baseQuery := `
 		SELECT id, board_id, name, position, created_at, updated_at
 		FROM columns
-		WHERE board_id = $1
+		WHERE board_id = $3
 	`
 
 	return buildListQuery(baseQuery, params, allowedSort, "created_at")

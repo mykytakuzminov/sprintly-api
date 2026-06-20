@@ -65,11 +65,11 @@ func (r *TaskRepo) GetAllByUserID(
 	baseQuery := `
 		SELECT id, owner_id, column_id, assignee_id, name, description, due_date, created_at, updated_at
 		FROM tasks
-		WHERE owner_id = $1
+		WHERE owner_id = $3
 	`
 	query := getTaskListQuery(baseQuery, params)
 
-	rows, err := r.db.Query(ctx, query, userID, params.Limit, params.Offset)
+	rows, err := r.db.Query(ctx, query, params.Limit, params.Offset, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -86,11 +86,11 @@ func (r *TaskRepo) GetAllByColumnID(
 	baseQuery := `
 		SELECT id, owner_id, column_id, assignee_id, name, description, due_date, created_at, updated_at
 		FROM tasks
-		WHERE column_id = $1
+		WHERE column_id = $3
 	`
 	query := getTaskListQuery(baseQuery, params)
 
-	rows, err := r.db.Query(ctx, query, columnID, params.Limit, params.Offset)
+	rows, err := r.db.Query(ctx, query, params.Limit, params.Offset, columnID)
 	if err != nil {
 		return nil, err
 	}
@@ -107,11 +107,11 @@ func (r *TaskRepo) GetAllByAssigneeID(
 	baseQuery := `
 		SELECT id, owner_id, column_id, assignee_id, name, description, due_date, created_at, updated_at
 		FROM tasks
-		WHERE assignee_id = $1
+		WHERE assignee_id = $3
 	`
 	query := getTaskListQuery(baseQuery, params)
 
-	rows, err := r.db.Query(ctx, query, assigneeID, params.Limit, params.Offset)
+	rows, err := r.db.Query(ctx, query, params.Limit, params.Offset, assigneeID)
 	if err != nil {
 		return nil, err
 	}
