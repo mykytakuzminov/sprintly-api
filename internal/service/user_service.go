@@ -83,9 +83,28 @@ func (s *UserSvc) ChangePassword(
 		return err
 	}
 
-	user.HashPassword = string(hpwd)
+	if err = s.repo.UpdatePassword(ctx, user.ID, string(hpwd)); err != nil {
+		return err
+	}
 
-	if err = s.repo.Update(ctx, user); err != nil {
+	return nil
+}
+
+func (s *UserSvc) ChangeRole(
+	ctx context.Context,
+	userID uuid.UUID,
+	input *domain.ChangeRoleInput,
+) error {
+	if err := s.validate.Struct(input); err != nil {
+		return domain.ErrBadRequest
+	}
+
+	_, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	if err := s.repo.UpdateRole(ctx, userID, input.Role); err != nil {
 		return err
 	}
 

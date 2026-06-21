@@ -129,13 +129,12 @@ func TestUserRepo_GetByEmail_NotFound(t *testing.T) {
 	})
 }
 
-func TestUserRepo_Update(t *testing.T) {
+func TestUserRepo_UpdatePassword(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
 		repo := NewUserRepository(db)
 		user := createTestUser(ctx, db)
 
-		user.HashPassword = "newhash"
-		err := repo.Update(ctx, user)
+		err := repo.UpdatePassword(ctx, user.ID, "newhash")
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -151,11 +150,7 @@ func TestUserRepo_Update_NotFound(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
 		repo := NewUserRepository(db)
 
-		err := repo.Update(ctx, &domain.User{
-			ID:           uuid.New(),
-			Email:        uuid.New().String() + "@example.com",
-			HashPassword: "oldhash",
-		})
+		err := repo.UpdatePassword(ctx, uuid.New(), "oldhash")
 		if !errors.Is(err, domain.ErrNotFound) {
 			t.Fatalf("expected ErrNotFound, got %v", err)
 		}

@@ -46,6 +46,17 @@ definitions:
     - new_password
     - old_password
     type: object
+  domain.ChangeRoleInput:
+    properties:
+      role:
+        enum:
+        - admin
+        - member
+        example: member
+        type: string
+    required:
+    - role
+    type: object
   domain.Column:
     properties:
       board_id:
@@ -332,6 +343,52 @@ paths:
       security:
       - BearerAuth: []
       summary: Get user by id
+      tags:
+      - admin
+    patch:
+      consumes:
+      - application/json
+      description: Changes the role of the given user. Requires admin role.
+      parameters:
+      - description: User ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: new role
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.ChangeRoleInput'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Role changed successfully
+        "400":
+          description: Invalid request body or validation error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Missing or invalid access token
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "403":
+          description: 'Forbidden: admin role required'
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Change role
       tags:
       - admin
   /admin/users/all:

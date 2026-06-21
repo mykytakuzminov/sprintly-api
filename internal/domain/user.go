@@ -26,18 +26,24 @@ type ChangePasswordInput struct {
 	NewPassword string `json:"new_password" validate:"required,min=8,max=72" example:"newpassword"`
 }
 
+type ChangeRoleInput struct {
+	Role string `json:"role" validate:"required,oneof=admin member" example:"member"`
+}
+
 type UserRepository interface {
 	Create(ctx context.Context, user *User) error
 	GetByID(ctx context.Context, id uuid.UUID) (*User, error)
 	GetByEmail(ctx context.Context, email string) (*User, error)
 	GetAll(ctx context.Context, params *ListParams) ([]*User, error)
-	Update(ctx context.Context, user *User) error
+	UpdatePassword(ctx context.Context, userID uuid.UUID, hashPassword string) error
+	UpdateRole(ctx context.Context, userID uuid.UUID, role string) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
 type UserService interface {
 	Register(ctx context.Context, input *RegisterInput) (*User, error)
 	ChangePassword(ctx context.Context, userID uuid.UUID, input *ChangePasswordInput) error
+	ChangeRole(ctx context.Context, userID uuid.UUID, input *ChangeRoleInput) error
 	GetByID(ctx context.Context, userID uuid.UUID) (*User, error)
 	GetAll(ctx context.Context, params *ListParams) ([]*User, error)
 }

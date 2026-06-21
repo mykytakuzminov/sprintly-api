@@ -40,6 +40,7 @@ func (h *UserHandler) AdminRoutes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Get("/{id}", h.GetByID)
+	r.Patch("/{id}", h.ChangeRole)
 	r.Get("/all", h.GetAll)
 
 	return r
@@ -130,6 +131,63 @@ func (h *UserHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logSuccess(h.logger, traceID, "password updated", "user_id", userID)
+	noContentResponse(w)
+}
+
+// ChangeRole godoc
+// @Summary     Change role
+// @Description Changes the role of the given user. Requires admin role.
+// @Tags        admin
+// @Accept      json
+// @Produce     json
+// @Security    BearerAuth
+// @Param       id path string true "User ID (UUID)"
+// @Param       body body domain.ChangeRoleInput true "new role"
+// @Success     204 "Role changed successfully"
+// @Failure     400 {object} handler.ErrorResponse "Invalid request body or validation error"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
+// @Failure     403 {object} handler.ErrorResponse "Forbidden: admin role required"
+// @Failure     404 {object} handler.ErrorResponse "User not found"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /admin/users/{id} [patch]
+func (h *UserHandler) ChangeRole(w http.ResponseWriter, r *http.Request) {
+	traceID := getTraceID(r, h.logger)
+
+	adminID, ok := getUserID(r)
+	if !ok {
+		logUnauthorizedAccess(h.logger, traceID)
+		errorResponse(w, domain.ErrUnauthorized)
+		return
+	}
+
+	userID, err := getURLParam(r, "id")
+	if err != nil {
+		logInvalidBody(h.logger, traceID, err)
+		errorResponse(w, domain.ErrBadRequest)
+		return
+	}
+
+	var input domain.ChangeRoleInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		logInvalidBody(h.logger, traceID, err)
+		errorResponse(w, domain.ErrBadRequest)
+		return
+	}
+
+	if err := h.svc.ChangeRole(r.Context(), userID, &input); err != nil {
+		switch {
+		case errors.Is(err, domain.ErrBadRequest):
+			logInvalidBody(h.logger, traceID, err)
+		case errors.Is(err, domain.ErrNotFound):
+			logWarn(h.logger, traceID, "user not found", err)
+		default:
+			logUnexpectedError(h.logger, traceID, err)
+		}
+		errorResponse(w, err)
+		return
+	}
+
+	logSuccess(h.logger, traceID, "role updated", "admin_id", adminID, "user_id", userID)
 	noContentResponse(w)
 }
 
