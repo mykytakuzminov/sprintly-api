@@ -41,6 +41,7 @@ func (h *UserHandler) AdminRoutes() chi.Router {
 
 	r.Get("/{id}", h.GetByID)
 	r.Patch("/{id}", h.ChangeRole)
+	r.Delete("/{id}", h.Delete)
 	r.Get("/all", h.GetAll)
 
 	return r
@@ -312,6 +313,51 @@ func (h *UserHandler) ChangeRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logSuccess(h.logger, traceID, "role updated", "admin_id", adminID, "user_id", userID)
+	noContentResponse(w)
+}
+
+// DeleteUser godoc
+// @Summary     Delete a user
+// @Description Deletes a user by ID. Requires admin role.
+// @Tags        admin
+// @Produce     json
+// @Security    BearerAuth
+// @Param       id path string true "User ID (UUID)"
+// @Success     204 "User deleted successfully"
+// @Failure     400 {object} handler.ErrorResponse "Invalid user ID format"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
+// @Failure     403 {object} handler.ErrorResponse "Forbidden: admin role required"
+// @Failure     404 {object} handler.ErrorResponse "User not found"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /admin/users/{id} [delete]
+func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	traceID := getTraceID(r, h.logger)
+
+	adminID, ok := getUserID(r)
+	if !ok {
+		logUnauthorizedAccess(h.logger, traceID)
+		errorResponse(w, domain.ErrUnauthorized)
+		return
+	}
+
+	userID, err := getURLParam(r, "id")
+	if err != nil {
+		logInvalidBody(h.logger, traceID, err)
+		errorResponse(w, domain.ErrBadRequest)
+		return
+	}
+
+	if err := h.svc.Delete(r.Context(), userID); err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			logWarn(h.logger, traceID, "user not found", err)
+		} else {
+			logUnexpectedError(h.logger, traceID, err)
+		}
+		errorResponse(w, err)
+		return
+	}
+
+	logSuccess(h.logger, traceID, "user deleted", "admin_id", adminID, "user_id", userID)
 	noContentResponse(w)
 }
 

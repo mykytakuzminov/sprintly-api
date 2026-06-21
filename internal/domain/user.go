@@ -46,4 +46,5 @@ type UserService interface {
 	ChangeRole(ctx context.Context, userID uuid.UUID, input *ChangeRoleInput) error
 	GetByID(ctx context.Context, userID uuid.UUID) (*User, error)
 	GetAll(ctx context.Context, params *ListParams) ([]*User, error)
+	Delete(ctx context.Context, userID uuid.UUID) error
 }

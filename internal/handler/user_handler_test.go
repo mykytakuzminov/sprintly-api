@@ -22,7 +22,8 @@ type MockUserService struct {
 	changePasswordFn func(ctx context.Context, userID uuid.UUID, input *domain.ChangePasswordInput) error
 	changeRoleFn     func(ctx context.Context, userID uuid.UUID, input *domain.ChangeRoleInput) error
 	getByIDFn        func(ctx context.Context, userID uuid.UUID) (*domain.User, error)
-	getAll           func(ctx context.Context, params *domain.ListParams) ([]*domain.User, error)
+	getAllFn         func(ctx context.Context, params *domain.ListParams) ([]*domain.User, error)
+	deleteFn         func(ctx context.Context, userID uuid.UUID) error
 }
 
 func (m *MockUserService) Register(
@@ -71,10 +72,17 @@ func (m *MockUserService) GetAll(
 	ctx context.Context,
 	params *domain.ListParams,
 ) ([]*domain.User, error) {
-	if m.getAll != nil {
-		return m.getAll(ctx, params)
+	if m.getAllFn != nil {
+		return m.getAllFn(ctx, params)
 	}
 	return nil, nil
+}
+
+func (m *MockUserService) Delete(ctx context.Context, userID uuid.UUID) error {
+	if m.deleteFn != nil {
+		return m.deleteFn(ctx, userID)
+	}
+	return nil
 }
 
 func createAuth() *auth.Auth {
