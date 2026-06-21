@@ -152,7 +152,7 @@ func initRouter(
 
 	userRepo := pgrepo.NewUserRepository(pool)
 	userSvc := service.NewUserService(userRepo)
-	userHandler := handler.NewUserHandler(userSvc, auth, logger)
+	userHandler := handler.NewUserHandler(userSvc, logger)
 
 	tokenRepo := rdrepo.NewTokenRepository(client)
 	authSvc := service.NewAuthService(userRepo, tokenRepo, auth)
@@ -160,15 +160,15 @@ func initRouter(
 
 	boardRepo := pgrepo.NewBoardRepository(pool)
 	boardSvc := service.NewBoardService(boardRepo)
-	boardHandler := handler.NewBoardHandler(boardSvc, auth, logger)
+	boardHandler := handler.NewBoardHandler(boardSvc, logger)
 
 	columnRepo := pgrepo.NewColumnRepository(pool)
 	columnSvc := service.NewColumnService(columnRepo, boardRepo)
-	columnHandler := handler.NewColumnHandler(columnSvc, auth, logger)
+	columnHandler := handler.NewColumnHandler(columnSvc, logger)
 
 	taskRepo := pgrepo.NewTaskRepository(pool)
 	taskSvc := service.NewTaskService(taskRepo, columnRepo)
-	taskHandler := handler.NewTaskHandler(taskSvc, auth, logger)
+	taskHandler := handler.NewTaskHandler(taskSvc, logger)
 
 	router.Route("/api/v1", func(r chi.Router) {
 		r.Use(handler.TimeoutMiddleware)

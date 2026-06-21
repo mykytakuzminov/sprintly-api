@@ -6,23 +6,20 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/mykytakuzminov/sprintly-api/internal/auth"
 	"github.com/mykytakuzminov/sprintly-api/internal/domain"
 	"go.uber.org/zap"
 )
 
 type ColumnHandler struct {
 	svc    domain.ColumnService
-	auth   *auth.Auth
 	logger *zap.SugaredLogger
 }
 
 func NewColumnHandler(
 	svc domain.ColumnService,
-	auth *auth.Auth,
 	logger *zap.SugaredLogger,
 ) *ColumnHandler {
-	return &ColumnHandler{svc: svc, auth: auth, logger: logger}
+	return &ColumnHandler{svc: svc, logger: logger}
 }
 
 func (h *ColumnHandler) Routes() chi.Router {
