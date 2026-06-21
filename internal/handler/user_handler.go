@@ -86,6 +86,130 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	successResponse(w, http.StatusCreated, toUserResponse(user))
 }
 
+// Me godoc
+// @Summary     Get current user
+// @Description Returns the profile of the currently authenticated user.
+// @Tags        users
+// @Produce     json
+// @Security    BearerAuth
+// @Success     200 {object} handler.UserResponse "Current user data"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
+// @Failure     404 {object} handler.ErrorResponse "User not found"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /users/me [get]
+func (h *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
+	traceID := getTraceID(r, h.logger)
+
+	userID, ok := getUserID(r)
+	if !ok {
+		logUnauthorizedAccess(h.logger, traceID)
+		errorResponse(w, domain.ErrUnauthorized)
+		return
+	}
+
+	user, err := h.svc.GetByID(r.Context(), userID)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			logWarn(h.logger, traceID, "user not found", err)
+		} else {
+			logUnexpectedError(h.logger, traceID, err)
+		}
+		errorResponse(w, err)
+		return
+	}
+
+	logSuccess(h.logger, traceID, "user profile retrieved", "user_id", userID)
+	successResponse(w, http.StatusOK, toUserResponse(user))
+}
+
+// GetByID godoc
+// @Summary     Get user by id
+// @Description Returns the profile of a specific user by their ID. Requires admin role.
+// @Tags        admin
+// @Produce     json
+// @Security    BearerAuth
+// @Param       id path string true "User ID (UUID)"
+// @Success     200 {object} handler.UserResponse "User data"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
+// @Failure     403 {object} handler.ErrorResponse "Forbidden: admin role required"
+// @Failure     404 {object} handler.ErrorResponse "User not found"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /admin/users/{id} [get]
+func (h *UserHandler) GetByID(w http.ResponseWriter, r *http.Request) {
+	traceID := getTraceID(r, h.logger)
+
+	adminID, ok := getUserID(r)
+	if !ok {
+		logUnauthorizedAccess(h.logger, traceID)
+		errorResponse(w, domain.ErrUnauthorized)
+		return
+	}
+
+	userID, err := getURLParam(r, "id")
+	if err != nil {
+		logInvalidBody(h.logger, traceID, err)
+		errorResponse(w, domain.ErrBadRequest)
+		return
+	}
+
+	user, err := h.svc.GetByID(r.Context(), userID)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			logWarn(h.logger, traceID, "user not found", err)
+		} else {
+			logUnexpectedError(h.logger, traceID, err)
+		}
+		errorResponse(w, err)
+		return
+	}
+
+	logSuccess(h.logger, traceID, "user profile retrieved", "admin_id", adminID, "user_id", userID)
+	successResponse(w, http.StatusOK, toUserResponse(user))
+}
+
+// GetAll godoc
+// @Summary     Get all users
+// @Description Returns all users. Requires admin role. Supports pagination and sorting.
+// @Tags        admin
+// @Produce     json
+// @Security    BearerAuth
+// @Param       limit    query  int    false "Number of results per page (default: 20, max: 100)"
+// @Param       offset   query  int    false "Number of results to skip (default: 0)"
+// @Param       sort     query  string false "Field to sort by: email, created_at, updated_at (default: created_at)"
+// @Param       order    query  string false "Sort direction: ASC or DESC (default: ASC)"
+// @Success     200 {array}  handler.UserResponse "List of users"
+// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
+// @Failure     403 {object} handler.ErrorResponse "Forbidden: admin role required"
+// @Failure     500 {object} handler.ErrorResponse "Internal server error"
+// @Router      /admin/users/all [get]
+func (h *UserHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+	traceID := getTraceID(r, h.logger)
+
+	adminID, ok := getUserID(r)
+	if !ok {
+		logUnauthorizedAccess(h.logger, traceID)
+		errorResponse(w, domain.ErrUnauthorized)
+		return
+	}
+
+	params := parseListParams(r)
+
+	users, err := h.svc.GetAll(r.Context(), params)
+	if err != nil {
+		logUnexpectedError(h.logger, traceID, err)
+		errorResponse(w, err)
+		return
+	}
+
+	responses := make([]UserResponse, 0, len(users))
+	for _, user := range users {
+		responses = append(responses, toUserResponse(user))
+	}
+
+	logSuccess(h.logger, traceID, "all users retrieved", "admin_id", adminID)
+	successResponse(w, http.StatusOK, responses)
+}
+
 // ChangePassword godoc
 // @Summary     Change password
 // @Description Changes the password of the currently authenticated user. Requires the current password for verification.
@@ -189,130 +313,6 @@ func (h *UserHandler) ChangeRole(w http.ResponseWriter, r *http.Request) {
 
 	logSuccess(h.logger, traceID, "role updated", "admin_id", adminID, "user_id", userID)
 	noContentResponse(w)
-}
-
-// Me godoc
-// @Summary     Get current user
-// @Description Returns the profile of the currently authenticated user.
-// @Tags        users
-// @Produce     json
-// @Security    BearerAuth
-// @Success     200 {object} handler.UserResponse "Current user data"
-// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
-// @Failure     404 {object} handler.ErrorResponse "User not found"
-// @Failure     500 {object} handler.ErrorResponse "Internal server error"
-// @Router      /users/me [get]
-func (h *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
-	traceID := getTraceID(r, h.logger)
-
-	userID, ok := getUserID(r)
-	if !ok {
-		logUnauthorizedAccess(h.logger, traceID)
-		errorResponse(w, domain.ErrUnauthorized)
-		return
-	}
-
-	user, err := h.svc.GetByID(r.Context(), userID)
-	if err != nil {
-		if errors.Is(err, domain.ErrNotFound) {
-			logWarn(h.logger, traceID, "user not found", err)
-		} else {
-			logUnexpectedError(h.logger, traceID, err)
-		}
-		errorResponse(w, err)
-		return
-	}
-
-	logSuccess(h.logger, traceID, "user profile retrieved", "user_id", userID)
-	successResponse(w, http.StatusOK, toUserResponse(user))
-}
-
-// GetByID godoc
-// @Summary     Get user by id
-// @Description Returns the profile of a specific user by their ID. Requires admin role.
-// @Tags        admin
-// @Produce     json
-// @Security    BearerAuth
-// @Param       id path string true "User ID (UUID)"
-// @Success     200 {object} handler.UserResponse "User data"
-// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
-// @Failure     403 {object} handler.ErrorResponse "Forbidden: admin role required"
-// @Failure     404 {object} handler.ErrorResponse "User not found"
-// @Failure     500 {object} handler.ErrorResponse "Internal server error"
-// @Router      /admin/users/{id} [get]
-func (h *UserHandler) GetByID(w http.ResponseWriter, r *http.Request) {
-	traceID := getTraceID(r, h.logger)
-
-	adminID, ok := getUserID(r)
-	if !ok {
-		logUnauthorizedAccess(h.logger, traceID)
-		errorResponse(w, domain.ErrUnauthorized)
-		return
-	}
-
-	userID, err := getURLParam(r, "id")
-	if err != nil {
-		logInvalidBody(h.logger, traceID, err)
-		errorResponse(w, domain.ErrBadRequest)
-		return
-	}
-
-	user, err := h.svc.GetByID(r.Context(), userID)
-	if err != nil {
-		if errors.Is(err, domain.ErrNotFound) {
-			logWarn(h.logger, traceID, "user not found", err)
-		} else {
-			logUnexpectedError(h.logger, traceID, err)
-		}
-		errorResponse(w, err)
-		return
-	}
-
-	logSuccess(h.logger, traceID, "user profile retrieved", "admin_id", adminID, "user_id", userID)
-	successResponse(w, http.StatusOK, toUserResponse(user))
-}
-
-// GetAll godoc
-// @Summary     Get all users
-// @Description Returns all users. Requires admin role. Supports pagination and sorting.
-// @Tags        admin
-// @Produce     json
-// @Security    BearerAuth
-// @Param       limit    query  int    false "Number of results per page (default: 20, max: 100)"
-// @Param       offset   query  int    false "Number of results to skip (default: 0)"
-// @Param       sort     query  string false "Field to sort by: email, created_at, updated_at (default: created_at)"
-// @Param       order    query  string false "Sort direction: ASC or DESC (default: ASC)"
-// @Success     200 {array}  handler.UserResponse "List of users"
-// @Failure     401 {object} handler.ErrorResponse "Missing or invalid access token"
-// @Failure     403 {object} handler.ErrorResponse "Forbidden: admin role required"
-// @Failure     500 {object} handler.ErrorResponse "Internal server error"
-// @Router      /admin/users/all [get]
-func (h *UserHandler) GetAll(w http.ResponseWriter, r *http.Request) {
-	traceID := getTraceID(r, h.logger)
-
-	userID, ok := getUserID(r)
-	if !ok {
-		logUnauthorizedAccess(h.logger, traceID)
-		errorResponse(w, domain.ErrUnauthorized)
-		return
-	}
-
-	params := parseListParams(r)
-
-	users, err := h.svc.GetAll(r.Context(), params)
-	if err != nil {
-		logUnexpectedError(h.logger, traceID, err)
-		errorResponse(w, err)
-		return
-	}
-
-	responses := make([]UserResponse, 0, len(users))
-	for _, user := range users {
-		responses = append(responses, toUserResponse(user))
-	}
-
-	logSuccess(h.logger, traceID, "all users retrieved", "user_id", userID)
-	successResponse(w, http.StatusOK, responses)
 }
 
 type UserResponse struct {
