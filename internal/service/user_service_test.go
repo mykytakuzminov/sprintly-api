@@ -135,6 +135,95 @@ func TestUserService_Register_DuplicateEmail(t *testing.T) {
 	}
 }
 
+func TestUserService_GetByID(t *testing.T) {
+	userID := uuid.New()
+
+	repo := &MockUserRepository{
+		getByIDFn: func(_ context.Context, id uuid.UUID) (*domain.User, error) {
+			return &domain.User{ID: id, Email: "test@example.com"}, nil
+		},
+	}
+
+	svc := NewUserService(repo)
+
+	user, err := svc.GetByID(context.Background(), userID)
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if user.ID != userID {
+		t.Errorf("expected ID %v, got %v", userID, user.ID)
+	}
+}
+
+func TestUserService_GetByID_NotFound(t *testing.T) {
+	repo := &MockUserRepository{
+		getByIDFn: func(_ context.Context, _ uuid.UUID) (*domain.User, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	svc := NewUserService(repo)
+
+	_, err := svc.GetByID(context.Background(), uuid.New())
+	if !errors.Is(err, domain.ErrNotFound) {
+		t.Fatalf("expected ErrNotFound, got %v", err)
+	}
+}
+
+func TestUserService_GetAll(t *testing.T) {
+	repo := &MockUserRepository{
+		getAll: func(_ context.Context, _ *domain.ListParams) ([]*domain.User, error) {
+			return []*domain.User{
+				{ID: uuid.New(), Email: "a@example.com"},
+				{ID: uuid.New(), Email: "b@example.com"},
+			}, nil
+		},
+	}
+
+	svc := NewUserService(repo)
+
+	users, err := svc.GetAll(context.Background(), &domain.ListParams{Limit: 20, Offset: 0})
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if len(users) != 2 {
+		t.Errorf("expected 2 users, got %v", len(users))
+	}
+}
+
+func TestUserService_GetAll_Empty(t *testing.T) {
+	repo := &MockUserRepository{
+		getAll: func(_ context.Context, _ *domain.ListParams) ([]*domain.User, error) {
+			return []*domain.User{}, nil
+		},
+	}
+
+	svc := NewUserService(repo)
+
+	users, err := svc.GetAll(context.Background(), &domain.ListParams{Limit: 20, Offset: 0})
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if len(users) != 0 {
+		t.Errorf("expected 0 users, got %v", len(users))
+	}
+}
+
+func TestUserService_GetAll_InternalError(t *testing.T) {
+	repo := &MockUserRepository{
+		getAll: func(_ context.Context, _ *domain.ListParams) ([]*domain.User, error) {
+			return nil, errors.New("unexpected error")
+		},
+	}
+
+	svc := NewUserService(repo)
+
+	_, err := svc.GetAll(context.Background(), &domain.ListParams{Limit: 20, Offset: 0})
+	if err == nil {
+		t.Fatalf("expected unexpected error")
+	}
+}
+
 func TestUserService_ChangePassword(t *testing.T) {
 	hpwd, _ := bcrypt.GenerateFromPassword([]byte("hashpassword"), bcrypt.MinCost)
 
@@ -209,5 +298,120 @@ func TestUserService_ChangePassword_InvalidCredentials(t *testing.T) {
 	})
 	if !errors.Is(err, domain.ErrInvalidCredentials) {
 		t.Fatalf("expected ErrInvalidCredentials, got %v", err)
+	}
+}
+
+func TestUserService_ChangeRole(t *testing.T) {
+	userID := uuid.New()
+
+	repo := &MockUserRepository{
+		getByIDFn: func(_ context.Context, id uuid.UUID) (*domain.User, error) {
+			return &domain.User{ID: id, Role: "member"}, nil
+		},
+		updateRoleFn: func(_ context.Context, _ uuid.UUID, _ string) error {
+			return nil
+		},
+	}
+
+	svc := NewUserService(repo)
+
+	err := svc.ChangeRole(context.Background(), userID, &domain.ChangeRoleInput{Role: "admin"})
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+}
+
+func TestUserService_ChangeRole_InvalidRequestBody(t *testing.T) {
+	svc := NewUserService(&MockUserRepository{})
+
+	err := svc.ChangeRole(context.Background(), uuid.New(), &domain.ChangeRoleInput{Role: "superadmin"})
+	if !errors.Is(err, domain.ErrBadRequest) {
+		t.Fatalf("expected ErrBadRequest, got %v", err)
+	}
+}
+
+func TestUserService_ChangeRole_NotFound(t *testing.T) {
+	repo := &MockUserRepository{
+		getByIDFn: func(_ context.Context, _ uuid.UUID) (*domain.User, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	svc := NewUserService(repo)
+
+	err := svc.ChangeRole(context.Background(), uuid.New(), &domain.ChangeRoleInput{Role: "admin"})
+	if !errors.Is(err, domain.ErrNotFound) {
+		t.Fatalf("expected ErrNotFound, got %v", err)
+	}
+}
+
+func TestUserService_ChangeRole_InternalError(t *testing.T) {
+	repo := &MockUserRepository{
+		getByIDFn: func(_ context.Context, id uuid.UUID) (*domain.User, error) {
+			return &domain.User{ID: id}, nil
+		},
+		updateRoleFn: func(_ context.Context, _ uuid.UUID, _ string) error {
+			return errors.New("unexpected error")
+		},
+	}
+
+	svc := NewUserService(repo)
+
+	err := svc.ChangeRole(context.Background(), uuid.New(), &domain.ChangeRoleInput{Role: "admin"})
+	if err == nil {
+		t.Fatalf("expected unexpected error")
+	}
+}
+
+func TestUserService_Delete(t *testing.T) {
+	userID := uuid.New()
+
+	repo := &MockUserRepository{
+		getByIDFn: func(_ context.Context, id uuid.UUID) (*domain.User, error) {
+			return &domain.User{ID: id}, nil
+		},
+		deleteFn: func(_ context.Context, _ uuid.UUID) error {
+			return nil
+		},
+	}
+
+	svc := NewUserService(repo)
+
+	err := svc.Delete(context.Background(), userID)
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+}
+
+func TestUserService_Delete_NotFound(t *testing.T) {
+	repo := &MockUserRepository{
+		getByIDFn: func(_ context.Context, _ uuid.UUID) (*domain.User, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	svc := NewUserService(repo)
+
+	err := svc.Delete(context.Background(), uuid.New())
+	if !errors.Is(err, domain.ErrNotFound) {
+		t.Fatalf("expected ErrNotFound, got %v", err)
+	}
+}
+
+func TestUserService_Delete_InternalError(t *testing.T) {
+	repo := &MockUserRepository{
+		getByIDFn: func(_ context.Context, id uuid.UUID) (*domain.User, error) {
+			return &domain.User{ID: id}, nil
+		},
+		deleteFn: func(_ context.Context, _ uuid.UUID) error {
+			return errors.New("unexpected error")
+		},
+	}
+
+	svc := NewUserService(repo)
+
+	err := svc.Delete(context.Background(), uuid.New())
+	if err == nil {
+		t.Fatalf("expected unexpected error")
 	}
 }
