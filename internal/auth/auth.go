@@ -33,17 +33,16 @@ func (a *Auth) GenerateAccessToken(userID uuid.UUID, role string) (string, error
 		return "", err
 	}
 
-	return token, err
+	return token, nil
 }
 
 func (a *Auth) GenerateRefreshToken(userID uuid.UUID, role string) (string, error) {
-
 	token, err := a.generateJWT(userID, role, a.cfg.RefreshTTL)
 	if err != nil {
 		return "", err
 	}
 
-	return token, err
+	return token, nil
 }
 
 func (a *Auth) ParseToken(token string) (uuid.UUID, string, error) {

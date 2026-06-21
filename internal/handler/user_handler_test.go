@@ -11,8 +11,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/mykytakuzminov/sprintly-api/internal/auth"
-	"github.com/mykytakuzminov/sprintly-api/internal/config"
 	"github.com/mykytakuzminov/sprintly-api/internal/domain"
 	"go.uber.org/zap"
 )
@@ -85,17 +83,9 @@ func (m *MockUserService) Delete(ctx context.Context, userID uuid.UUID) error {
 	return nil
 }
 
-func createAuth() *auth.Auth {
-	return auth.NewAuth(&config.JWTConfig{
-		Secret:     "testsecret",
-		AccessTTL:  15 * time.Minute,
-		RefreshTTL: 168 * time.Hour,
-	})
-}
-
 func newTestUserHandler(svc domain.UserService) *UserHandler {
 	logger, _ := zap.NewDevelopment()
-	return NewUserHandler(svc, createAuth(), logger.Sugar())
+	return NewUserHandler(svc, logger.Sugar())
 }
 
 func withUserID(r *http.Request, userID uuid.UUID) *http.Request {

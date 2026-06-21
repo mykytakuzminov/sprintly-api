@@ -152,7 +152,7 @@ func initRouter(
 
 	userRepo := pgrepo.NewUserRepository(pool)
 	userSvc := service.NewUserService(userRepo)
-	userHandler := handler.NewUserHandler(userSvc, auth, logger)
+	userHandler := handler.NewUserHandler(userSvc, logger)
 
 	tokenRepo := rdrepo.NewTokenRepository(client)
 	authSvc := service.NewAuthService(userRepo, tokenRepo, auth)
@@ -160,21 +160,19 @@ func initRouter(
 
 	boardRepo := pgrepo.NewBoardRepository(pool)
 	boardSvc := service.NewBoardService(boardRepo)
-	boardHandler := handler.NewBoardHandler(boardSvc, auth, logger)
+	boardHandler := handler.NewBoardHandler(boardSvc, logger)
 
 	columnRepo := pgrepo.NewColumnRepository(pool)
 	columnSvc := service.NewColumnService(columnRepo, boardRepo)
-	columnHandler := handler.NewColumnHandler(columnSvc, auth, logger)
+	columnHandler := handler.NewColumnHandler(columnSvc, logger)
 
 	taskRepo := pgrepo.NewTaskRepository(pool)
 	taskSvc := service.NewTaskService(taskRepo, columnRepo)
-	taskHandler := handler.NewTaskHandler(taskSvc, auth, logger)
+	taskHandler := handler.NewTaskHandler(taskSvc, logger)
 
 	router.Route("/api/v1", func(r chi.Router) {
 		r.Use(handler.TimeoutMiddleware)
 		r.Use(handler.TraceMiddleware)
-
-		r.Mount("/health", healthHandler.Routes())
 
 		r.Group(func(r chi.Router) {
 			r.Use(handler.RateLimiterMiddleware(rateLimitSvc, logger))
@@ -188,6 +186,8 @@ func initRouter(
 		r.Group(func(r chi.Router) {
 			r.Use(handler.AuthMiddleware(auth, logger))
 			r.Use(handler.RateLimiterMiddleware(rateLimitSvc, logger))
+
+			r.Post("/auth/logout", authHandler.Logout)
 
 			r.Mount("/users", userHandler.Routes())
 			r.Mount("/users/me/tasks", taskHandler.UserRoutes())

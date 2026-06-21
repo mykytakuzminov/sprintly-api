@@ -23,7 +23,6 @@ func (h *AuthHandler) Routes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Post("/login", h.Login)
-	r.Post("/logout", h.Logout)
 	r.Post("/refresh", h.Refresh)
 
 	return r
@@ -73,6 +72,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 // @Tags        auth
 // @Accept      json
 // @Produce     json
+// @Security    BearerAuth
 // @Param       body body domain.LogoutInput true "Refresh token to revoke"
 // @Success     204 "Logged out successfully"
 // @Failure     400 {object} handler.ErrorResponse "Invalid request body"
