@@ -20,6 +20,7 @@ import (
 type MockUserService struct {
 	registerFn       func(ctx context.Context, input *domain.RegisterInput) (*domain.User, error)
 	changePasswordFn func(ctx context.Context, userID uuid.UUID, input *domain.ChangePasswordInput) error
+	changeRoleFn     func(ctx context.Context, userID uuid.UUID, input *domain.ChangeRoleInput) error
 	getByIDFn        func(ctx context.Context, userID uuid.UUID) (*domain.User, error)
 	getAll           func(ctx context.Context, params *domain.ListParams) ([]*domain.User, error)
 }
@@ -41,6 +42,17 @@ func (m *MockUserService) ChangePassword(
 ) error {
 	if m.changePasswordFn != nil {
 		return m.changePasswordFn(ctx, userID, input)
+	}
+	return nil
+}
+
+func (m *MockUserService) ChangeRole(
+	ctx context.Context,
+	userID uuid.UUID,
+	input *domain.ChangeRoleInput,
+) error {
+	if m.changeRoleFn != nil {
+		return m.changeRoleFn(ctx, userID, input)
 	}
 	return nil
 }

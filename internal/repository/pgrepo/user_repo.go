@@ -77,19 +77,42 @@ func (r *UserRepo) GetAll(ctx context.Context, params *domain.ListParams) ([]*do
 	return scanUsers(rows)
 }
 
-func (r *UserRepo) Update(ctx context.Context, user *domain.User) error {
+func (r *UserRepo) UpdatePassword(
+	ctx context.Context,
+	userID uuid.UUID,
+	hashPassword string,
+) error {
 	query := `
 		UPDATE users
 		SET hash_password = $2, updated_at = NOW()
 		WHERE id = $1
 	`
 
-	tag, err := r.db.Exec(ctx, query, user.ID, user.HashPassword)
+	tag, err := r.db.Exec(ctx, query, userID, hashPassword)
 	if err != nil {
 		return err
 	}
 	if tag.RowsAffected() == 0 {
 		return domain.ErrNotFound
+	}
+
+	return nil
+}
+
+func (r *UserRepo) UpdateRole(
+	ctx context.Context,
+	userID uuid.UUID,
+	role string,
+) error {
+	query := `
+		UPDATE users
+		SET role = $2, updated_at = NOW()
+		WHERE id = $1
+	`
+
+	_, err := r.db.Exec(ctx, query, userID, role)
+	if err != nil {
+		return err
 	}
 
 	return nil

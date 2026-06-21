@@ -11,12 +11,13 @@ import (
 )
 
 type MockUserRepository struct {
-	createFn     func(ctx context.Context, user *domain.User) error
-	getByIDFn    func(ctx context.Context, id uuid.UUID) (*domain.User, error)
-	getByEmailFn func(ctx context.Context, email string) (*domain.User, error)
-	getAll       func(ctx context.Context, params *domain.ListParams) ([]*domain.User, error)
-	updateFn     func(ctx context.Context, user *domain.User) error
-	deleteFn     func(ctx context.Context, id uuid.UUID) error
+	createFn         func(ctx context.Context, user *domain.User) error
+	getByIDFn        func(ctx context.Context, id uuid.UUID) (*domain.User, error)
+	getByEmailFn     func(ctx context.Context, email string) (*domain.User, error)
+	getAll           func(ctx context.Context, params *domain.ListParams) ([]*domain.User, error)
+	updatePasswordFn func(ctx context.Context, userID uuid.UUID, hashPassword string) error
+	updateRoleFn     func(ctx context.Context, userID uuid.UUID, role string) error
+	deleteFn         func(ctx context.Context, id uuid.UUID) error
 }
 
 func (m *MockUserRepository) Create(ctx context.Context, user *domain.User) error {
@@ -47,9 +48,16 @@ func (m *MockUserRepository) GetAll(ctx context.Context, params *domain.ListPara
 	return nil, nil
 }
 
-func (m *MockUserRepository) Update(ctx context.Context, user *domain.User) error {
-	if m.updateFn != nil {
-		return m.updateFn(ctx, user)
+func (m *MockUserRepository) UpdatePassword(ctx context.Context, userID uuid.UUID, hashPassword string) error {
+	if m.updatePasswordFn != nil {
+		return m.updatePasswordFn(ctx, userID, hashPassword)
+	}
+	return nil
+}
+
+func (m *MockUserRepository) UpdateRole(ctx context.Context, userID uuid.UUID, role string) error {
+	if m.updateRoleFn != nil {
+		return m.updateRoleFn(ctx, userID, role)
 	}
 	return nil
 }
@@ -136,7 +144,7 @@ func TestUserService_ChangePassword(t *testing.T) {
 				HashPassword: string(hpwd),
 			}, nil
 		},
-		updateFn: func(_ context.Context, _ *domain.User) error {
+		updatePasswordFn: func(_ context.Context, _ uuid.UUID, _ string) error {
 			return nil
 		},
 	}
