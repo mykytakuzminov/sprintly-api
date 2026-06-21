@@ -61,7 +61,7 @@ func (m *MockBoardService) Delete(ctx context.Context, boardID, userID uuid.UUID
 
 func newTestBoardHandler(svc domain.BoardService) *BoardHandler {
 	logger, _ := zap.NewDevelopment()
-	return NewBoardHandler(svc, createAuth(), logger.Sugar())
+	return NewBoardHandler(svc, logger.Sugar())
 }
 
 func withURLParam(r *http.Request, key, value string) *http.Request {

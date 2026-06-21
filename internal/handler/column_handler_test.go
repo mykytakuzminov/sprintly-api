@@ -60,7 +60,7 @@ func (m *MockColumnService) Delete(ctx context.Context, columnID, userID uuid.UU
 
 func newTestColumnHandler(svc domain.ColumnService) *ColumnHandler {
 	logger, _ := zap.NewDevelopment()
-	return NewColumnHandler(svc, createAuth(), logger.Sugar())
+	return NewColumnHandler(svc, logger.Sugar())
 }
 
 func newColumn(boardID uuid.UUID) *domain.Column {

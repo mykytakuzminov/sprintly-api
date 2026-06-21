@@ -8,23 +8,20 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/mykytakuzminov/sprintly-api/internal/auth"
 	"github.com/mykytakuzminov/sprintly-api/internal/domain"
 	"go.uber.org/zap"
 )
 
 type UserHandler struct {
 	svc    domain.UserService
-	auth   *auth.Auth
 	logger *zap.SugaredLogger
 }
 
 func NewUserHandler(
 	svc domain.UserService,
-	auth *auth.Auth,
 	logger *zap.SugaredLogger,
 ) *UserHandler {
-	return &UserHandler{svc: svc, auth: auth, logger: logger}
+	return &UserHandler{svc: svc, logger: logger}
 }
 
 func (h *UserHandler) Routes() chi.Router {
@@ -124,7 +121,7 @@ func (h *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetByID godoc
-// @Summary     Get user by id
+// @Summary     Get user by ID
 // @Description Returns the profile of a specific user by their ID. Requires admin role.
 // @Tags        admin
 // @Produce     json

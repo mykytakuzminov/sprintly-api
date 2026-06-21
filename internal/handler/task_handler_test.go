@@ -76,7 +76,7 @@ func (m *MockTaskService) Delete(ctx context.Context, taskID, userID uuid.UUID) 
 
 func newTestTaskHandler(svc domain.TaskService) *TaskHandler {
 	logger, _ := zap.NewDevelopment()
-	return NewTaskHandler(svc, createAuth(), logger.Sugar())
+	return NewTaskHandler(svc, logger.Sugar())
 }
 
 func newTask(userID, columnID uuid.UUID) *domain.Task {

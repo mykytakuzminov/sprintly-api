@@ -6,23 +6,20 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/mykytakuzminov/sprintly-api/internal/auth"
 	"github.com/mykytakuzminov/sprintly-api/internal/domain"
 	"go.uber.org/zap"
 )
 
 type BoardHandler struct {
 	svc    domain.BoardService
-	auth   *auth.Auth
 	logger *zap.SugaredLogger
 }
 
 func NewBoardHandler(
 	svc domain.BoardService,
-	auth *auth.Auth,
 	logger *zap.SugaredLogger,
 ) *BoardHandler {
-	return &BoardHandler{svc: svc, auth: auth, logger: logger}
+	return &BoardHandler{svc: svc, logger: logger}
 }
 
 func (h *BoardHandler) Routes() chi.Router {

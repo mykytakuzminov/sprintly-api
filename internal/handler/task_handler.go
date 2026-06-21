@@ -6,23 +6,20 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/mykytakuzminov/sprintly-api/internal/auth"
 	"github.com/mykytakuzminov/sprintly-api/internal/domain"
 	"go.uber.org/zap"
 )
 
 type TaskHandler struct {
 	svc    domain.TaskService
-	auth   *auth.Auth
 	logger *zap.SugaredLogger
 }
 
 func NewTaskHandler(
 	svc domain.TaskService,
-	auth *auth.Auth,
 	logger *zap.SugaredLogger,
 ) *TaskHandler {
-	return &TaskHandler{svc: svc, auth: auth, logger: logger}
+	return &TaskHandler{svc: svc, logger: logger}
 }
 
 func (h *TaskHandler) Routes() chi.Router {

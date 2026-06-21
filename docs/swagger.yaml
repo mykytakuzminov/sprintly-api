@@ -380,7 +380,7 @@ paths:
             $ref: '#/definitions/handler.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Get user by id
+      summary: Get user by ID
       tags:
       - admin
     patch:
@@ -540,6 +540,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Logout
       tags:
       - auth

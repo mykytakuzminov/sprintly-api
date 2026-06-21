@@ -108,7 +108,7 @@ const docTemplate = `{
                 "tags": [
                     "admin"
                 ],
-                "summary": "Get user by id",
+                "summary": "Get user by ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -342,6 +342,11 @@ const docTemplate = `{
         },
         "/auth/logout": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Invalidates the provided refresh token.",
                 "consumes": [
                     "application/json"
