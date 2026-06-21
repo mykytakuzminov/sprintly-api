@@ -121,7 +121,7 @@ func (h *UserHandler) Me(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetByID godoc
-// @Summary     Get user by id
+// @Summary     Get user by ID
 // @Description Returns the profile of a specific user by their ID. Requires admin role.
 // @Tags        admin
 // @Produce     json
