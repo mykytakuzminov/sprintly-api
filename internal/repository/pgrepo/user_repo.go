@@ -61,7 +61,10 @@ func (r *UserRepo) GetByEmail(ctx context.Context, email string) (*domain.User, 
 	return scanUser(r.db.QueryRow(ctx, query, email))
 }
 
-func (r *UserRepo) GetAll(ctx context.Context, params *domain.ListParams) ([]*domain.User, error) {
+func (r *UserRepo) GetAll(
+	ctx context.Context,
+	params *domain.ListParams,
+) ([]*domain.User, error) {
 	baseQuery := `
 		SELECT id, email, hash_password, role, created_at, updated_at
 		FROM users
@@ -110,9 +113,12 @@ func (r *UserRepo) UpdateRole(
 		WHERE id = $1
 	`
 
-	_, err := r.db.Exec(ctx, query, userID, role)
+	tag, err := r.db.Exec(ctx, query, userID, role)
 	if err != nil {
 		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return domain.ErrNotFound
 	}
 
 	return nil

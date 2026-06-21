@@ -57,6 +57,20 @@ func (s *UserSvc) Register(
 	return user, nil
 }
 
+func (s *UserSvc) GetByID(
+	ctx context.Context,
+	userID uuid.UUID,
+) (*domain.User, error) {
+	return s.repo.GetByID(ctx, userID)
+}
+
+func (s *UserSvc) GetAll(
+	ctx context.Context,
+	params *domain.ListParams,
+) ([]*domain.User, error) {
+	return s.repo.GetAll(ctx, params)
+}
+
 func (s *UserSvc) ChangePassword(
 	ctx context.Context,
 	userID uuid.UUID,
@@ -109,15 +123,4 @@ func (s *UserSvc) ChangeRole(
 	}
 
 	return nil
-}
-
-func (s *UserSvc) GetByID(
-	ctx context.Context,
-	userID uuid.UUID,
-) (*domain.User, error) {
-	return s.repo.GetByID(ctx, userID)
-}
-
-func (s *UserSvc) GetAll(ctx context.Context, params *domain.ListParams) ([]*domain.User, error) {
-	return s.repo.GetAll(ctx, params)
 }
