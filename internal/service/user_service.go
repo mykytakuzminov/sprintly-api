@@ -124,3 +124,12 @@ func (s *UserSvc) ChangeRole(
 
 	return nil
 }
+
+func (s *UserSvc) Delete(ctx context.Context, userID uuid.UUID) error {
+	_, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	return s.repo.Delete(ctx, userID)
+}
