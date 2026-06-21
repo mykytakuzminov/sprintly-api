@@ -129,6 +129,66 @@ func TestUserRepo_GetByEmail_NotFound(t *testing.T) {
 	})
 }
 
+func TestUserRepo_GetAll(t *testing.T) {
+	withTx(t, func(ctx context.Context, db DB) {
+		repo := NewUserRepository(db)
+		params := createTestParams(5, 0, "created_at", "ASC")
+
+		_ = createTestUser(ctx, db)
+		_ = createTestUser(ctx, db)
+
+		users, err := repo.GetAll(ctx, params)
+		if err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+		if len(users) < 2 {
+			t.Fatalf("expected at least 2 users, got %v", len(users))
+		}
+	})
+}
+
+func TestUserRepo_GetAll_WithLimit(t *testing.T) {
+	withTx(t, func(ctx context.Context, db DB) {
+		repo := NewUserRepository(db)
+		params := createTestParams(2, 0, "created_at", "ASC")
+
+		for i := 0; i < 5; i++ {
+			_ = createTestUser(ctx, db)
+		}
+
+		users, err := repo.GetAll(ctx, params)
+		if err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+		if len(users) != 2 {
+			t.Fatalf("expected 2 users, got %v", len(users))
+		}
+	})
+}
+
+func TestUserRepo_GetAll_WithSortByAndOrder(t *testing.T) {
+	withTx(t, func(ctx context.Context, db DB) {
+		repo := NewUserRepository(db)
+		params := createTestParams(5, 0, "email", "DESC")
+
+		u1 := &domain.User{ID: uuid.New(), Email: "aaa@example.com", HashPassword: "hash"}
+		u2 := &domain.User{ID: uuid.New(), Email: "zzz@example.com", HashPassword: "hash"}
+		_ = repo.Create(ctx, u1)
+		_ = repo.Create(ctx, u2)
+
+		users, err := repo.GetAll(ctx, params)
+		if err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+		if len(users) == 0 {
+			t.Fatalf("expected users, got none")
+		}
+		if users[0].Email != "zzz@example.com" {
+			t.Errorf("expected first email zzz@example.com, got %v", users[0].Email)
+		}
+	})
+}
+
 func TestUserRepo_UpdatePassword(t *testing.T) {
 	withTx(t, func(ctx context.Context, db DB) {
 		repo := NewUserRepository(db)
@@ -151,6 +211,34 @@ func TestUserRepo_Update_NotFound(t *testing.T) {
 		repo := NewUserRepository(db)
 
 		err := repo.UpdatePassword(ctx, uuid.New(), "oldhash")
+		if !errors.Is(err, domain.ErrNotFound) {
+			t.Fatalf("expected ErrNotFound, got %v", err)
+		}
+	})
+}
+
+func TestUserRepo_UpdateRole(t *testing.T) {
+	withTx(t, func(ctx context.Context, db DB) {
+		repo := NewUserRepository(db)
+		user := createTestUser(ctx, db)
+
+		err := repo.UpdateRole(ctx, user.ID, "admin")
+		if err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+
+		found, _ := repo.GetByID(ctx, user.ID)
+		if found.Role != "admin" {
+			t.Errorf("expected role admin, got %v", found.Role)
+		}
+	})
+}
+
+func TestUserRepo_UpdateRole_NotFound(t *testing.T) {
+	withTx(t, func(ctx context.Context, db DB) {
+		repo := NewUserRepository(db)
+
+		err := repo.UpdateRole(ctx, uuid.New(), "admin")
 		if !errors.Is(err, domain.ErrNotFound) {
 			t.Fatalf("expected ErrNotFound, got %v", err)
 		}

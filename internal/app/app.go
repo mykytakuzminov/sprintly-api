@@ -179,6 +179,8 @@ func initRouter(
 		r.Group(func(r chi.Router) {
 			r.Use(handler.RateLimiterMiddleware(rateLimitSvc, logger))
 
+			r.Mount("/health", healthHandler.Routes())
+
 			r.Mount("/auth", authHandler.Routes())
 			r.Post("/auth/register", userHandler.Register)
 		})
