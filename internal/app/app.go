@@ -187,6 +187,8 @@ func initRouter(
 			r.Use(handler.AuthMiddleware(auth, logger))
 			r.Use(handler.RateLimiterMiddleware(rateLimitSvc, logger))
 
+			r.Post("/auth/logout", authHandler.Logout)
+
 			r.Mount("/users", userHandler.Routes())
 			r.Mount("/users/me/tasks", taskHandler.UserRoutes())
 
