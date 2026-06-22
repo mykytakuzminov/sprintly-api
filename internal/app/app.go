@@ -43,7 +43,7 @@ func New() *App {
 
 	pool := initDB(cfg, logger)
 	client := initRedis(cfg, logger)
-	router := initRouter(logger, pool, client, auth)
+	router := initRouter(cfg, logger, pool, client, auth)
 
 	return &App{
 		cfg:    cfg,
@@ -133,6 +133,7 @@ func initRedis(cfg *config.Config, logger *zap.SugaredLogger) *redis.Client {
 }
 
 func initRouter(
+	cfg *config.Config,
 	logger *zap.SugaredLogger,
 	pool *pgxpool.Pool,
 	client *redis.Client,
@@ -142,7 +143,9 @@ func initRouter(
 
 	router.Use(handler.CORSMiddleware)
 
-	router.Get("/swagger/*", httpSwagger.WrapHandler)
+	router.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL(cfg.Docs.GetAddr()),
+	))
 
 	rateLimitRepo := rdrepo.NewRateLimitRepo(client)
 	rateLimitSvc := service.NewRateLimitService(rateLimitRepo, 60.0, 1.0, time.Minute)

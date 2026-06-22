@@ -14,6 +14,7 @@ type Config struct {
 	Database *DatabaseConfig
 	JWT      *JWTConfig
 	Redis    *RedisConfig
+	Docs     *DocsConfig
 }
 
 func Load(logger *zap.SugaredLogger) *Config {
@@ -44,6 +45,10 @@ func Load(logger *zap.SugaredLogger) *Config {
 			Port:     getString("REDIS_PORT", "6379"),
 			Password: getString("REDIS_PASSWORD", ""),
 			DB:       getInt("REDIS_DB", 0),
+		},
+		Docs: &DocsConfig{
+			Host: getString("SWAGGER_HOST", "localhost"),
+			Port: getString("SWAGGER_PORT", "8080"),
 		},
 	}
 
