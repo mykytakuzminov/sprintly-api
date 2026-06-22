@@ -2,10 +2,7 @@
 
 # 🚀 Sprintly API
 
-**Production-ready task management REST API built with Go**
-
-REST API for managing boards, columns, and tasks with JWT authentication,
-rate limiting, pagination, and full CI/CD deployment to a Hetzner VPS.
+Task management REST API similar to Kanban
 
 [![CI](https://github.com/mykytakuzminov/sprintly-api/actions/workflows/ci.yml/badge.svg)](https://github.com/mykytakuzminov/sprintly-api/actions/workflows/ci.yml)
 [![CD](https://github.com/mykytakuzminov/sprintly-api/actions/workflows/cd.yml/badge.svg)](https://github.com/mykytakuzminov/sprintly-api/actions/workflows/cd.yml)
@@ -18,41 +15,36 @@ rate limiting, pagination, and full CI/CD deployment to a Hetzner VPS.
 
 ---
 
-## ✨ Features
+## Features
 
-- **JWT Authentication** — access + refresh token pair with Redis-backed invalidation on logout
-- **Rate Limiting** — token bucket algorithm per user (authenticated) or IP (anonymous)
-- **Pagination, Sorting & Filtering** — all list endpoints support `limit`, `offset`, `sort`, `order`
-- **Clean Architecture** — domain / service / repository / handler layers with interface-driven design
-- **Integration Tests** — real PostgreSQL and Redis via Testcontainers, isolated in transactional fixtures
-- **Unit Tests** — handler and service layers fully covered with mocks
-- **Database Migrations** — versioned SQL migrations embedded in the binary via `go:embed`
-- **Structured Logging** — `zap` with trace IDs propagated per request
-- **Graceful Shutdown** — OS signal handling with 5s drain timeout
-- **Health Check** — `/api/v1/health` reports DB and Redis liveness
+- **Admin** - get all, delete and change users roles
+- **Auth** - register, authorize and logout user
+- **Users** - get current user or change its password
+- **Boards** - create, get, update and delete boards
+- **Columns** - create, get, delete and update columns
+- **Tasks** - create, get, delete and update tasks
+- **Health** - check application and databases health
 
----
+## Tech Highlights
 
-## 🛠️ Tech Stack
+- **Clean Architecture** - four layers built on interfaces with dependency injection
+- **JWT Authentication** - access and refresh token rotation
+- **Role-Based Access Control** - admin and member roles to separate features access
+- **Rate Limiting** - Token Bucket algorithm to prevent abuse
+- **Pagination** - to prevent big data responses and server load
+- **Timeouts** - to prevent frozen or long requests
+- **Graceful Shutdown** - to prevent data loss during unexpected shutdowns
+- **Logging** - to check app behaviour and errors
+- **Migrations** - run automatically on app startup
+- **CI/CD** - automated linting, testing and deploy
 
-- **Language** — Go 1.26
-- **Router** — chi v5
-- **Database** — PostgreSQL 18 (pgx/v5)
-- **Cache / Sessions** — Redis 8 (go-redis/v9)
-- **Auth** — JWT (golang-jwt/v5) + bcrypt
-- **Migrations** — golang-migrate/v4 (embedded)
-- **Validation** — go-playground/validator/v10
-- **Logging** — uber/zap
-- **Docs** — swaggo/swag + http-swagger
-- **Testing** — stdlib `testing` + testcontainers-go
-- **Containerization** — Docker (multi-stage) + Docker Compose
-- **CI/CD** — GitHub Actions → GHCR → Hetzner VPS
+## Getting Started
 
----
+### Prerequisites
 
-## 🚀 Getting Started
+- `docker` and `docker compose`
 
-**Prerequisites:** Docker, Docker Compose
+### Installation
 
 ```bash
 git clone https://github.com/mykytakuzminov/sprintly-api.git
@@ -61,16 +53,22 @@ cp .env.example .env
 docker compose up -d
 ```
 
-API: `http://localhost:8080/api/v1`
-Swagger: `http://localhost:8080/swagger/index.html`
+- **API:** `http://localhost:8080/api/v1`
+- **API Docs:** `http://localhost:8080/swagger/index.html`
+
+### Development
 
 ```bash
-# Run tests (spins up Testcontainers automatically)
-make test
+make check   # run linter
+make test    # run unit and integration tests
 ```
 
----
+## Tech Stack
 
-## 📄 License
+### Core
 
-[MIT](./LICENSE)
+- `Go`, `PostgreSQL`, `Redis`, `Docker`, `Docker Compose`, `GitHub Actions`
+
+### Libraries
+
+- `chi`, `zap`, `testcontainers`, `swag`, `golang-migrate`, `jwt`, `validator`
