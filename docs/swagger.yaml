@@ -293,7 +293,6 @@ definitions:
         example: "2025-01-15T09:00:00Z"
         type: string
     type: object
-host: 204.168.173.88:8080
 info:
   contact:
     name: Mykyta Kuzminov

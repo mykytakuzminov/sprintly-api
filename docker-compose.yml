@@ -18,6 +18,8 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - JWT_ACCESS_TTL=${JWT_ACCESS_TTL}
       - JWT_REFRESH_TTL=${JWT_REFRESH_TTL}
+      - SWAGGER_HOST=${SWAGGER_HOST}
+      - SWAGGER_PORT=${SWAGGER_PORT}
     ports:
       - "8080:8080"
     depends_on:
