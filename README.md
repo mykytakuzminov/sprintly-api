@@ -38,6 +38,11 @@ Task management REST API similar to Kanban
 - **Migrations** - run automatically on app startup
 - **CI/CD** - automated linting, testing and deploy
 
+## Architecture
+
+<img alt="Architecutre" src="https://github.com/user-attachments/assets/3265cbe7-b555-4107-8ac8-b2108d4a6a7d" />
+
+
 ## Getting Started
 
 ### Prerequisites
