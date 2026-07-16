@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 Sprintly API
+# 🚀 Sprintly
 
 Task management REST API similar to Kanban
 
